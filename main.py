@@ -12,6 +12,7 @@ from datetime import datetime, timedelta
 import aiohttp
 from aiohttp import web
 from telethon import TelegramClient
+from telethon.sessions import StringSession
 from telethon.errors import SessionPasswordNeededError, PhoneCodeInvalidError, FloodWaitError
 from telethon.tl import functions, types
 
@@ -19,6 +20,7 @@ API_ID = 2040
 API_HASH = "b18441a1ff607e10a989891a5462e627"
 
 SESSION_FILE = "wolfhunt_tg_session"
+SESSION_STR_FILE = "session_string.txt"
 DAILY_LIMIT = 150
 
 client = TelegramClient(SESSION_FILE, API_ID, API_HASH)
@@ -36,6 +38,7 @@ state = {
     "logs": []
 }
 
+seen_stories = set()
 hunter_task = None
 
 def add_log(text, log_type="info"):
@@ -62,7 +65,6 @@ async def keep_alive_loop():
 
 async def hunter_loop():
     add_log("▶ Охота на истории Telegram запущена! Первый поиск историй мгновенно...", "success")
-    seen_stories = set()
     while state["is_running"]:
         try:
             today = str(datetime.now().date())
@@ -228,12 +230,57 @@ async def handle_verify_code(request):
             "last_name": me.last_name or "",
             "username": me.username or ""
         }
+
+        # Вечное сохранение сессии через StringSession
+        session_str = ""
+        try:
+            session_str = client.session.save()
+            with open(SESSION_STR_FILE, "w", encoding="utf-8") as sf:
+                sf.write(session_str)
+        except Exception as e:
+            print("Ошибка сохранения session_string:", e)
+
         add_log(f"✔ Профиль авторизован: {me.first_name} (@{me.username or me.id}) ✅", "success")
-        return web.json_response({"status": "ok", "user": state["user"]})
+        return web.json_response({"status": "ok", "user": state["user"], "session_string": session_str})
     except PhoneCodeInvalidError:
         return web.json_response({"status": "error", "message": "Неверный код подтверждения"}, status=400)
     except Exception as e:
         return web.json_response({"status": "error", "message": str(e)}, status=400)
+
+async def handle_restore_session(request):
+    """Мгновенное бесшовное восстановление авторизации после перезагрузки Render"""
+    global client
+    data = await request.json()
+    session_str = data.get("session_string", "").strip()
+    if not session_str:
+        return web.json_response({"status": "error", "message": "Строка сессии не передана"}, status=400)
+
+    try:
+        if client and client.is_connected():
+            await client.disconnect()
+
+        client = TelegramClient(StringSession(session_str), API_ID, API_HASH)
+        await client.connect()
+        if await client.is_user_authorized():
+            me = await client.get_me()
+            state["is_authorized"] = True
+            state["user"] = {
+                "id": me.id,
+                "first_name": me.first_name,
+                "last_name": me.last_name or "",
+                "username": me.username or ""
+            }
+            try:
+                with open(SESSION_STR_FILE, "w", encoding="utf-8") as sf:
+                    sf.write(session_str)
+            except Exception:
+                pass
+            add_log(f"✔ Сессия автоматически восстановлена: {me.first_name} (@{me.username or me.id}) ✅", "success")
+            return web.json_response({"status": "ok", "user": state["user"]})
+        else:
+            return web.json_response({"status": "error", "message": "Сессия устарела"}, status=401)
+    except Exception as e:
+        return web.json_response({"status": "error", "message": str(e)}, status=500)
 
 async def handle_toggle(request):
     global hunter_task
@@ -257,6 +304,82 @@ async def handle_toggle(request):
         add_log("⏹ Telegram Охота приостановлена.", "warn")
         return web.json_response({"status": "ok", "is_running": False})
 
+async def handle_like_once(request):
+    """Разовый лайк на одну историю без запуска автоохоты 24/7"""
+    if not state["is_authorized"]:
+        return web.json_response({"status": "error", "message": "Сначала авторизуйте Telegram профиль"}, status=400)
+
+    try:
+        if not client.is_connected():
+            await client.connect()
+
+        if state["reactions_today"] >= DAILY_LIMIT:
+            return web.json_response({"status": "error", "message": f"Суточный лимит {DAILY_LIMIT} исчерпан"}, status=400)
+
+        data = {}
+        try:
+            data = await request.json()
+        except Exception:
+            pass
+        reactions = data.get("reactions")
+        if reactions and isinstance(reactions, list) and len(reactions) > 0:
+            state["reactions_list"] = reactions
+
+        stories_data = await client(functions.stories.GetAllStoriesRequest())
+        users_map = {}
+        if hasattr(stories_data, 'users') and stories_data.users:
+            for u in stories_data.users:
+                name = f"{getattr(u, 'first_name', '') or ''} {getattr(u, 'last_name', '') or ''}".strip()
+                if not name:
+                    name = f"@{u.username}" if getattr(u, 'username', None) else f"id{u.id}"
+                users_map[u.id] = name
+
+        for peer_stories in stories_data.peer_stories:
+            peer = peer_stories.peer
+            if not isinstance(peer, types.PeerUser):
+                continue
+            user_id = peer.user_id
+
+            for story in peer_stories.stories:
+                story_key = f"{user_id}_{story.id}"
+                if story_key in seen_stories:
+                    continue
+                if getattr(story, 'out', False) or getattr(story, 'sent_reaction', None) is not None:
+                    seen_stories.add(story_key)
+                    continue
+
+                # Просмотр истории
+                await client(functions.stories.ReadStoriesRequest(peer=peer, max_id=story.id))
+                state["views_today"] += 1
+
+                # Реакция - строго РАЗОВО!
+                emoji = random.choice(state["reactions_list"])
+                await client(functions.stories.SendReactionRequest(
+                    peer=peer,
+                    story_id=story.id,
+                    reaction=types.ReactionEmoji(emoticon=emoji)
+                ))
+                seen_stories.add(story_key)
+                state["reactions_today"] += 1
+                contact_name = users_map.get(user_id, f"Пользователь {user_id}")
+                add_log(f"⚡ Разовый лайк: {contact_name} {emoji} ({state['reactions_today']}/{DAILY_LIMIT})", "success")
+
+                return web.json_response({
+                    "status": "ok",
+                    "reacted": True,
+                    "contact": contact_name,
+                    "emoji": emoji,
+                    "reactions_today": state["reactions_today"],
+                    "views_today": state["views_today"]
+                })
+
+        add_log("⚡ Разовый поиск: свежих непросмотренных историй друзей нет.", "info")
+        return web.json_response({"status": "ok", "reacted": False, "message": "Свежих историй не найдено"})
+
+    except Exception as e:
+        add_log(f"Ошибка разового лайка: {e}", "warn")
+        return web.json_response({"status": "error", "message": str(e)}, status=500)
+
 async def handle_logout(request):
     global hunter_task
     state["is_running"] = False
@@ -271,7 +394,7 @@ async def handle_logout(request):
     state["user"] = None
     state["phone"] = None
     state["phone_code_hash"] = None
-    for fname in [f"{SESSION_FILE}.session", f"{SESSION_FILE}.session-journal"]:
+    for fname in [f"{SESSION_FILE}.session", f"{SESSION_FILE}.session-journal", SESSION_STR_FILE]:
         if os.path.exists(fname):
             try:
                 os.remove(fname)
@@ -280,49 +403,30 @@ async def handle_logout(request):
     add_log("🚪 Профиль Telegram отключен (выход). Готов к новому входу.", "info")
     return web.json_response({"status": "ok", "message": "Сессия очищена"})
 
-async def handle_vk_stories(request):
-    token = request.query.get("token", "").strip()
-    if not token:
-        return web.json_response({"status": "error", "message": "Параметр token обязателен"}, status=400)
-    try:
-        async with aiohttp.ClientSession() as session:
-            url = f"https://api.vk.com/method/stories.get?extended=1&v=5.131&access_token={token}"
-            async with session.get(url, timeout=aiohttp.ClientTimeout(total=10)) as resp:
-                data = await resp.json()
-                if "error" in data:
-                    return web.json_response({"status": "error", "vk_error": data["error"]}, status=400)
-                
-                stories_list = []
-                profiles = {p["id"]: f"{p.get('first_name','')} {p.get('last_name','')}".strip() for p in data.get("response", {}).get("profiles", [])}
-                for item in data.get("response", {}).get("items", []):
-                    for st in item.get("stories", []):
-                        if st.get("can_like") is not False and st.get("can_like") != 0:
-                            author_name = profiles.get(st.get("owner_id"), f"id{st.get('owner_id')}")
-                            stories_list.append({
-                                "id": st.get("id"),
-                                "owner_id": st.get("owner_id"),
-                                "access_key": st.get("access_key", ""),
-                                "author_name": author_name
-                            })
-                return web.json_response({"status": "ok", "count": len(stories_list), "stories": stories_list})
-    except Exception as e:
-        return web.json_response({"status": "error", "message": str(e)}, status=500)
-
 async def init_app():
     app = web.Application(middlewares=[cors_middleware])
     app.router.add_get("/", lambda r: web.Response(text="🐺 WolfHunt Telegram Bridge Running!"))
     app.router.add_get("/api/tg/status", handle_status)
-    app.router.add_get("/api/vk/stories", handle_vk_stories)
     app.router.add_post("/api/tg/send_code", handle_send_code)
     app.router.add_post("/api/tg/verify_code", handle_verify_code)
+    app.router.add_post("/api/tg/restore_session", handle_restore_session)
+    app.router.add_post("/api/tg/like_once", handle_like_once)
     app.router.add_post("/api/tg/toggle", handle_toggle)
     app.router.add_post("/api/tg/logout", handle_logout)
 
     # Запуск фонового keep-alive
     asyncio.create_task(keep_alive_loop())
 
-    # При старте проверим наличие сохраненной сессии
+    # При старте проверим сохраненную сессию (файл .session или StringSession)
+    global client
     try:
+        # 1. Проверяем StringSession файл
+        if os.path.exists(SESSION_STR_FILE):
+            with open(SESSION_STR_FILE, "r", encoding="utf-8") as sf:
+                s_str = sf.read().strip()
+            if s_str:
+                client = TelegramClient(StringSession(s_str), API_ID, API_HASH)
+
         await client.connect()
         if await client.is_user_authorized():
             me = await client.get_me()
