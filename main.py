@@ -403,6 +403,25 @@ async def handle_logout(request):
     add_log("🚪 Профиль Telegram отключен (выход). Готов к новому входу.", "info")
     return web.json_response({"status": "ok", "message": "Сессия очищена"})
 
+async def handle_vk_proxy(request):
+    """Прокси для любых методов VK API — обходит CORS/JSONP ограничения браузера."""
+    try:
+        body = await request.json()
+        method = body.get("method", "")
+        token = body.get("access_token", "")
+        params = body.get("params", {})
+        if not method or not token:
+            return web.json_response({"error": "method and access_token required"}, status=400)
+        params["access_token"] = token
+        params["v"] = params.get("v", "5.131")
+        url = f"https://api.vk.com/method/{method}"
+        async with aiohttp.ClientSession() as session:
+            async with session.post(url, data=params, timeout=aiohttp.ClientTimeout(total=15)) as resp:
+                data = await resp.json(content_type=None)
+                return web.json_response(data)
+    except Exception as e:
+        return web.json_response({"error": str(e)}, status=500)
+
 async def init_app():
     app = web.Application(middlewares=[cors_middleware])
     app.router.add_get("/", lambda r: web.Response(text="🐺 WolfHunt Telegram Bridge Running!"))
@@ -413,6 +432,7 @@ async def init_app():
     app.router.add_post("/api/tg/like_once", handle_like_once)
     app.router.add_post("/api/tg/toggle", handle_toggle)
     app.router.add_post("/api/tg/logout", handle_logout)
+    app.router.add_post("/api/vk/proxy", handle_vk_proxy)
 
     # Запуск фонового keep-alive
     asyncio.create_task(keep_alive_loop())
