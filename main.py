@@ -197,10 +197,19 @@ async def handle_send_code(request):
     else:
         phone = "+" + digits if digits else raw_phone
 
+    global client
     try:
         if not client.is_connected():
             await client.connect()
-        sent = await client.send_code_request(phone)
+        try:
+            sent = await client.send_code_request(phone)
+        except Exception as e:
+            if "cannot be reused" in str(e).lower() or "disconnected" in str(e).lower():
+                client = TelegramClient(SESSION_FILE, API_ID, API_HASH)
+                await client.connect()
+                sent = await client.send_code_request(phone)
+            else:
+                raise e
         state["phone"] = phone
         state["phone_code_hash"] = sent.phone_code_hash
         add_log(f"Код подтверждения запрошен для {phone}", "info")
@@ -387,7 +396,7 @@ async def handle_like_once(request):
         return web.json_response({"status": "error", "message": str(e)}, status=500)
 
 async def handle_logout(request):
-    global hunter_task
+    global hunter_task, client
     state["is_running"] = False
     if hunter_task and not hunter_task.done():
         hunter_task.cancel()
@@ -396,6 +405,8 @@ async def handle_logout(request):
             await client.log_out()
     except Exception:
         pass
+    # Пересоздаем чистый клиент после логаута
+    client = TelegramClient(SESSION_FILE, API_ID, API_HASH)
     state["is_authorized"] = False
     state["user"] = None
     state["phone"] = None
