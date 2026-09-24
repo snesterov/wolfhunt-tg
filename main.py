@@ -420,11 +420,29 @@ async def handle_logout(request):
     add_log("🚪 Профиль Telegram отключен (выход). Готов к новому входу.", "info")
     return web.json_response({"status": "ok", "message": "Сессия очищена"})
 
+async def handle_vk_stories(request):
+    token = request.query.get("access_token")
+    if not token:
+        return web.json_response({"error": "access_token required"}, status=400)
+    try:
+        async with aiohttp.ClientSession() as session:
+            async with session.get("https://api.vk.com/method/stories.get", params={
+                "access_token": token,
+                "extended": 1,
+                "fields": "first_name,last_name",
+                "v": "5.131"
+            }, timeout=aiohttp.ClientTimeout(total=15)) as resp:
+                data = await resp.json(content_type=None)
+                return web.json_response(data)
+    except Exception as e:
+        return web.json_response({"error": str(e)}, status=500)
+
 
 async def init_app():
     app = web.Application(middlewares=[cors_middleware])
     app.router.add_get("/", lambda r: web.Response(text="🐺 WolfHunt Telegram Bridge Running!"))
     app.router.add_get("/api/tg/status", handle_status)
+    app.router.add_get("/api/vk/stories", handle_vk_stories)
     app.router.add_post("/api/tg/send_code", handle_send_code)
     app.router.add_post("/api/tg/verify_code", handle_verify_code)
     app.router.add_post("/api/tg/restore_session", handle_restore_session)
