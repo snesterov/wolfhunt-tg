@@ -29,7 +29,7 @@ SESSION_FILE = "wolfhunt_tg_session"
 SESSION_STR_FILE = "session_string.txt"
 DAILY_LIMIT = 150
 
-client = TelegramClient(SESSION_FILE, API_ID, API_HASH)
+client = TelegramClient(StringSession(), API_ID, API_HASH)
 
 state = {
     "phone": None,
@@ -205,7 +205,7 @@ async def handle_send_code(request):
             sent = await client.send_code_request(phone)
         except Exception as e:
             if "cannot be reused" in str(e).lower() or "disconnected" in str(e).lower():
-                client = TelegramClient(SESSION_FILE, API_ID, API_HASH)
+                client = TelegramClient(StringSession(), API_ID, API_HASH)
                 await client.connect()
                 sent = await client.send_code_request(phone)
             else:
@@ -406,7 +406,7 @@ async def handle_logout(request):
     except Exception:
         pass
     # Пересоздаем чистый клиент после логаута
-    client = TelegramClient(SESSION_FILE, API_ID, API_HASH)
+    client = TelegramClient(StringSession(), API_ID, API_HASH)
     state["is_authorized"] = False
     state["user"] = None
     state["phone"] = None
