@@ -8,7 +8,13 @@ import asyncio
 import os
 import random
 import re
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
+
+MSK = timezone(timedelta(hours=3))
+
+def get_msk_now():
+    """Возвращает текущее время по Москве (UTC+3)."""
+    return datetime.now(MSK)
 import aiohttp
 from aiohttp import web
 from telethon import TelegramClient
@@ -34,7 +40,7 @@ state = {
     "reactions_today": 0,
     "views_today": 0,
     "reactions_list": ["❤️", "🔥", "👍"],
-    "last_date": str(datetime.now().date()),
+    "last_date": str(get_msk_now().date()),
     "logs": []
 }
 
@@ -42,7 +48,7 @@ seen_stories = set()
 hunter_task = None
 
 def add_log(text, log_type="info"):
-    now_time = datetime.now().strftime("%H:%M:%S")
+    now_time = get_msk_now().strftime("%H:%M:%S")
     entry = {"time": now_time, "text": text, "type": log_type}
     state["logs"].append(entry)
     if len(state["logs"]) > 50:
@@ -58,7 +64,7 @@ async def keep_alive_loop():
         try:
             async with aiohttp.ClientSession() as session:
                 async with session.get(external_url, timeout=15) as resp:
-                    print(f"[{datetime.now().strftime('%H:%M:%S')}] [KEEP-ALIVE] Render ping status: {resp.status}")
+                    print(f"[{get_msk_now().strftime('%H:%M:%S')}] [KEEP-ALIVE] Render ping status: {resp.status}")
         except Exception as e:
             print(f"[KEEP-ALIVE NOTICE] {e}")
         await asyncio.sleep(540) # 9 минут
@@ -67,7 +73,7 @@ async def hunter_loop():
     add_log("▶ Охота на истории Telegram запущена! Первый поиск историй мгновенно...", "success")
     while state["is_running"]:
         try:
-            today = str(datetime.now().date())
+            today = str(get_msk_now().date())
             if state["last_date"] != today:
                 state["last_date"] = today
                 state["reactions_today"] = 0
@@ -75,7 +81,7 @@ async def hunter_loop():
                 add_log("🔄 Новый день: суточный счетчик Telegram сброшен (0/150)", "info")
 
             if state["reactions_today"] >= DAILY_LIMIT:
-                now = datetime.now()
+                now = get_msk_now()
                 tomorrow = datetime(now.year, now.month, now.day) + timedelta(days=1)
                 wait_sec = int((tomorrow - now).total_seconds()) + 30
                 add_log(f"🛑 Лимит {DAILY_LIMIT} исчерпан. Пауза до 00:00 ({wait_sec//3600}ч)", "warn")
