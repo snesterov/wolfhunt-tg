@@ -437,11 +437,25 @@ async def handle_vk_stories(request):
     except Exception as e:
         return web.json_response({"error": str(e)}, status=500)
 
+async def handle_tg_avatar(request):
+    global client
+    avatar_path = "tg_avatar.jpg"
+    try:
+        if state["is_authorized"] and client.is_connected():
+            if not os.path.exists(avatar_path):
+                await client.download_profile_photo("me", file=avatar_path)
+            if os.path.exists(avatar_path):
+                return web.FileResponse(avatar_path)
+    except Exception as e:
+        print("[TG AVATAR NOTICE]", e)
+    return web.Response(status=404)
+
 
 async def init_app():
     app = web.Application(middlewares=[cors_middleware])
     app.router.add_get("/", lambda r: web.Response(text="🐺 WolfHunt Telegram Bridge Running!"))
     app.router.add_get("/api/tg/status", handle_status)
+    app.router.add_get("/api/tg/avatar", handle_tg_avatar)
     app.router.add_get("/api/vk/stories", handle_vk_stories)
     app.router.add_post("/api/tg/send_code", handle_send_code)
     app.router.add_post("/api/tg/verify_code", handle_verify_code)
