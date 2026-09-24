@@ -437,6 +437,22 @@ async def handle_vk_stories(request):
     except Exception as e:
         return web.json_response({"error": str(e)}, status=500)
 
+async def handle_vk_user(request):
+    token = request.query.get("access_token")
+    if not token:
+        return web.json_response({"error": "access_token required"}, status=400)
+    user_id = request.query.get("user_id")
+    params = {"access_token": token, "fields": "photo_100,photo_200,screen_name", "v": "5.131"}
+    if user_id:
+        params["user_ids"] = user_id
+    try:
+        async with aiohttp.ClientSession() as session:
+            async with session.get("https://api.vk.com/method/users.get", params=params, timeout=aiohttp.ClientTimeout(total=10)) as resp:
+                data = await resp.json(content_type=None)
+                return web.json_response(data)
+    except Exception as e:
+        return web.json_response({"error": str(e)}, status=500)
+
 async def handle_tg_avatar(request):
     global client
     avatar_path = "tg_avatar.jpg"
@@ -457,6 +473,7 @@ async def init_app():
     app.router.add_get("/api/tg/status", handle_status)
     app.router.add_get("/api/tg/avatar", handle_tg_avatar)
     app.router.add_get("/api/vk/stories", handle_vk_stories)
+    app.router.add_get("/api/vk/user", handle_vk_user)
     app.router.add_post("/api/tg/send_code", handle_send_code)
     app.router.add_post("/api/tg/verify_code", handle_verify_code)
     app.router.add_post("/api/tg/restore_session", handle_restore_session)
