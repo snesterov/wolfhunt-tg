@@ -464,6 +464,19 @@ async def handle_vk_user(request):
         async with aiohttp.ClientSession() as session:
             async with session.get("https://api.vk.com/method/users.get", params=params, timeout=aiohttp.ClientTimeout(total=10)) as resp:
                 data = await resp.json(content_type=None)
+                if data and "response" in data and len(data["response"]) > 0:
+                    u = data["response"][0]
+                    p_url = u.get("photo_200") or u.get("photo_max") or u.get("photo_100")
+                    if p_url:
+                        try:
+                            async with session.get(p_url, timeout=aiohttp.ClientTimeout(total=5)) as img_r:
+                                if img_r.status == 200:
+                                    img_b = await img_r.read()
+                                    b64 = base64.b64encode(img_b).decode("ascii")
+                                    ct = img_r.headers.get("Content-Type", "image/jpeg")
+                                    u["photo_base64"] = f"data:{ct};base64,{b64}"
+                        except Exception as e:
+                            pass
                 return web.json_response(data)
     except Exception as e:
         return web.json_response({"error": str(e)}, status=500)
