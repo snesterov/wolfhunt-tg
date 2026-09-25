@@ -437,12 +437,27 @@ async def handle_vk_stories(request):
     except Exception as e:
         return web.json_response({"error": str(e)}, status=500)
 
+async def handle_vk_avatar(request):
+    photo_url = request.query.get("url")
+    if not photo_url:
+        return web.Response(status=400, text="url required")
+    try:
+        async with aiohttp.ClientSession() as session:
+            async with session.get(photo_url, timeout=aiohttp.ClientTimeout(total=10)) as resp:
+                if resp.status == 200:
+                    data = await resp.read()
+                    ct = resp.headers.get("Content-Type", "image/jpeg")
+                    return web.Response(body=data, content_type=ct, headers={"Access-Control-Allow-Origin": "*", "Cache-Control": "public, max-age=86400"})
+    except Exception as e:
+        print("[VK AVATAR NOTICE]", e)
+    return web.Response(status=404)
+
 async def handle_vk_user(request):
     token = request.query.get("access_token")
     if not token:
         return web.json_response({"error": "access_token required"}, status=400)
     user_id = request.query.get("user_id")
-    params = {"access_token": token, "fields": "photo_100,photo_200,screen_name", "v": "5.131"}
+    params = {"access_token": token, "fields": "photo_100,photo_200,photo_max,screen_name", "v": "5.131"}
     if user_id:
         params["user_ids"] = user_id
     try:
@@ -474,6 +489,7 @@ async def init_app():
     app.router.add_get("/api/tg/avatar", handle_tg_avatar)
     app.router.add_get("/api/vk/stories", handle_vk_stories)
     app.router.add_get("/api/vk/user", handle_vk_user)
+    app.router.add_get("/api/vk/avatar", handle_vk_avatar)
     app.router.add_post("/api/tg/send_code", handle_send_code)
     app.router.add_post("/api/tg/verify_code", handle_verify_code)
     app.router.add_post("/api/tg/restore_session", handle_restore_session)
