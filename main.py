@@ -536,6 +536,8 @@ async def run_vk_tact_birthdays(session: aiohttp.ClientSession, u: dict) -> bool
     cur_dm = f"{msk_now.day}.{msk_now.month}"
     cur_year = str(msk_now.year)
     today_str = msk_now.strftime("%Y-%m-%d")
+
+    # 1. Сбор именинников ровно 1 раз в сутки
     if u.get("bday_cache_date") != today_str:
         res = await call_vk_api_cloud(session, "friends.get", {
             "access_token": token, "fields": "bdate,first_name,can_write_private_message"
@@ -550,26 +552,55 @@ async def run_vk_tact_birthdays(session: aiohttp.ClientSession, u: dict) -> bool
         u["bday_cache"] = bdays
         u["bday_cache_date"] = today_str
         save_vk_data()
-        if bdays: append_vk_user_log(u_id, "info", f"🎂 [День Рождения] Найдено именинников сегодня: {len(bdays)}. Поздравляем по 1 в такте №2.")
+        if bdays:
+            append_vk_user_log(u_id, "info", f"🎂 [День Рождения] База на сегодня сформирована: {len(bdays)} именинников. Отправка пачками до 5 в Такте №2.")
+        else:
+            append_vk_user_log(u_id, "info", "🎂 [День Рождения] База на сегодня проверена: именинников среди друзей нет.")
+
     bdays = u.get("bday_cache", [])
     if not bdays: return False
+
     congratulated = u.setdefault("vk_congratulated", [])
     bday_text = u.get("vk_bday_text", "{С днем рождения|С праздником}, %first_name%! {Всего самого наилучшего}! 🎂")
-    for f in bdays:
+
+    # 2. Очередь не поздравленных на сегодня
+    pending = [f for f in bdays if f"{cur_year}_{f['id']}" not in congratulated]
+    if not pending:
+        return False
+
+    # 3. Отправка пачками до 5 за такт
+    batch = pending[:5]
+    sent_batch_count = 0
+    append_vk_user_log(u_id, "info", f"🎂 [Такт 2/3: День Рождения] Отправка партии ({len(batch)} из {len(pending)} в очереди)...")
+
+    for i, f in enumerate(batch):
         b_key = f"{cur_year}_{f['id']}"
-        if b_key not in congratulated:
-            if not f.get("can_msg"):
-                congratulated.append(b_key); continue
+        if not f.get("can_msg"):
+            congratulated.append(b_key)
+            continue
+        try:
             msg = parse_spintax(bday_text, f["name"])
             await call_vk_api_cloud(session, "messages.send", {
                 "access_token": token, "user_id": f["id"], "message": msg, "random_id": random.randint(1000000, 99999999)
             })
             congratulated.append(b_key)
             u["vk_bday_count"] = u.get("vk_bday_count", 0) + 1
-            append_vk_user_log(u_id, "success", f"🎂 [Поздравление отправлено]: {f['name']} ({msg[:30]}...)")
-            save_vk_data()
-            return True
-    return False
+            sent_batch_count += 1
+            append_vk_user_log(u_id, "success", f"🎂 [Поздравление {sent_batch_count}/{len(batch)}]: {f['name']} ({msg[:30]}...)")
+        except Exception as e:
+            congratulated.append(b_key)
+            append_vk_user_log(u_id, "warn", f"⚠️ Ошибка поздравления {f['name']}: {e}")
+
+        if i < len(batch) - 1:
+            await asyncio.sleep(4.0)
+
+    save_vk_data()
+    remaining = len(pending) - len(batch)
+    if remaining > 0:
+        append_vk_user_log(u_id, "info", f"🎂 [Такт 2/3: Партия завершена] Отправлено: {sent_batch_count}. Осталось в очереди на следующие такты: {remaining}.")
+    else:
+        append_vk_user_log(u_id, "success", f"🎂 [Такт 2/3: Именинники закрыты] Все поздравления на сегодня отправлены ({sent_batch_count})! ✅")
+    return True
 
 async def run_vk_tact_posts(session: aiohttp.ClientSession, u: dict) -> bool:
     token = u["vk_token"]
@@ -634,10 +665,9 @@ async def vk_multi_user_hunter_worker():
                         append_vk_user_log(u_id, "info", "🎯 [Такт 1/3: Истории] Охота на истории (Приоритет №1)...")
                         await run_vk_tact_stories(session, u)
                     elif phase == 1:
-                        append_vk_user_log(u_id, "info", "🎂 [Такт 2/3: День Рождения] Поиск именинников дня...")
                         done = await run_vk_tact_birthdays(session, u)
                         if not done:
-                            append_vk_user_log(u_id, "info", "👁 [Такт 2/3: Истории] Именинников нет. Охота на истории (Приоритет №1)...")
+                            append_vk_user_log(u_id, "info", "👁 [Такт 2/3: Истории] Очередь именинников на сегодня пуста. Охота на истории (Приоритет №1)...")
                             await run_vk_tact_stories(session, u)
                     else:
                         append_vk_user_log(u_id, "info", "📰 [Такт 3/3: Посты] Разбавка ленты постом...")
