@@ -615,7 +615,7 @@ ls.setItem('wh_user_id', String(uid));
 const lnk = $('wh-vk-profile-link');
 if (lnk) {
 lnk.href = 'https://vk.com/id' + uid;
-lnk.innerText = 'id' + uid + ' ↗';
+lnk.innerText = 'Профиль ВК ↗';
 lnk.style.display = 'inline-block';
 }
 }
@@ -653,7 +653,7 @@ $('wh-avatar').style.borderColor = "#10b981";
 }
 if (savedUid && $('wh-vk-profile-link')) {
 $('wh-vk-profile-link').href = 'https://vk.com/id' + savedUid;
-$('wh-vk-profile-link').innerText = 'id' + savedUid + ' ↗';
+$('wh-vk-profile-link').innerText = 'Профиль ВК ↗';
 $('wh-vk-profile-link').style.display = 'inline-block';
 }
 if ($('wh-dot')) $('wh-dot').style.background = "#10b981";
@@ -729,8 +729,8 @@ if (dot) dot.style.background = '#10b981';
 if (sub) { sub.innerText = '🟢 Охота активна (Приоритет: Истории)'; sub.style.color = '#34d399'; }
 } else {
 btn.innerText = '🚀 Запустить охоту';
-btn.style.background = 'linear-gradient(135deg, #10b981, #059669)';
-btn.style.boxShadow = '0 4px 16px rgba(16,185,129,0.45)';
+btn.style.background = 'linear-gradient(135deg, #0077ff, #0055cc)';
+btn.style.boxShadow = '0 4px 16px rgba(0, 119, 255, 0.45)';
 if (dot) dot.style.background = '#10b981';
 if (sub) { sub.innerText = '⏸ На паузе (готов к охоте)'; sub.style.color = '#94a3b8'; }
 }
