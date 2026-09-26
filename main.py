@@ -8,13 +8,7 @@ import asyncio
 import os
 import random
 import re
-from datetime import datetime, timedelta, timezone
-
-MSK = timezone(timedelta(hours=3))
-
-def get_msk_now():
-    """Возвращает текущее время по Москве (UTC+3)."""
-    return datetime.now(MSK)
+from datetime import datetime, timedelta
 import aiohttp
 from aiohttp import web
 from telethon import TelegramClient
@@ -29,7 +23,7 @@ SESSION_FILE = "wolfhunt_tg_session"
 SESSION_STR_FILE = "session_string.txt"
 DAILY_LIMIT = 150
 
-client = TelegramClient(StringSession(), API_ID, API_HASH)
+client = TelegramClient(SESSION_FILE, API_ID, API_HASH)
 
 state = {
     "phone": None,
@@ -40,7 +34,7 @@ state = {
     "reactions_today": 0,
     "views_today": 0,
     "reactions_list": ["❤️", "🔥", "👍"],
-    "last_date": str(get_msk_now().date()),
+    "last_date": str(datetime.now().date()),
     "logs": []
 }
 
@@ -48,7 +42,7 @@ seen_stories = set()
 hunter_task = None
 
 def add_log(text, log_type="info"):
-    now_time = get_msk_now().strftime("%H:%M:%S")
+    now_time = datetime.now().strftime("%H:%M:%S")
     entry = {"time": now_time, "text": text, "type": log_type}
     state["logs"].append(entry)
     if len(state["logs"]) > 50:
@@ -64,7 +58,7 @@ async def keep_alive_loop():
         try:
             async with aiohttp.ClientSession() as session:
                 async with session.get(external_url, timeout=15) as resp:
-                    print(f"[{get_msk_now().strftime('%H:%M:%S')}] [KEEP-ALIVE] Render ping status: {resp.status}")
+                    print(f"[{datetime.now().strftime('%H:%M:%S')}] [KEEP-ALIVE] Render ping status: {resp.status}")
         except Exception as e:
             print(f"[KEEP-ALIVE NOTICE] {e}")
         await asyncio.sleep(540) # 9 минут
@@ -73,7 +67,7 @@ async def hunter_loop():
     add_log("▶ Охота на истории Telegram запущена! Первый поиск историй мгновенно...", "success")
     while state["is_running"]:
         try:
-            today = str(get_msk_now().date())
+            today = str(datetime.now().date())
             if state["last_date"] != today:
                 state["last_date"] = today
                 state["reactions_today"] = 0
@@ -81,7 +75,7 @@ async def hunter_loop():
                 add_log("🔄 Новый день: суточный счетчик Telegram сброшен (0/150)", "info")
 
             if state["reactions_today"] >= DAILY_LIMIT:
-                now = get_msk_now()
+                now = datetime.now()
                 tomorrow = datetime(now.year, now.month, now.day) + timedelta(days=1)
                 wait_sec = int((tomorrow - now).total_seconds()) + 30
                 add_log(f"🛑 Лимит {DAILY_LIMIT} исчерпан. Пауза до 00:00 ({wait_sec//3600}ч)", "warn")
@@ -197,19 +191,10 @@ async def handle_send_code(request):
     else:
         phone = "+" + digits if digits else raw_phone
 
-    global client
     try:
         if not client.is_connected():
             await client.connect()
-        try:
-            sent = await client.send_code_request(phone)
-        except Exception as e:
-            if "cannot be reused" in str(e).lower() or "disconnected" in str(e).lower():
-                client = TelegramClient(StringSession(), API_ID, API_HASH)
-                await client.connect()
-                sent = await client.send_code_request(phone)
-            else:
-                raise e
+        sent = await client.send_code_request(phone)
         state["phone"] = phone
         state["phone_code_hash"] = sent.phone_code_hash
         add_log(f"Код подтверждения запрошен для {phone}", "info")
@@ -396,7 +381,7 @@ async def handle_like_once(request):
         return web.json_response({"status": "error", "message": str(e)}, status=500)
 
 async def handle_logout(request):
-    global hunter_task, client
+    global hunter_task
     state["is_running"] = False
     if hunter_task and not hunter_task.done():
         hunter_task.cancel()
@@ -405,8 +390,6 @@ async def handle_logout(request):
             await client.log_out()
     except Exception:
         pass
-    # Пересоздаем чистый клиент после логаута
-    client = TelegramClient(StringSession(), API_ID, API_HASH)
     state["is_authorized"] = False
     state["user"] = None
     state["phone"] = None
@@ -420,98 +403,416 @@ async def handle_logout(request):
     add_log("🚪 Профиль Telegram отключен (выход). Готов к новому входу.", "info")
     return web.json_response({"status": "ok", "message": "Сессия очищена"})
 
-async def handle_vk_stories(request):
-    token = request.query.get("access_token")
-    if not token:
-        return web.json_response({"error": "access_token required"}, status=400)
+async def handle_vk_proxy(request):
+    """Прокси для любых методов VK API — обходит CORS/JSONP ограничения браузера."""
     try:
+        body = await request.json()
+        method = body.get("method", "")
+        token = body.get("access_token", "")
+        params = body.get("params", {})
+        if not method or not token:
+            return web.json_response({"error": "method and access_token required"}, status=400)
+        params["access_token"] = token
+        params["v"] = params.get("v", "5.131")
+        url = f"https://api.vk.com/method/{method}"
         async with aiohttp.ClientSession() as session:
-            async with session.get("https://api.vk.com/method/stories.get", params={
-                "access_token": token,
-                "extended": 1,
-                "fields": "first_name,last_name",
-                "v": "5.131"
-            }, timeout=aiohttp.ClientTimeout(total=15)) as resp:
+            async with session.post(url, data=params, timeout=aiohttp.ClientTimeout(total=15)) as resp:
                 data = await resp.json(content_type=None)
                 return web.json_response(data)
     except Exception as e:
         return web.json_response({"error": str(e)}, status=500)
 
-async def handle_vk_avatar(request):
-    photo_url = request.query.get("url")
-    if not photo_url:
-        return web.Response(status=400, text="url required")
-    try:
-        async with aiohttp.ClientSession() as session:
-            async with session.get(photo_url, timeout=aiohttp.ClientTimeout(total=10)) as resp:
-                if resp.status == 200:
-                    data = await resp.read()
-                    ct = resp.headers.get("Content-Type", "image/jpeg")
-                    return web.Response(body=data, content_type=ct, headers={"Access-Control-Allow-Origin": "*", "Cache-Control": "public, max-age=86400"})
-    except Exception as e:
-        print("[VK AVATAR NOTICE]", e)
-    return web.Response(status=404)
 
-async def handle_vk_user(request):
-    token = request.query.get("access_token")
-    if not token:
-        return web.json_response({"error": "access_token required"}, status=400)
-    user_id = request.query.get("user_id")
-    params = {"access_token": token, "fields": "photo_100,photo_200,photo_max,screen_name", "v": "5.131"}
-    if user_id:
-        params["user_ids"] = user_id
+# ==============================================================================
+# VK MULTI-TENANT CLOUD HUNTER (24/7 AUTONOMOUS BACKGROUND ENGINE)
+# ==============================================================================
+VK_USERS_FILE = "wolfhunt_vk_users.json"
+VK_USERS_DB = {}
+VK_USER_LOGS = {}
+
+def load_vk_data():
+    global VK_USERS_DB
+    if os.path.exists(VK_USERS_FILE):
+        try:
+            with open(VK_USERS_FILE, "r", encoding="utf-8") as f:
+                VK_USERS_DB = json.load(f)
+                print(f"[VK SaaS] Loaded {len(VK_USERS_DB)} active VK profiles from cloud storage")
+        except Exception as e:
+            print(f"[VK SaaS] Error loading storage: {e}")
+
+def save_vk_data():
     try:
-        async with aiohttp.ClientSession() as session:
-            async with session.get("https://api.vk.com/method/users.get", params=params, timeout=aiohttp.ClientTimeout(total=10)) as resp:
-                data = await resp.json(content_type=None)
-                if data and "response" in data and len(data["response"]) > 0:
-                    u = data["response"][0]
-                    p_url = u.get("photo_200") or u.get("photo_max") or u.get("photo_100")
-                    if p_url:
-                        try:
-                            async with session.get(p_url, timeout=aiohttp.ClientTimeout(total=5)) as img_r:
-                                if img_r.status == 200:
-                                    img_b = await img_r.read()
-                                    b64 = base64.b64encode(img_b).decode("ascii")
-                                    ct = img_r.headers.get("Content-Type", "image/jpeg")
-                                    u["photo_base64"] = f"data:{ct};base64,{b64}"
-                        except Exception as e:
-                            pass
-                return web.json_response(data)
+        with open(VK_USERS_FILE, "w", encoding="utf-8") as f:
+            json.dump(VK_USERS_DB, f, ensure_ascii=False, indent=2)
+    except Exception as e:
+        print(f"[VK SaaS] Error saving storage: {e}")
+
+def append_vk_user_log(user_key: str, l_type: str, msg: str):
+    time_str = (datetime.now(timezone.utc) + timedelta(hours=3)).strftime("%H:%M:%S")
+    entry = {"time": time_str, "type": l_type, "text": msg}
+    k = str(user_key)
+    if k not in VK_USER_LOGS:
+        VK_USER_LOGS[k] = []
+    VK_USER_LOGS[k].append(entry)
+    if len(VK_USER_LOGS[k]) > 50:
+        VK_USER_LOGS[k].pop(0)
+
+def parse_spintax(text: str, first_name: str = "друг") -> str:
+    text = text.replace("%first_name%", first_name or "друг")
+    safety = 10
+    import re
+    while "{" in text and "}" in text and safety > 0:
+        safety -= 1
+        text = re.sub(r"\{([^{}]+)\}", lambda m: random.choice(m.group(1).split("|")).strip(), text)
+    return text
+
+async def call_vk_api_cloud(session: aiohttp.ClientSession, method: str, params: dict) -> dict:
+    params["v"] = "5.131"
+    url = f"https://api.vk.com/method/{method}"
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
+        "Referer": "https://vk.com/"
+    }
+    try:
+        async with session.post(url, data=params, headers=headers, timeout=aiohttp.ClientTimeout(total=10)) as resp:
+            data = await resp.json(content_type=None)
+            return data
+    except Exception as e:
+        return {"error": {"error_msg": str(e), "error_code": -1}}
+
+async def run_vk_tact_stories(session: aiohttp.ClientSession, u: dict) -> bool:
+    token = u["vk_token"]
+    u_id = str(u["vk_user_id"])
+    append_vk_user_log(u_id, "info", "👁 [Фаза: Истории] Поиск свежих историй друзей...")
+    res = await call_vk_api_cloud(session, "stories.get", {"access_token": token, "extended": "1"})
+    if "response" not in res or not res["response"].get("items"):
+        return False
+    items = res["response"]["items"]
+    profiles = {p["id"]: p for p in res["response"].get("profiles", [])}
+    for author in items:
+        owner_id = author.get("id") or author.get("owner_id")
+        stories_list = author.get("stories", [])
+        if not stories_list: continue
+        fresh_story = stories_list[-1]
+        s_id = fresh_story["id"]
+        seen_key = f"{owner_id}_{s_id}"
+        seen_cache = u.setdefault("seen_stories", [])
+        if seen_key in seen_cache: continue
+        p_info = profiles.get(owner_id, {})
+        fn = (p_info.get("first_name", "") + " " + p_info.get("last_name", "")).strip() or f"id{owner_id}"
+        await call_vk_api_cloud(session, "stories.sendInteraction", {
+            "access_token": token, "owner_id": owner_id, "story_id": s_id, "message": "❤"
+        })
+        seen_cache.append(seen_key)
+        if len(seen_cache) > 500: seen_cache.pop(0)
+        u["vk_today_stories"] = u.get("vk_today_stories", 0) + 1
+        append_vk_user_log(u_id, "success", f"🔥 [Истории] Охота: {fn} ❤")
+        save_vk_data()
+        return True
+    return False
+
+async def run_vk_tact_birthdays(session: aiohttp.ClientSession, u: dict) -> bool:
+    token = u["vk_token"]
+    u_id = str(u["vk_user_id"])
+    if not u.get("vk_bday_enabled", True): return False
+    msk_now = datetime.now(timezone.utc) + timedelta(hours=3)
+    if msk_now.hour < 6 or msk_now.hour > 22: return False
+    cur_dm = f"{msk_now.day}.{msk_now.month}"
+    cur_year = str(msk_now.year)
+    today_str = msk_now.strftime("%Y-%m-%d")
+    if u.get("bday_cache_date") != today_str:
+        res = await call_vk_api_cloud(session, "friends.get", {
+            "access_token": token, "fields": "bdate,first_name,can_write_private_message"
+        })
+        bdays = []
+        if "response" in res and res["response"].get("items"):
+            for f in res["response"]["items"]:
+                bdate = f.get("bdate", "")
+                parts = bdate.split(".")
+                if len(parts) >= 2 and f"{int(parts[0])}.{int(parts[1])}" == cur_dm:
+                    bdays.append({"id": f["id"], "name": f.get("first_name", "друг"), "can_msg": f.get("can_write_private_message", 1) != 0})
+        u["bday_cache"] = bdays
+        u["bday_cache_date"] = today_str
+        save_vk_data()
+        if bdays: append_vk_user_log(u_id, "info", f"🎂 [День Рождения] Найдено именинников сегодня: {len(bdays)}. Поздравляем по 1 в такте №2.")
+    bdays = u.get("bday_cache", [])
+    if not bdays: return False
+    congratulated = u.setdefault("vk_congratulated", [])
+    bday_text = u.get("vk_bday_text", "{С днем рождения|С праздником}, %first_name%! {Всего самого наилучшего}! 🎂")
+    for f in bdays:
+        b_key = f"{cur_year}_{f['id']}"
+        if b_key not in congratulated:
+            if not f.get("can_msg"):
+                congratulated.append(b_key); continue
+            msg = parse_spintax(bday_text, f["name"])
+            await call_vk_api_cloud(session, "messages.send", {
+                "access_token": token, "user_id": f["id"], "message": msg, "random_id": random.randint(1000000, 99999999)
+            })
+            congratulated.append(b_key)
+            u["vk_bday_count"] = u.get("vk_bday_count", 0) + 1
+            append_vk_user_log(u_id, "success", f"🎂 [Поздравление отправлено]: {f['name']} ({msg[:30]}...)")
+            save_vk_data()
+            return True
+    return False
+
+async def run_vk_tact_posts(session: aiohttp.ClientSession, u: dict) -> bool:
+    token = u["vk_token"]
+    u_id = str(u["vk_user_id"])
+    append_vk_user_log(u_id, "info", "🔍 [Фаза: Посты] Поиск свежих записей друзей...")
+    res = await call_vk_api_cloud(session, "newsfeed.get", {
+        "access_token": token, "filters": "post", "count": "15"
+    })
+    if "response" not in res or not res["response"].get("items"): return False
+    items = res["response"]["items"]
+    seen_posts = u.setdefault("seen_posts", [])
+    for p in items:
+        owner_id = p.get("source_id") or p.get("owner_id")
+        post_id = p.get("post_id")
+        if not owner_id or owner_id <= 0 or not post_id: continue
+        p_key = f"{owner_id}_{post_id}"
+        if p_key in seen_posts: continue
+        likes_info = p.get("likes", {})
+        if likes_info.get("user_likes") == 1:
+            seen_posts.append(p_key); continue
+        await call_vk_api_cloud(session, "likes.add", {
+            "access_token": token, "type": "post", "owner_id": owner_id, "item_id": post_id
+        })
+        seen_posts.append(p_key)
+        if len(seen_posts) > 500: seen_posts.pop(0)
+        u["vk_today_posts"] = u.get("vk_today_posts", 0) + 1
+        append_vk_user_log(u_id, "success", f"❤ [Посты] Разбавка: Лайк к записи id{owner_id}")
+        save_vk_data()
+        return True
+    return False
+
+async def vk_multi_user_hunter_worker():
+    print("🚀 [VK Cloud Engine] Мультипользовательский воркер 24/7 запущен!")
+    await asyncio.sleep(5)
+    async with aiohttp.ClientSession() as session:
+        while True:
+            try:
+                msk_now = datetime.now(timezone.utc) + timedelta(hours=3)
+                today_str = msk_now.strftime("%Y-%m-%d")
+                users_list = list(VK_USERS_DB.values())
+                for u in users_list:
+                    u_id = str(u.get("vk_user_id"))
+                    if not u.get("vk_running") or not u.get("vk_token"): continue
+                    if u.get("vk_today_date") != today_str:
+                        u["vk_today_date"] = today_str
+                        u["vk_today_stories"] = 0
+                        u["vk_today_posts"] = 0
+                        u["vk_auto_paused_limit"] = False
+                        append_vk_user_log(u_id, "success", "🚀 Новый день (00:00 МСК)! Счетчики сброшены, охота 24/7 продолжается.")
+                        save_vk_data()
+                    total_likes = u.get("vk_today_stories", 0) + u.get("vk_today_posts", 0)
+                    if total_likes >= 300:
+                        if not u.get("vk_auto_paused_limit"):
+                            u["vk_auto_paused_limit"] = True
+                            append_vk_user_log(u_id, "warn", f"🛑 [Суточный лимит 300] Пауза на ночь ({total_likes} лайков). Автостарт в 00:00 МСК! 🌙")
+                            save_vk_data()
+                        continue
+                    phase = u.get("vk_current_phase", 0)
+                    u["vk_current_phase"] = (phase + 1) % 3
+                    save_vk_data()
+                    if phase == 0:
+                        append_vk_user_log(u_id, "info", "🎯 [Такт 1/3: Истории] Охота на истории (Приоритет №1)...")
+                        await run_vk_tact_stories(session, u)
+                    elif phase == 1:
+                        append_vk_user_log(u_id, "info", "🎂 [Такт 2/3: День Рождения] Поиск именинников дня...")
+                        done = await run_vk_tact_birthdays(session, u)
+                        if not done:
+                            append_vk_user_log(u_id, "info", "👁 [Такт 2/3: Истории] Именинников нет. Охота на истории (Приоритет №1)...")
+                            await run_vk_tact_stories(session, u)
+                    else:
+                        append_vk_user_log(u_id, "info", "📰 [Такт 3/3: Посты] Разбавка ленты постом...")
+                        await run_vk_tact_posts(session, u)
+                    await asyncio.sleep(random.randint(2, 5))
+            except Exception as e:
+                print(f"[VK SaaS Worker Exception]: {e}")
+            await asyncio.sleep(random.randint(25, 45))
+
+# ==============================================================================
+# VK REST API HANDLERS FOR TILDA
+# ==============================================================================
+async def handle_vk_auth(request: web.Request):
+    data = await request.json()
+    token = data.get("token", "").strip()
+    if not token:
+        return web.json_response({"error": "token required"}, status=400)
+    async with aiohttp.ClientSession() as session:
+        res = await call_vk_api_cloud(session, "users.get", {"access_token": token, "fields": "screen_name"})
+        if "response" not in res or not res["response"]:
+            return web.json_response({"error": "Недействительный токен ВКонтакте"}, status=401)
+        u_info = res["response"][0]
+        u_id = str(u_info["id"])
+        fn = f"{u_info.get('first_name', '')} {u_info.get('last_name', '')}".strip()
+        sn = u_info.get("screen_name", "")
+        
+        user_record = VK_USERS_DB.setdefault(u_id, {})
+        user_record["vk_user_id"] = u_info["id"]
+        user_record["vk_token"] = token
+        user_record["vk_name"] = fn
+        user_record["vk_screen_name"] = sn
+        user_record["vk_running"] = True
+        user_record["vk_today_date"] = (datetime.now(timezone.utc) + timedelta(hours=3)).strftime("%Y-%m-%d")
+        save_vk_data()
+        
+        append_vk_user_log(u_id, "success", f"✔ Профиль успешно подключен к 24/7 облаку: {fn} (@{sn}) ✅")
+        return web.json_response({
+            "status": "ok",
+            "user_id": u_info["id"],
+            "name": fn,
+            "screen_name": sn
+        })
+
+async def handle_vk_sync(request: web.Request):
+    """Двусторонняя синхронизация между Chrome расширением и сайтом / базой."""
+    try:
+        data = await request.json()
+        u_id = str(data.get("user_id", "")).strip()
+        if not u_id:
+            return web.json_response({"error": "user_id required"}, status=400)
+            
+        u = VK_USERS_DB.setdefault(u_id, {})
+        u["vk_user_id"] = u_id
+        if data.get("token"): u["vk_token"] = data["token"]
+        if data.get("name"): u["vk_name"] = data["name"]
+        if data.get("nick"): u["vk_screen_name"] = data["nick"]
+        if "running" in data: u["vk_running"] = bool(data["running"])
+        if "today_stories" in data: u["vk_today_stories"] = int(data["today_stories"])
+        if "today_posts" in data: u["vk_today_posts"] = int(data["today_posts"])
+        if "bday_count" in data: u["vk_bday_count"] = int(data["bday_count"])
+        
+        if data.get("bday_text_update"):
+            u["vk_bday_text"] = data["bday_text_update"]
+        if "bday_enabled_update" in data:
+            u["vk_bday_enabled"] = bool(data["bday_enabled_update"])
+            
+        if data.get("logs") and isinstance(data["logs"], list):
+            VK_USER_LOGS[u_id] = data["logs"][-50:]
+            
+        u["last_sync_time"] = datetime.now(timezone.utc).isoformat()
+        u["client_mode"] = "chrome_extension_home_ip"
+        save_vk_data()
+        
+        default_bday = "{С днем рождения|С праздником|Поздравляю с днем рождения}, %first_name%! {Желаю крепкого здоровья, энергии и грандиозных успехов|Всего самого наилучшего и исполнения желаний}! {🎂|🎉|🎁|🥂}"
+        return web.json_response({
+            "status": "ok",
+            "user_id": u_id,
+            "bday_text": u.get("vk_bday_text", default_bday),
+            "bday_enabled": u.get("vk_bday_enabled", True),
+            "is_running": u.get("vk_running", True),
+            "tariff": u.get("tariff", "pro"),
+            "today_total": u.get("vk_today_stories", 0) + u.get("vk_today_posts", 0)
+        })
     except Exception as e:
         return web.json_response({"error": str(e)}, status=500)
 
-async def handle_tg_avatar(request):
-    global client
-    avatar_path = "tg_avatar.jpg"
-    try:
-        if state["is_authorized"] and client.is_connected():
-            if not os.path.exists(avatar_path):
-                await client.download_profile_photo("me", file=avatar_path)
-            if os.path.exists(avatar_path):
-                return web.FileResponse(avatar_path)
-    except Exception as e:
-        print("[TG AVATAR NOTICE]", e)
-    return web.Response(status=404)
+async def handle_vk_status(request: web.Request):
+    u_id = request.query.get("user_id")
+    if not u_id and VK_USERS_DB:
+        u_id = next(iter(VK_USERS_DB))
+    if not u_id or u_id not in VK_USERS_DB:
+        return web.json_response({"status": "not_authorized", "is_running": False})
+    u = VK_USERS_DB[u_id]
+    logs = VK_USER_LOGS.get(u_id, [])
+    default_bday = "{С днем рождения|С праздником|Поздравляю с днем рождения}, %first_name%! {Желаю крепкого здоровья, энергии и грандиозных успехов|Всего самого наилучшего и исполнения желаний}! {🎂|🎉|🎁|🥂}"
+    return web.json_response({
+        "status": "ok",
+        "is_authorized": True,
+        "is_running": u.get("vk_running", False),
+        "user_id": u.get("vk_user_id"),
+        "name": u.get("vk_name"),
+        "screen_name": u.get("vk_screen_name"),
+        "today_stories": u.get("vk_today_stories", 0),
+        "today_posts": u.get("vk_today_posts", 0),
+        "today_total": u.get("vk_today_stories", 0) + u.get("vk_today_posts", 0),
+        "today_bdays": u.get("vk_bday_count", 0),
+        "bday_text": u.get("vk_bday_text", default_bday),
+        "bday_enabled": u.get("vk_bday_enabled", True),
+        "client_mode": u.get("client_mode", "chrome_extension_home_ip"),
+        "last_sync_time": u.get("last_sync_time", ""),
+        "logs": logs
+    })
 
+async def handle_vk_toggle(request: web.Request):
+    data = await request.json()
+    u_id = str(data.get("user_id", "")).strip()
+    if not u_id and VK_USERS_DB:
+        u_id = next(iter(VK_USERS_DB))
+    action = data.get("action", "toggle")
+    if not u_id:
+        u_id = "default_user"
+    u = VK_USERS_DB.setdefault(u_id, {"vk_user_id": u_id})
+    if action == "start":
+        u["vk_running"] = True
+        append_vk_user_log(u_id, "success", "🚀 ВК Хантер запущен (сигнал синхронизации)! Охота активна ✅")
+    elif action == "stop":
+        u["vk_running"] = False
+        append_vk_user_log(u_id, "warn", "⏸ ВК Хантер приостановлен пользователем (сигнал синхронизации).")
+    else:
+        u["vk_running"] = not u.get("vk_running", False)
+    save_vk_data()
+    return web.json_response({"status": "ok", "is_running": u["vk_running"]})
+
+async def handle_vk_save_settings(request: web.Request):
+    data = await request.json()
+    u_id = str(data.get("user_id", ""))
+    if u_id not in VK_USERS_DB:
+        return web.json_response({"error": "User not found"}, status=404)
+    u = VK_USERS_DB[u_id]
+    if "bday_text" in data:
+        u["vk_bday_text"] = data["bday_text"]
+    if "bday_enabled" in data:
+        u["vk_bday_enabled"] = bool(data["bday_enabled"])
+    save_vk_data()
+    append_vk_user_log(u_id, "success", "💾 Настройки поздравления сохранены в облачной базе ✅")
+    return web.json_response({"status": "ok"})
+
+async def handle_vk_like_once(request: web.Request):
+    data = await request.json()
+    u_id = str(data.get("user_id", ""))
+    if u_id not in VK_USERS_DB:
+        return web.json_response({"error": "User not found"}, status=404)
+    u = VK_USERS_DB[u_id]
+    async with aiohttp.ClientSession() as session:
+        done = await run_vk_tact_stories(session, u)
+    return web.json_response({"status": "ok", "done": done})
+
+async def handle_download_extension(request):
+    """Прямая отдача архива расширения Chrome"""
+    for p in ["WOLFHUNT_CHROME_EXTENSION.zip", "downloads/WOLFHUNT_CHROME_EXTENSION.zip"]:
+        if os.path.exists(p):
+            return web.FileResponse(p, headers={
+                "Content-Disposition": 'attachment; filename="WOLFHUNT_CHROME_EXTENSION.zip"'
+            })
+    return web.Response(text="Файл расширения временно недоступен", status=404)
 
 async def init_app():
     app = web.Application(middlewares=[cors_middleware])
     app.router.add_get("/", lambda r: web.Response(text="🐺 WolfHunt Telegram Bridge Running!"))
+    app.router.add_get("/downloads/WOLFHUNT_CHROME_EXTENSION.zip", handle_download_extension)
+    app.router.add_get("/download/extension", handle_download_extension)
     app.router.add_get("/api/tg/status", handle_status)
-    app.router.add_get("/api/tg/avatar", handle_tg_avatar)
-    app.router.add_get("/api/vk/stories", handle_vk_stories)
-    app.router.add_get("/api/vk/user", handle_vk_user)
-    app.router.add_get("/api/vk/avatar", handle_vk_avatar)
     app.router.add_post("/api/tg/send_code", handle_send_code)
     app.router.add_post("/api/tg/verify_code", handle_verify_code)
     app.router.add_post("/api/tg/restore_session", handle_restore_session)
     app.router.add_post("/api/tg/like_once", handle_like_once)
     app.router.add_post("/api/tg/toggle", handle_toggle)
     app.router.add_post("/api/tg/logout", handle_logout)
+    app.router.add_post("/api/vk/proxy", handle_vk_proxy)
+    app.router.add_post("/api/vk/auth", handle_vk_auth)
+    app.router.add_get("/api/vk/status", handle_vk_status)
+    app.router.add_post("/api/vk/sync", handle_vk_sync)
+    app.router.add_get("/api/vk/sync", handle_vk_status)
+    app.router.add_post("/api/vk/toggle", handle_vk_toggle)
+    app.router.add_post("/api/vk/save_settings", handle_vk_save_settings)
+    app.router.add_post("/api/vk/like_once", handle_vk_like_once)
 
     # Запуск фонового keep-alive
+    load_vk_data()
     asyncio.create_task(keep_alive_loop())
+    asyncio.create_task(vk_multi_user_hunter_worker())
 
     # При старте проверим сохраненную сессию (файл .session или StringSession)
     global client
