@@ -61,7 +61,7 @@
 </div>
 </div>
 <div class="wh-row">
-<button id="wh-toggle-btn" class="wh-btn" onclick="toggleWolfState()" style="background:#475569; color:#cbd5e1; padding:11px 24px; font-size:13px; box-shadow:none; cursor:pointer;">🔒 Требуется авторизация в ВК</button>
+<button id="wh-toggle-btn" class="wh-btn" onclick="toggleWolfState()" title="⚠️ Сначала подключите профиль ВКонтакте в блоке ниже!" style="background:#475569; color:#94a3b8; padding:11px 24px; font-size:13px; box-shadow:none; cursor:not-allowed; opacity:0.75;">🔒 Требуется авторизация в ВК</button>
 <button id="wh-reset-btn" class="wh-btn" onclick="resetAuth()" style="display:none; background:#1e293b; color:#cbd5e1; border:1px solid #475569; font-size:12px; padding:10px 14px;" title="Сменить профиль ВК">🔄 Сменить аккаунт</button>
 </div>
 </div>
@@ -177,7 +177,7 @@
 </div>
 </div>
 <div class="wh-row">
-<button id="wh-tg-toggle-btn" class="wh-btn" onclick="toggleTgHunterState()" style="background:#475569; color:#cbd5e1; padding:11px 24px; font-size:13px; box-shadow:none; cursor:pointer;">🔒 Требуется авторизация в Telegram</button>
+<button id="wh-tg-toggle-btn" class="wh-btn" onclick="toggleTgHunterState()" title="⚠️ Сначала авторизуйте профиль Telegram в блоке ниже!" style="background:#475569; color:#94a3b8; padding:11px 24px; font-size:13px; box-shadow:none; cursor:not-allowed; opacity:0.75;">🔒 Требуется авторизация в Telegram</button>
 <button id="wh-tg-reset-btn" class="wh-btn" onclick="resetTgAuth()" style="display:none; background:#1e293b; color:#cbd5e1; border:1px solid #475569; font-size:12px; padding:10px 14px;" title="Сменить аккаунт Telegram">🔄 Сменить аккаунт</button>
 </div>
 </div>
@@ -487,14 +487,16 @@ const hasToken = !!ls.getItem('wh_token');
 if (!btn) return;
 const authCardVisible = $('wh-auth-card') && $('wh-auth-card').style.display !== 'none';
 if (!hasToken || authCardVisible) {
-btn.disabled = false; btn.style.background = '#475569'; btn.style.color = '#cbd5e1'; btn.style.boxShadow = 'none';
-btn.style.cursor = 'pointer';
+btn.disabled = false; btn.style.background = '#475569'; btn.style.color = '#94a3b8'; btn.style.boxShadow = 'none';
+btn.style.cursor = 'not-allowed';
+btn.style.opacity = '0.75';
+btn.title = '⚠️ Сначала подключите профиль ВКонтакте в блоке ниже!';
 btn.innerText = '🔒 Требуется авторизация в ВК';
 if (dot) dot.style.background = '#64748b';
 if (sub) { sub.innerText = '⚠️ Сначала подключите профиль ВК в карточке ниже!'; sub.style.color = '#f59e0b'; }
 return;
 }
-btn.disabled = false; btn.style.color = '#fff'; btn.style.cursor = 'pointer';
+btn.disabled = false; btn.style.color = '#fff'; btn.style.cursor = 'pointer'; btn.style.opacity = '1'; btn.title = '';
 if (isRunning) {
 btn.innerText = '⏹ Приостановить ВК Хантер';
 btn.style.background = 'linear-gradient(135deg, #f43f5e, #be123c)';
@@ -1191,14 +1193,16 @@ const btn = $('wh-tg-toggle-btn'), dot = $('wh-tg-dot'), sub = $('wh-tg-sub');
 const isAuth = ls.getItem('wh_tg_authorized') === 'true';
 if (!btn) return;
 if (!isAuth) {
-btn.disabled = false; btn.style.background = '#475569'; btn.style.color = '#cbd5e1'; btn.style.boxShadow = 'none';
-btn.style.cursor = 'pointer';
+btn.disabled = false; btn.style.background = '#475569'; btn.style.color = '#94a3b8'; btn.style.boxShadow = 'none';
+btn.style.cursor = 'not-allowed';
+btn.style.opacity = '0.75';
+btn.title = '⚠️ Сначала авторизуйте профиль Telegram в блоке ниже!';
 btn.innerText = '🔒 Требуется авторизация в Telegram';
 if (dot) dot.style.background = '#64748b';
 if (sub) { sub.innerText = '⚠️ Сначала авторизуйте профиль в карточке ниже!'; sub.style.color = '#f59e0b'; }
 return;
 }
-btn.disabled = false; btn.style.color = '#fff'; btn.style.cursor = 'pointer';
+btn.disabled = false; btn.style.color = '#fff'; btn.style.cursor = 'pointer'; btn.style.opacity = '1'; btn.title = '';
 if (isRunning) {
 btn.innerText = '⏹ Приостановить TG Хантер';
 btn.style.background = 'linear-gradient(135deg, #f43f5e, #be123c)';
