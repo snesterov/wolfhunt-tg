@@ -443,6 +443,11 @@ async def handle_vk_proxy(request):
 # VK MULTI-TENANT CLOUD HUNTER (24/7 AUTONOMOUS BACKGROUND ENGINE)
 # ==============================================================================
 VK_USERS_FILE = "wolfhunt_vk_users.json"
+LATEST_EXTENSION_VERSION = "2.0.1"
+EXTENSION_DOWNLOAD_URL = "https://wolfhunt-tg.onrender.com/downloads/WOLFHUNT_CHROME_EXTENSION.zip"
+EXTENSION_UPDATE_TITLE = "Доступно обновление расширения WolfHunt PRO v2.0.1!"
+EXTENSION_UPDATE_DESC = "Сбор именинников 1 раз в сутки пачками по 5, защитные паузы и новый 3D-логотип Волка. Обновите папку расширения."
+
 VK_USERS_DB = {}
 VK_USER_LOGS = {}
 
@@ -741,6 +746,10 @@ async def handle_vk_sync(request: web.Request):
         u["client_mode"] = "chrome_extension_home_ip"
         save_vk_data()
         
+        ext_ver = str(data.get("extension_version", "2.0.0")).strip()
+        u["extension_version"] = ext_ver
+        has_update = (ext_ver != LATEST_EXTENSION_VERSION)
+
         default_bday = "{С днем рождения|С праздником|Поздравляю с днем рождения}, %first_name%! {Желаю крепкого здоровья, энергии и грандиозных успехов|Всего самого наилучшего и исполнения желаний}! {🎂|🎉|🎁|🥂}"
         return web.json_response({
             "status": "ok",
@@ -749,7 +758,13 @@ async def handle_vk_sync(request: web.Request):
             "bday_enabled": u.get("vk_bday_enabled", True),
             "is_running": u.get("vk_running", True),
             "tariff": u.get("tariff", "pro"),
-            "today_total": u.get("vk_today_stories", 0) + u.get("vk_today_posts", 0)
+            "today_total": u.get("vk_today_stories", 0) + u.get("vk_today_posts", 0),
+            "extension_version": ext_ver,
+            "latest_extension_version": LATEST_EXTENSION_VERSION,
+            "has_update": has_update,
+            "update_url": EXTENSION_DOWNLOAD_URL,
+            "update_title": EXTENSION_UPDATE_TITLE,
+            "update_desc": EXTENSION_UPDATE_DESC
         })
     except Exception as e:
         return web.json_response({"error": str(e)}, status=500)
@@ -763,6 +778,9 @@ async def handle_vk_status(request: web.Request):
     u = VK_USERS_DB[u_id]
     logs = VK_USER_LOGS.get(u_id, [])
     default_bday = "{С днем рождения|С праздником|Поздравляю с днем рождения}, %first_name%! {Желаю крепкого здоровья, энергии и грандиозных успехов|Всего самого наилучшего и исполнения желаний}! {🎂|🎉|🎁|🥂}"
+    ext_ver = u.get("extension_version", "")
+    has_update = (ext_ver != "" and ext_ver != LATEST_EXTENSION_VERSION)
+
     return web.json_response({
         "status": "ok",
         "is_authorized": True,
@@ -778,6 +796,12 @@ async def handle_vk_status(request: web.Request):
         "bday_enabled": u.get("vk_bday_enabled", True),
         "client_mode": u.get("client_mode", "chrome_extension_home_ip"),
         "last_sync_time": u.get("last_sync_time", ""),
+        "extension_version": ext_ver,
+        "latest_extension_version": LATEST_EXTENSION_VERSION,
+        "has_update": has_update,
+        "update_url": EXTENSION_DOWNLOAD_URL,
+        "update_title": EXTENSION_UPDATE_TITLE,
+        "update_desc": EXTENSION_UPDATE_DESC,
         "logs": logs
     })
 
