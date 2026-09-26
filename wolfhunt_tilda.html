@@ -56,14 +56,18 @@
   </div>
 </div>
 <div class="wh-tabs">
-<button id="wh-tab-vk" class="wh-tab" onclick="switchTab('vk')" style="background:linear-gradient(135deg,#2563eb,#1d4ed8); color:#fff; font-weight:800; box-shadow:0 4px 14px rgba(37,99,235,0.4);"><span>🔵</span> ВК Хантер</button>
-<button id="wh-tab-tg" class="wh-tab" onclick="switchTab('tg')" style="background:transparent; color:#94a3b8; font-weight:800;"><span>🔷</span> Telegram Хантер</button>
+<button id="wh-tab-vk" class="wh-tab" onclick="switchTab('vk')" style="background:linear-gradient(135deg,#0077ff,#0055cc); color:#fff; font-weight:800; box-shadow:0 4px 14px rgba(0,119,255,0.4);"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" style="vertical-align:middle; flex-shrink:0;"><rect width="24" height="24" rx="5.5" fill="#0077FF"/><path d="M12.98 16.5c-4.8 0-7.55-3.29-7.66-8.75h2.42c.08 4 1.84 5.7 3.24 6.05V7.75h2.28v3.45c1.39-.15 2.84-1.71 3.33-3.45h2.28c-.38 2.15-1.97 3.71-3.1 4.36 1.13.53 2.92 1.83 3.61 4.39h-2.51c-.6-1.87-2.07-3.32-3.89-3.49v3.49h-.27z" fill="#fff"/></svg> <span>ВКонтакте</span></button>
+<button id="wh-tab-tg" class="wh-tab" onclick="switchTab('tg')" style="background:transparent; color:#94a3b8; font-weight:800;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" style="vertical-align:middle; flex-shrink:0;"><circle cx="12" cy="12" r="12" fill="#24A1DE"/><path d="M17.5 7.25L4.5 12.25c-.89.36-.88.86-.16 1.08l3.34 1.04 7.72-4.88c.37-.23.7-.1.43.14l-6.26 5.65v.01l-.23 3.44c.34 0 .49-.16.68-.34l1.63-1.58 3.4 2.51c.63.35 1.08.17 1.24-.58l2.23-10.5c.23-.92-.35-1.34-1.02-.99z" fill="#fff"/></svg> <span>Telegram</span></button>
 </div>
 <div id="wh-view-vk">
 <div class="wh-hdr">
 <div class="wh-row" style="gap:12px;">
-<div style="position:relative;">
-<img id="wh-avatar" src="https://vk.com/images/camera_100.png" style="width:56px; height:56px; border-radius:50%; border:3px solid #334155; object-fit:cover; background:#1e293b;">
+<div style="position:relative; width:56px; height:56px; border-radius:50%; background:#0077FF; display:flex; align-items:center; justify-content:center; border:3px solid #334155; overflow:hidden; flex-shrink:0;">
+<img id="wh-avatar" src="" style="width:100%; height:100%; object-fit:cover; display:none;" onload="if(this.src && !this.src.includes('camera_100')) { this.style.display='block'; const fb=document.getElementById('wh-avatar-fallback'); if(fb) fb.style.display='none'; }">
+<svg id="wh-avatar-fallback" width="34" height="34" viewBox="0 0 24 24" fill="none">
+  <rect width="24" height="24" rx="5.5" fill="#0077FF"/>
+  <path d="M12.98 16.5c-4.8 0-7.55-3.29-7.66-8.75h2.42c.08 4 1.84 5.7 3.24 6.05V7.75h2.28v3.45c1.39-.15 2.84-1.71 3.33-3.45h2.28c-.38 2.15-1.97 3.71-3.1 4.36 1.13.53 2.92 1.83 3.61 4.39h-2.51c-.6-1.87-2.07-3.32-3.89-3.49v3.49h-.27z" fill="#fff"/>
+</svg>
 <span id="wh-dot" style="position:absolute; bottom:2px; right:2px; width:12px; height:12px; border-radius:50%; background:#64748b; border:2px solid #0f172a;"></span>
 </div>
 <div>
@@ -125,7 +129,9 @@
 <div id="wh-vk-proxy-status" style="font-size:11px; font-weight:600; color:#94a3b8; flex:1; text-align:right;"></div>
 </div>
 </div>
-<div style="font-size:11px; color:#64748b; line-height:1.5;">💡 <b>24/7 Облачный сервер:</b> ВК Хантер ставит лайки историям (Приоритет №1) и постам круглосуточно на облачном сервере, даже когда ваш ПК и браузер полностью выключены! SOCKS5 прокси позволяет привязать к облаку ваш персональный IP.</div>
+<div style="margin-top:8px; padding:9px 12px; background:rgba(245,158,11,0.12); border:1px solid rgba(245,158,11,0.35); border-radius:8px; font-size:11px; color:#fcd34d; line-height:1.5;">
+  ⚠️ <b>Защита от Flood Control:</b> При выборе «24/7 Облако» со стандартным IP запросы идут с сервера Render. Для масштабирования без лимитов подключите <b>«○ Персональный SOCKS5»</b>, либо переключитесь в <b>«💻 Браузерный режим (Домашний IP)»</b>!
+</div>
 </div>
 </div>
 <div class="wh-grid">
@@ -230,8 +236,10 @@
 <div id="wh-view-tg" style="display:none;">
 <div class="wh-hdr">
 <div class="wh-row" style="gap:12px;">
-<div style="position:relative; width:52px; height:52px; border-radius:50%; background:linear-gradient(135deg,#0284c7,#0369a1); display:flex; align-items:center; justify-content:center; border:3px solid #0ea5e9;">
-<span style="font-size:24px;">✈</span>
+<div style="position:relative; width:56px; height:56px; border-radius:50%; background:#24A1DE; display:flex; align-items:center; justify-content:center; border:3px solid #0284c7; overflow:hidden; flex-shrink:0;">
+<svg width="34" height="34" viewBox="0 0 24 24" fill="none">
+  <path d="M17.5 7.25L4.5 12.25c-.89.36-.88.86-.16 1.08l3.34 1.04 7.72-4.88c.37-.23.7-.1.43.14l-6.26 5.65v.01l-.23 3.44c.34 0 .49-.16.68-.34l1.63-1.58 3.4 2.51c.63.35 1.08.17 1.24-.58l2.23-10.5c.23-.92-.35-1.34-1.02-.99z" fill="#fff"/>
+</svg>
 <span id="wh-tg-dot" style="position:absolute; bottom:2px; right:2px; width:12px; height:12px; border-radius:50%; background:#64748b; border:2px solid #0f172a;"></span>
 </div>
 <div>
@@ -292,7 +300,9 @@
 <div id="wh-tg-proxy-status" style="font-size:11px; font-weight:600; color:#94a3b8; flex:1; text-align:right;"></div>
 </div>
 </div>
-<div style="font-size:11px; color:#64748b;">🛡 Персональный SOCKS5 изолирует ваш аккаунт от других и гарантирует 100% стабильность работы при масштабировании на тысячи пользователей.</div>
+<div style="margin-top:8px; padding:9px 12px; background:rgba(245,158,11,0.12); border:1px solid rgba(245,158,11,0.35); border-radius:8px; font-size:11px; color:#fcd34d; line-height:1.5;">
+  ⚠️ <b>Защита от Flood Wait:</b> При выборе «24/7 Облако» со стандартным IP запросы идут с сервера Render. Для масштабирования без риска блокировок IP подключите <b>«○ Персональный SOCKS5»</b>, либо переключитесь в <b>«💻 Браузерный режим (Домашний IP)»</b>!
+</div>
 </div>
 </div>
 <div id="wh-tg-auth-card" class="wh-box" style="background:linear-gradient(145deg,#0c1a30,#0f172a); border:2px dashed #0284c7; margin-bottom:14px; transition:box-shadow 0.3s ease, border-color 0.3s ease;">
