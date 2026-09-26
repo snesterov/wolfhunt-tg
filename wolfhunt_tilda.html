@@ -1,0 +1,531 @@
+<!-- WOLFHUNT PRO 2.0 — VK + TG STORIES (БЛОК T123 ДЛЯ TILDA) -->
+<style>#wh-app{position:relative;clear:both;width:100%;overflow:hidden;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#0f172a;color:#f8fafc;border-radius:20px;padding:20px;max-width:820px;margin:20px auto;border:1px solid #1e293b;box-shadow:0 20px 40px rgba(0,0,0,0.5);box-sizing:border-box;}#wh-app *{box-sizing:border-box;}.wh-row{display:flex;align-items:center;gap:8px;}.wh-row-sb{display:flex;align-items:center;justify-content:space-between;}.wh-tabs{display:flex;gap:8px;background:#0b1120;padding:6px;border-radius:14px;border:1px solid #1e293b;margin-bottom:20px;}.wh-tab{flex:1;border:none;padding:12px;border-radius:10px;font-size:13px;font-weight:800;cursor:pointer;transition:0.2s;display:flex;align-items:center;justify-content:center;gap:8px;}.wh-tab:hover{filter:brightness(1.1);}.wh-hdr{display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #1e293b;padding-bottom:16px;flex-wrap:wrap;gap:12px;}.wh-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin:16px 0;}.wh-card{background:#1e293b;padding:14px;border-radius:14px;border:1px solid #334155;text-align:center;}.wh-title{font-size:11px;font-weight:700;text-transform:uppercase;}.wh-val{font-size:26px;font-weight:800;margin-top:4px;}.wh-sub{font-size:10px;color:#94a3b8;display:block;margin-top:2px;}.wh-box{background:#1e293b;border-radius:16px;padding:16px;margin-bottom:16px;border:1px solid #334155;}.wh-inp{width:100%;background:#0b1120;border:1px solid #334155;border-radius:8px;padding:9px 12px;color:#fff;font-size:12px;outline:none;}.wh-inp:focus{border-color:#38bdf8;}.wh-txt{width:100%;background:#0b1120;border:1px solid #334155;border-radius:8px;padding:8px 12px;color:#e2e8f0;font-size:12px;font-family:monospace;resize:vertical;outline:none;}.wh-term{background:#020617;border:1px solid #334155;border-radius:14px;padding:14px;font-family:monospace;}.wh-stream{max-height:180px;overflow-y:auto;font-size:11px;line-height:1.5;color:#94a3b8;background:#0b1120;border-radius:8px;padding:10px;border:1px solid #1e293b;}.wh-btn{border:none;padding:10px 18px;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer !important;text-decoration:none;display:inline-flex;align-items:center;gap:7px;transition:0.2s;box-shadow:0 4px 12px rgba(0,0,0,0.25);}#wh-tg-toggle-btn,#wh-toggle-btn{cursor:pointer !important;}.wh-btn:hover{filter:brightness(1.12);transform:translateY(-1px);}.wh-btn:active{transform:translateY(0);}.wh-chk{display:flex;align-items:center;gap:6px;background:#0b1120;border:1px solid #334155;padding:7px 12px;border-radius:8px;cursor:pointer;font-size:12px;font-weight:600;}.wh-badge{font-size:11px;padding:3px 9px;border-radius:12px;font-weight:700;font-family:monospace;}.wh-term-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;border-bottom:1px solid #1e293b;padding-bottom:6px;flex-wrap:wrap;gap:8px;}.wh-avatar{width:56px;height:56px;border-radius:50%;object-fit:cover;}.wh-mb8{margin-bottom:8px;}.wh-mb12{margin-bottom:12px;}</style>
+<div id="wh-app">
+<div class="wh-row-sb" style="margin-bottom:16px; padding-bottom:12px; border-bottom:1px solid #1e293b; flex-wrap:wrap; gap:10px;">
+<div class="wh-row" style="gap:12px;">
+<div style="width:44px; height:44px; border-radius:12px; border:2px solid #38bdf8; box-shadow:0 0 16px rgba(56,189,248,0.4); background:linear-gradient(135deg,#0284c7,#0369a1); display:flex; align-items:center; justify-content:center; font-size:24px; flex-shrink:0;">🐺</div>
+<div>
+<div class="wh-row" style="gap:8px;">
+<span style="font-size:18px; font-weight:900; letter-spacing:0.03em; color:#fff;">Wolf Hunter</span>
+<span style="font-size:10px; font-weight:800; background:#1e293b; color:#38bdf8; padding:2px 7px; border-radius:6px; border:1px solid #334155;">PRO 2.0</span>
+</div>
+<span style="font-size:11px; color:#94a3b8; font-weight:600;">ВКонтакте · Telegram (24/7)</span>
+</div>
+</div>
+<span class="wh-badge" style="background:rgba(16,185,129,0.15); color:#34d399; border:1px solid rgba(16,185,129,0.3); font-size:10px;">🟢 СЕРВИС АКТИВЕН 24/7</span>
+</div>
+<div class="wh-tabs">
+<button id="wh-tab-vk" class="wh-tab" onclick="switchTab('vk')" style="background:linear-gradient(135deg,#0077ff,#0055cc); color:#fff; font-weight:800; box-shadow:0 4px 14px rgba(0,119,255,0.4);"><span>🔵</span> ВКонтакте</button>
+<button id="wh-tab-tg" class="wh-tab" onclick="switchTab('tg')" style="background:transparent; color:#94a3b8; font-weight:800;"><span>✈️</span> Telegram</button>
+</div>
+<div id="wh-view-vk">
+<div class="wh-hdr">
+<div class="wh-row" style="gap:12px;">
+<div style="position:relative; width:56px; height:56px; flex-shrink:0;">
+<img id="wh-avatar" class="wh-avatar" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'><circle cx='24' cy='24' r='24' fill='%230077FF'/><path fill='%23FFF' d='M25.7 32.4c-8.8 0-13.8-6-14-16h4.4c.1 7.3 3.4 10.4 6 11V16.4h4.1v6.3c2.5-.3 5.1-3.1 6-6.3h4.1c-.8 3.9-3.7 6.7-5.8 7.9 2.1 1 5.3 3.5 6.6 8.1h-4.6c-1-3.2-3.6-5.7-6.8-6v6h0z'/></svg>" style="border:3px solid #0077ff; background:#0c1a30;">
+<span id="wh-dot" style="position:absolute; bottom:2px; right:2px; width:12px; height:12px; border-radius:50%; background:#64748b; border:2px solid #0f172a;"></span>
+</div>
+<div>
+<div class="wh-row" style="flex-wrap:wrap; gap:6px;">
+<h3 id="wh-name" style="margin:0; font-size:17px; font-weight:800; color:#fff;">Сергей Нестеров</h3>
+<span id="wh-vk-badge" class="wh-badge" style="background:rgba(0,119,255,0.2); color:#38bdf8; border:1px solid rgba(0,119,255,0.4);">🔵 VK CONNECTED</span>
+</div>
+<div id="wh-nick" style="font-size:11px; color:#94a3b8; margin-top:2px;">@greyzzzzwolf · id49239823</div>
+<p id="wh-sub" style="margin:2px 0 0 0; font-size:12px; color:#10b981; font-weight:600;">🟢 Аккаунт подключен</p>
+</div>
+</div>
+<div class="wh-row">
+<button id="wh-toggle-btn" class="wh-btn" onclick="toggleWolfState()" style="background:linear-gradient(135deg,#10b981,#059669); color:#fff; padding:11px 24px; font-size:13px; box-shadow:0 4px 16px rgba(16,185,129,0.4);">▶ Запустить ВК Хантер</button>
+<button id="wh-reset-btn" class="wh-btn" onclick="resetAuth()" style="display:none; background:#1e293b; color:#cbd5e1; border:1px solid #475569; font-size:12px; padding:10px 14px;" title="Сменить профиль ВК">🔄 Сменить аккаунт</button>
+</div>
+</div>
+<div class="wh-grid">
+<div class="wh-card"><span class="wh-title" style="color:#c084fc;">🔥 Лайков историй</span><div id="wh-stories" class="wh-val" style="color:#c084fc;">0</div><span class="wh-sub">Приоритет №1</span></div>
+<div class="wh-card"><span class="wh-title" style="color:#38bdf8;">❤ Лайков постов</span><div id="wh-post-likes" class="wh-val" style="color:#38bdf8;">0</div><span class="wh-sub">Разбавка ленты</span></div>
+<div class="wh-card"><span class="wh-title" style="color:#34d399;">⚡ Всего за сутки</span><div id="wh-today-likes" class="wh-val" style="color:#34d399;">0</div><span class="wh-sub">Истории + Посты (до 300)</span></div>
+<div class="wh-card"><span class="wh-title" style="color:#f59e0b;">🎂 Поздравлений с ДР</span><div id="wh-bday-stat" class="wh-val" style="color:#f59e0b;">0</div><span class="wh-sub" style="color:#cbd5e1; font-weight:600;">Раз в год именинникам</span></div>
+</div>
+<div id="wh-auth-card" class="wh-box" style="background:linear-gradient(145deg,#1e293b,#0f172a); border:2px dashed #3b82f6;">
+<h4 style="margin:0 0 6px 0; font-size:14px; color:#60a5fa; font-weight:700;">⚡ Подключение профиля ВКонтакте</h4>
+<p style="font-size:12px; color:#94a3b8; margin:0 0 10px 0;">1. Нажмите кнопку и подтвердите доступ (истории, стена, друзья, сообщения).<br>2. Скопируйте ссылку из адресной строки и вставьте в поле.</p>
+<div style="margin-bottom:10px;">
+<a href="https://oauth.vk.com/authorize?client_id=4083558&scope=friends,wall,stories,messages,offline&redirect_uri=https://oauth.vk.com/blank.html&response_type=token" target="_blank" class="wh-btn" style="background:linear-gradient(135deg,#2563eb,#1d4ed8); color:#fff; font-weight:700; padding:10px 20px; font-size:13px; box-shadow:0 4px 14px rgba(37,99,235,0.35);">🚀 1. Авторизоваться ↗</a>
+</div>
+<div style="display:flex; gap:8px;">
+<input id="wh-token-raw" class="wh-inp" type="text" placeholder="2. Вставьте скопированную ссылку или токен...">
+<button class="wh-btn" onclick="saveAndAuth()" style="background:linear-gradient(135deg,#10b981,#059669); color:#fff; white-space:nowrap; padding:10px 20px; font-size:13px; box-shadow:0 4px 14px rgba(16,185,129,0.35);">⚡ Подключить</button>
+</div>
+<div id="wh-msg" style="font-size:11px; margin-top:8px; font-weight:600;"></div>
+<div style="font-size:11px; color:#64748b; margin-top:8px; line-height:1.4;">
+💡 <b>Подсказка:</b> если ВК пишет «Flood control» — это временная защита от кликов. Подождите 3–5 минут, пауза снимется сама.
+</div>
+</div>
+<div class="wh-box wh-mb12" style="background:linear-gradient(135deg,rgba(30,41,59,0.8),rgba(15,23,42,0.9)); border:1px solid #3b82f6; border-radius:12px; padding:12px; margin-bottom:12px;">
+<div class="wh-row-sb" style="flex-wrap:wrap; gap:10px;">
+<div>
+<div style="font-size:13px; font-weight:700; color:#f8fafc; display:flex; align-items:center; gap:6px;">
+<span>🧩</span> Расширение WolfHunt для Google Chrome (Автоохота VK)
+</div>
+<div style="font-size:11px; color:#94a3b8; margin-top:3px;">
+Охотится в фоновом режиме браузера при закрытом сайте. Двусторонняя синхронизация Старт / Стоп.
+</div>
+</div>
+<a href="https://wolfhunt-tg.onrender.com/downloads/WOLFHUNT_CHROME_EXTENSION.zip" target="_blank" class="wh-btn" style="background:linear-gradient(135deg,#2563eb,#1d4ed8); color:#fff; font-size:12px; padding:8px 16px; text-decoration:none; display:inline-flex; align-items:center; gap:6px;">📥 Скачать плагин (.zip)</a>
+</div>
+<div style="margin-top:10px; padding-top:8px; border-top:1px dashed #334155; font-size:11px; color:#cbd5e1; line-height:1.5;">
+<b>📌 Важно при установке:</b> Скачайте архив и распакуйте его в постоянную надежную папку (например, в <code>Документы\WolfHunt</code>), а <u>не</u> во временные загрузки. Тогда браузер никогда не потеряет файлы плагина при очистке диска.
+</div>
+</div>
+<a href="https://wolfhunt-tg.onrender.com/downloads/WOLFHUNT_CHROME_EXTENSION.zip" target="_blank" class="wh-btn" style="background:linear-gradient(135deg,#2563eb,#1d4ed8); color:#fff; font-size:12px; padding:8px 16px; text-decoration:none; display:inline-flex; align-items:center; gap:6px;">📥 Скачать плагин (.zip)</a>
+</div>
+</div>
+<div class="wh-box" style="margin-bottom:12px; background:rgba(30,41,59,0.5); border:1px solid #334155; border-radius:12px; padding:12px;">
+<div style="display:flex; justify-content:space-between; align-items:center; cursor:pointer;" onclick="const el=document.getElementById('wh-vk-faq-content'); el.style.display=(el.style.display==='none'?'block':'none');">
+<div class="wh-row"><span>💡</span><h4 style="margin:0; font-size:13px; color:#f8fafc; font-weight:700;">Как устроена логика и 3 такта ВК Хантера</h4></div>
+<span style="font-size:11px; color:#38bdf8; font-weight:600;">Развернуть / Свернуть ▾</span>
+</div>
+<div id="wh-vk-faq-content" style="display:none; margin-top:12px; font-size:12px; color:#cbd5e1; line-height:1.6; border-top:1px solid #334155; padding-top:12px;">
+<div style="margin-bottom:8px; padding:8px; background:rgba(2,132,199,0.1); border-left:3px solid #0284c7; border-radius:4px;">
+<b>🌐 Облако (TG) vs Браузер (VK):</b><br>
+• <b>Telegram Хантер:</b> работает 100% автономно 24/7 в облаке (даже если ваш ПК, браузер и телефон полностью выключены).<br>
+• <b>ВКонтакте Хантер:</b> работает через ваш браузер/расширение. Это сделано специально, чтобы ВК видел реальный домашний IP и браузер, исключая подозрения, капчи и блокировки. Когда браузер открыт — охота идет в фоне. Если ПК выключен — сервис на безопасной паузе, а при включении сам продолжает работу.
+</div>
+<div style="margin-bottom:8px;"><b>🎯 Такт 1 (Приоритет №1 — Истории):</b> Охота за свежими историями друзей. Push-уведомление автору на весь экран с вашим аватаром.</div>
+<div style="margin-bottom:8px;"><b>🎂 Такт 2 (День Рождения друзей):</b> Поштучное поздравление именинников дня через Spintax (строго по 1 человеку за такт с 06:00 до 22:00 МСК, чтобы не будить людей). Если сегодня именинников нет или еще не наступило 06:00 — автоматический переход к Историям (Приоритет №1).</div>
+<div style="margin-bottom:8px;"><b>📰 Такт 3 (Разбавка постом):</b> Лайк свежей записи друга для естественности алгоритмов ВК.</div>
+<div><b>🛡 Лимиты безопасности и авто-сон:</b> Лимит — до 300 лайков в сутки. При достижении 300/300 Хантер автоматически останавливается и уходит в ночной сон для 100% защиты от банов. В 00:00 по МСК счетчик обнуляется и сервис автоматически возобновляет охоту 24/7! Плавающая пауза между тактами — 25–45 сек.</div>
+</div>
+</div>
+<div class="wh-box">
+<h4 style="margin:0 0 12px 0; font-size:13px; color:#f8fafc; font-weight:700;">🎂 Поздравление друзей с Днём Рождения (Spintax)</h4>
+<div style="margin-bottom:8px;">
+<div class="wh-row-sb" style="margin-bottom:6px;">
+<label style="font-size:12px; font-weight:600; color:#cbd5e1;">Автопоздравление именинников (с 06:00 до 22:00 МСК, по 1 за такт)</label>
+<input type="checkbox" id="wh-bday-enable" checked style="transform:scale(1.1); cursor:pointer;">
+</div>
+<textarea id="wh-bday-text" class="wh-txt" rows="3">{С днем рождения|С праздником|Поздравляю с днем рождения}, %first_name%! {Желаю крепкого здоровья, энергии и грандиозных успехов|Всего самого наилучшего и исполнения желаний}! {🎂|🎉|🎁|🥂}</textarea>
+</div>
+<div class="wh-row-sb" style="margin-top:12px; flex-wrap:wrap; gap:8px;">
+<span style="font-size:11px; color:#64748b;">Переменная <code>%first_name%</code> подставляет имя. Повтор исключён (кэш на 1 год).</span>
+<button class="wh-btn" onclick="saveTexts()" style="background:linear-gradient(135deg,#0284c7,#0369a1); color:#fff; font-size:12px; padding:8px 16px;">💾 Сохранить шаблон</button>
+</div>
+</div>
+<div class="wh-term">
+<div class="wh-term-head">
+<div class="wh-row" style="gap:6px;">
+<span style="width:8px; height:8px; border-radius:50%; background:#10b981; display:inline-block; box-shadow:0 0 6px #10b981;"></span>
+<span style="font-size:11px; font-weight:700; color:#34d399;">ТЕРМИНАЛ ВК ХАНТЕРА</span>
+</div>
+<div class="wh-row" style="gap:6px;">
+<button id="wh-btn-now" class="wh-btn" onclick="runOneCycleNow()" style="background:linear-gradient(135deg,#2563eb,#1d4ed8); color:#fff; font-size:11px; padding:6px 12px;">⚡ Лайкнуть сейчас</button>
+<button class="wh-btn" onclick="copyConsole('vk')" style="background:#1e293b; color:#cbd5e1; font-size:11px; padding:6px 11px; border:1px solid #475569;">📋 Лог</button>
+<button class="wh-btn" onclick="clearConsole('vk')" style="background:#1e293b; color:#64748b; border:1px solid #334155; font-size:11px; padding:5px 8px;">✕</button>
+</div>
+</div>
+<div id="wh-log-stream" class="wh-stream"><div>[Система]: Инициализация панели...</div></div>
+</div>
+</div>
+<div id="wh-view-tg" style="display:none;">
+<div class="wh-hdr">
+<div class="wh-row" style="gap:12px;">
+<div style="position:relative; width:56px; height:56px; flex-shrink:0;">
+<img id="wh-tg-avatar" class="wh-avatar" src="https://wolfhunt-tg.onrender.com/api/tg/avatar" onerror="this.onerror=null; this.src=TG_SVG;" style="border:3px solid #229ed9; background:#0c1a30;">
+<span id="wh-tg-dot" style="position:absolute; bottom:2px; right:2px; width:12px; height:12px; border-radius:50%; background:#64748b; border:2px solid #0f172a;"></span>
+</div>
+<div>
+<div class="wh-row" style="flex-wrap:wrap; gap:6px;">
+<h3 id="wh-tg-name" style="margin:0; font-size:17px; font-weight:800; color:#fff;">Сергей Нестеров</h3>
+<span id="wh-tg-badge" class="wh-badge" style="background:rgba(34,158,217,0.2); color:#38bdf8; border:1px solid rgba(34,158,217,0.4);">✈️ TG CONNECTED</span>
+</div>
+<div id="wh-tg-nick" style="font-size:11px; color:#94a3b8; margin-top:2px;">@GREYzzzzWOLF · id324874531</div>
+<p id="wh-tg-sub" style="margin:2px 0 0 0; font-size:12px; color:#10b981; font-weight:600;">🟢 Аккаунт подключен</p>
+</div>
+</div>
+<div class="wh-row">
+<button id="wh-tg-toggle-btn" class="wh-btn" onclick="toggleTgHunterState()" disabled style="background:#475569; color:#94a3b8; padding:11px 24px; font-size:13px; box-shadow:none; cursor:not-allowed;">▶ Запустить TG Хантер</button>
+<button id="wh-tg-reset-btn" class="wh-btn" onclick="resetTgAuth()" style="display:none; background:#1e293b; color:#cbd5e1; border:1px solid #475569; font-size:12px; padding:10px 14px;" title="Сменить аккаунт Telegram">🔄 Сменить аккаунт</button>
+</div>
+</div>
+<div id="wh-tg-auth-card" class="wh-box" style="background:linear-gradient(145deg,#0c1a30,#0f172a); border:2px dashed #0284c7; margin-bottom:14px;">
+<div class="wh-row" style="margin-bottom:6px;">
+<span class="wh-badge" style="background:#0284c7; color:#fff; font-size:11px;">ШАГ 1</span>
+<h4 style="margin:0; font-size:15px; color:#38bdf8; font-weight:800;">Подключение профиля Telegram онлайн</h4>
+</div>
+<p style="font-size:12px; color:#94a3b8; margin:0 0 12px 0;">Авторизация выполняется 1 раз. Введите номер телефона, и код подтверждения придет прямо в Telegram.</p>
+<div id="wh-tg-step-phone" style="display:flex; gap:8px;">
+<input id="wh-tg-phone-input" class="wh-inp" type="tel" placeholder="Введите номер телефона (+7995...)">
+<button id="wh-tg-btn-send" class="wh-btn" onclick="requestTgCode()" style="background:linear-gradient(135deg,#0284c7,#0369a1); color:#fff; white-space:nowrap; padding:10px 20px; font-size:13px;">📲 Получить код</button>
+</div>
+<div id="wh-tg-step-code" style="display:none; margin-top:10px;">
+<div style="font-size:11px; color:#34d399; font-weight:600; margin-bottom:6px;">✔ Код отправлен в Telegram! Введите его ниже:</div>
+<div style="display:flex; gap:8px;">
+<input id="wh-tg-code-input" class="wh-inp" type="text" placeholder="5-значный код из Telegram">
+<button id="wh-tg-btn-verify" class="wh-btn" onclick="verifyTgCode()" style="background:linear-gradient(135deg,#10b981,#059669); color:#fff; white-space:nowrap; padding:10px 20px; font-size:13px;">⚡ Подключить</button>
+</div>
+<div id="wh-tg-step-pwd" style="display:none; margin-top:8px;">
+<input id="wh-tg-pwd-input" class="wh-inp" type="password" placeholder="Облачный пароль 2FA (если включен)">
+</div>
+</div>
+<div id="wh-tg-auth-msg" style="font-size:11px; margin-top:8px; font-weight:600;"></div>
+</div>
+<div class="wh-box wh-mb12">
+<div class="wh-row-sb" style="cursor:pointer;" onclick="const el=document.getElementById('wh-tg-faq-content'); el.style.display=(el.style.display==='none'?'block':'none');">
+<div class="wh-row"><span>💡</span><h4 style="margin:0; font-size:13px; color:#f8fafc; font-weight:700;">Как устроена логика Telegram Хантера (24/7)</h4></div>
+<span style="font-size:11px; color:#38bdf8; font-weight:600;">Развернуть / Свернуть ▾</span>
+</div>
+<div id="wh-tg-faq-content" style="display:none; margin-top:12px; font-size:12px; color:#cbd5e1; line-height:1.6; border-top:1px solid #334155; padding-top:12px;">
+<div class="wh-mb8"><b>🚀 Облачная автоохота 24/7:</b> Сервер отслеживает новые истории контактов Telegram непрерывно в фоне, даже при выключенном телефоне и ПК.</div>
+<div class="wh-mb8"><b>🎯 Приоритет реакций:</b> Автор истории получает мгновенное push-уведомление с вашей реакцией на заблокированном экране телефона.</div>
+<div class="wh-mb8"><b>🛡 Безопасность и лимит 150:</b> Пауза 25–45 сек между реакциями защищает профиль. Суточный порог — строго 150 реакций (сброс в 00:00 МСК).</div>
+<div style="font-size:11px; color:#94a3b8; border-top:1px dashed #334155; padding-top:8px;">⚡ <b>Разовый лайк:</b> Кнопка «⚡ Лайкнуть историю сейчас» позволяет протестировать охоту в 1 клик.</div>
+</div>
+</div>
+<div class="wh-grid">
+<div class="wh-card"><span class="wh-title" style="color:#38bdf8;">🔥 Реакций на истории</span><div id="wh-tg-stat-reactions" class="wh-val" style="color:#38bdf8;">0</div><span class="wh-sub">Push авторам на экран</span></div>
+<div class="wh-card"><span class="wh-title" style="color:#c084fc;">👁 Просмотрено историй</span><div id="wh-tg-stat-views" class="wh-val" style="color:#c084fc;">0</div><span class="wh-sub">Только живые контакты</span></div>
+<div class="wh-card"><span class="wh-title" style="color:#34d399;">⚡ Суточный лимит</span><div id="wh-tg-stat-limit" class="wh-val" style="color:#34d399;">0 / 150</div><span class="wh-sub">Безопасный порог TG</span></div>
+<div class="wh-card"><span class="wh-title" style="color:#f59e0b;">🛡 Защита от спама</span><div class="wh-val" style="color:#f59e0b; font-size:19px; margin-top:6px;">25–45 сек</div><span class="wh-sub">Плавающая пауза</span></div>
+</div>
+<div class="wh-box">
+<h4 style="margin:0 0 10px 0; font-size:13px; color:#f8fafc; font-weight:700;">❤️ Эмодзи реакций на истории Telegram</h4>
+<div style="display:flex; gap:8px; flex-wrap:wrap;">
+<label class="wh-chk"><input type="checkbox" id="wh-tg-re-heart" checked onchange="saveTgReactions()"> ❤️ Сердце</label>
+<label class="wh-chk"><input type="checkbox" id="wh-tg-re-fire" checked onchange="saveTgReactions()"> 🔥 Огонь</label>
+<label class="wh-chk"><input type="checkbox" id="wh-tg-re-like" checked onchange="saveTgReactions()"> 👍 Класс</label>
+<label class="wh-chk"><input type="checkbox" id="wh-tg-re-clap" checked onchange="saveTgReactions()"> 👏 Аплодисменты</label>
+<label class="wh-chk"><input type="checkbox" id="wh-tg-re-love" checked onchange="saveTgReactions()"> 😍 Влюблен</label>
+</div>
+</div>
+<div class="wh-term">
+<div class="wh-term-head">
+<div class="wh-row" style="gap:6px;">
+<span style="width:8px; height:8px; border-radius:50%; background:#0284c7; display:inline-block; box-shadow:0 0 6px #0284c7;"></span>
+<span style="font-size:11px; font-weight:700; color:#38bdf8;">ТЕРМИНАЛ TELEGRAM STORIES</span>
+</div>
+<div class="wh-row" style="gap:6px;">
+<button id="wh-tg-btn-now" class="wh-btn" onclick="runTgCycleNow()" style="background:linear-gradient(135deg,#0284c7,#0369a1); color:#fff; font-size:11px; padding:6px 12px; font-weight:700;">⚡ Лайкнуть сейчас</button>
+<button class="wh-btn" onclick="copyConsole('tg')" style="background:#1e293b; color:#cbd5e1; font-size:11px; padding:6px 11px; border:1px solid #475569;">📋 Лог</button>
+<button class="wh-btn" onclick="clearConsole('tg')" style="background:#1e293b; color:#64748b; border:1px solid #334155; font-size:11px; padding:5px 8px;">✕</button>
+</div>
+</div>
+<div id="wh-tg-log-stream" class="wh-stream"><div>[TG Облако]: Готов к работе.</div></div>
+</div>
+</div>
+<div style="margin-top:16px; padding-top:12px; border-top:1px solid #1e293b; text-align:center; font-size:10px; color:#64748b; line-height:1.5;">
+WolfHunt PRO — персональный SaaS-ассистент автоматизации активности (User-Agent). Сервис не хранит персональные данные третьих лиц (152-ФЗ compliant). Все действия производятся под управлением аккаунта пользователя.<br>
+Используя сервис, вы принимаете условия <a href="/terms" target="_blank" style="color:#38bdf8; text-decoration:underline;">Пользовательского соглашения и Политики конфиденциальности</a>.
+</div>
+</div>
+<script>
+const VK_SVG="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'><circle cx='24' cy='24' r='24' fill='%230077FF'/><path fill='%23FFF' d='M25.7 32.4c-8.8 0-13.8-6-14-16h4.4c.1 7.3 3.4 10.4 6 11V16.4h4.1v6.3c2.5-.3 5.1-3.1 6-6.3h4.1c-.8 3.9-3.7 6.7-5.8 7.9 2.1 1 5.3 3.5 6.6 8.1h-4.6c-1-3.2-3.6-5.7-6.8-6v6h0z'/></svg>";const TG_SVG="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'><circle cx='24' cy='24' r='24' fill='%23229ED9'/><path fill='%23FFF' d='M10 23.5l25-9.6c1.2-.4 2.2.3 1.8 2.2l-4.3 20.1c-.3 1.4-1.1 1.7-2.3 1.1l-6.5-4.8-3.1 3c-.4.4-.7.7-1.4.7l.5-6.5 11.9-10.7c.5-.5-.1-.7-.8-.3L16.2 28.1 10 26.2c-1.3-.4-1.3-1.3.2-1.9z'/></svg>";function setBtnUI(btn,dot,sub,txt,bg,shd,dotBg,subTxt,subClr,dis){if(!btn)return ;btn.disabled=!!dis;btn.innerText=txt;btn.style.background=bg;btn.style.boxShadow=shd;btn.style.color=dis?'#94a3b8':'#fff';btn.style.cursor=dis?'not-allowed':'pointer';if(dot)dot.style.background=dotBg;if(sub){sub.innerText=subTxt;sub.style.color=subClr;}}const API_URL="https://script.google.com/macros/s/AKfycbzndLq6aBuOKIK0au6gtRoB7sIh4h0_owOTVrVxNKNsUCcYVLg2SpxNQLU9TiUaOH5oPA/exec";const TG_API_URL="https://wolfhunt-tg.onrender.com";let huntTimer=null,isHunting=false;const $=id=>document.getElementById(id);const getToday=()=>new Date().toLocaleDateString('en-CA',{timeZone:'Europe/Moscow'});const ls=localStorage;function logMsg(text,type='info',target='vk'){const box=$(target==='vk'?'wh-log-stream':'wh-tg-log-stream');if(!box)return ;const time=new Date().toLocaleTimeString();const colors={info:'#94a3b8',success:target==='vk'?'#34d399':'#38bdf8',warn:'#fbbf24',error:'#f87171'};const row=document.createElement('div');row.style.color=colors[type]||'#94a3b8';row.innerHTML=`<span style="color:#64748b;">[${time}]</span> ${text}`;box.appendChild(row);box.scrollTop=box.scrollHeight;try{const key=target==='vk'?'wh_logs_cache':'wh_tg_logs_cache';let logs=JSON.parse(ls.getItem(key)||'[]');logs.push({time,text,type});if(logs.length>30)logs=logs.slice(-30);ls.setItem(key,JSON.stringify(logs));}catch(e){}}function loadCachedLogs(target='vk'){try{const box=$(target==='vk'?'wh-log-stream':'wh-tg-log-stream');if(!box)return ;const logs=JSON.parse(ls.getItem(target==='vk'?'wh_logs_cache':'wh_tg_logs_cache')||'[]');if(logs.length){box.innerHTML='';const colors={info:'#94a3b8',success:target==='vk'?'#34d399':'#38bdf8',warn:'#fbbf24',error:'#f87171'};logs.forEach(l=>{const row=document.createElement('div');row.style.color=colors[l.type]||'#94a3b8';row.innerHTML=`<span style="color:#64748b;">[${l.time}]</span> ${l.text}`;box.appendChild(row);});box.scrollTop=box.scrollHeight;}}catch(e){}}function clearConsole(target='vk'){const box=$(target==='vk'?'wh-log-stream':'wh-tg-log-stream');if(box)box.innerHTML=`<div style="color:#64748b;">[Терминал очищен]</div>`;ls.removeItem(target==='vk'?'wh_logs_cache':'wh_tg_logs_cache');}function copyConsole(target='vk'){const box=$(target==='vk'?'wh-log-stream':'wh-tg-log-stream');if(!box)return ;navigator.clipboard.writeText(box.innerText).then(()=>alert('Лог скопирован!')).catch(()=>alert('Не удалось скопировать'));}let vkFloodRemain=0,vkFloodTimer=null;function resetVkFloodCooldown(){vkFloodRemain=0;if(vkFloodTimer){clearInterval(vkFloodTimer);vkFloodTimer=null;}ls.removeItem('wh_vk_flood_until');const b=$('wh-btn-now');if(b){b.disabled=false;b.innerText='⚡ Лайкнуть сейчас';}if(isHunting){logMsg("▶ [Возобновление] Пауза окончена, охота продолжается ✅","success","vk");scheduleNextCycle();}}function triggerVkFloodCooldown(seconds=180){ls.setItem('wh_vk_flood_until',(Date.now()+seconds*1000).toString());vkFloodRemain=seconds;const b=$('wh-btn-now');if(b)b.disabled=true;logMsg(`⏳ Защитная пауза ВК: ${vkFloodRemain}с`,"warn","vk");if(vkFloodTimer)clearInterval(vkFloodTimer);vkFloodTimer=setInterval(()=>{vkFloodRemain--;if(b)b.innerText=`⏳ Пауза (${vkFloodRemain}с)`;if(vkFloodRemain<=0)resetVkFloodCooldown();},1000);}function handleVkSecurityStop(reasonText){stopHuntingLoop();renderRunningState(false);const sub=$('wh-sub');if(sub){sub.innerText='🛑 Остановлен (требуется подтверждение в ВК)';sub.style.color='#ef4444';}logMsg("🛑 [ВК Хантер полностью остановлен: "+(reasonText||"Защита безопасности ВК")+"]","error","vk");logMsg("👉 ВКонтакте запросил подтверждение (разморозку / SMS / капчу).","warn","vk");logMsg("👉 1. Зайдите в профиль на vk.com (или в приложение на телефоне) и подтвердите аккаунт.","info","vk");logMsg("👉 2. После успешного входа вернитесь сюда и нажмите зелёную кнопку «🚀 Запустить охоту».","success","vk");}function callVkApi(method,params={}){return new Promise((resolve,reject)=>{if(method!=='users.get'&&vkFloodRemain>0)return resolve(null);const token=params.access_token||ls.getItem('wh_token');if(!token)return reject(new Error('VK not authorized'));const cb='vk_cb_'+Math.floor(Math.random()*10000000);params.access_token=token;params.v='5.131';params.callback=cb;const q=Object.keys(params).map(k=>encodeURIComponent(k)+'='+encodeURIComponent(params[k])).join('&');const sc=document.createElement('script');sc.src='https://api.vk.com/method/'+method+'?'+q;window[cb]=function (res){delete window[cb];if(sc.parentNode)sc.parentNode.removeChild(sc);if(res&&res.error){const errMsg=res.error.error_msg||'';const errCode=res.error.error_code;const errLower=errMsg.toLowerCase();if(errCode===9||errLower.includes("flood")||errLower.includes("too many")){triggerVkFloodCooldown(60);logMsg("⏳ [VK Пауза 60с] Мягкая пауза частоты запросов. Охота не останавливается.","warn","vk");return resolve(null);}if(errCode===5&&(errLower.includes('blocked')||errLower.includes('banned')||errLower.includes('deactivated'))){handleVkSecurityStop('Страница временно заморожена');}reject(new Error(errMsg));}else resolve(res?res.response:null);};sc.onerror=function (){delete window[cb];if(sc.parentNode)sc.parentNode.removeChild(sc);reject(new Error('Network error'));};document.body.appendChild(sc);});}const getTodayLikesCount=()=>parseInt(ls.getItem('wh_story_likes')||'0')+parseInt(ls.getItem('wh_post_likes')||'0');const isLogged=(t,o,i)=>ls.getItem(`wh_log_${t}_${o}_${i}`)==='1';const setLogged=(t,o,i)=>ls.setItem(`wh_log_${t}_${o}_${i}`,'1');const getAuthorDailyCount=o=>parseInt(ls.getItem(`wh_cnt_${getToday()}_${o}`)||'0');const incAuthorDailyCount=o=>ls.setItem(`wh_cnt_${getToday()}_${o}`,getAuthorDailyCount(o)+1);async function autoStartTgHunter(){try{const reactions=getSelectedTgReactions();await fetch(TG_API_URL+'/api/tg/toggle',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'start',reactions})});ls.setItem('wh_tg_running','true');renderTgRunningState(true);}catch(e){}}function loadTgSettings(){try{const r=JSON.parse(ls.getItem('wh_tg_reactions')||'[]');if(r&&r.length){['heart','fire','like','clap','love'].forEach((k,idx)=>{const el=$('wh-tg-re-'+k);if(el)el.checked=r.includes(['❤️','🔥','👍','👏','😍'][idx]);});}}catch(e){}switchTab(ls.getItem('wh_active_tab')||'vk');renderTgRunningState(ls.getItem('wh_tg_running')==='true');loadCachedLogs('tg');updateTgBackendStatus();setInterval(()=>{if(ls.getItem('wh_active_tab')==='tg')updateTgBackendStatus();},4000);}async function fetchVkUserProfile(token){if(!token)return;try{const uid=ls.getItem('wh_user_id')||'';const params={fields:'screen_name',access_token:token};if(uid)params.user_ids=uid;const j=await callVkApi('users.get',params);const u=j?.[0];if(u){const fn=(u.first_name+' '+(u.last_name||'')).trim();if(fn){ls.setItem('wh_name',fn);if($('wh-name'))$('wh-name').innerText=fn;}if(u.screen_name&&$('wh-nick'))$('wh-nick').innerText='@'+u.screen_name+' · id'+(u.id||'');if(u.id)ls.setItem('wh_user_id',String(u.id));}}catch(e){console.warn('VK user info:',e);}}async function initWolf(){const savedToken=ls.getItem('wh_token'),savedName=ls.getItem('wh_name');updateUiStats();loadCachedLogs('vk');loadTgSettings();const sBt=ls.getItem('wh_bday_text');if(sBt&&$('wh-bday-text'))$('wh-bday-text').value=sBt;const sBe=ls.getItem('wh_bday_enable');if(sBe!==null&&$('wh-bday-enable'))$('wh-bday-enable').checked=(sBe==='1');ls.removeItem('wh_vk_flood_until');vkFloodRemain=0;if(savedToken){if(savedName&&$('wh-name'))$('wh-name').innerText=savedName;if($('wh-avatar'))$('wh-avatar').style.borderColor='#10b981';if($('wh-dot'))$('wh-dot').style.background='#10b981';if($('wh-auth-card'))$('wh-auth-card').style.display='none';if($('wh-reset-btn'))$('wh-reset-btn').style.display='inline-flex';fetchVkUserProfile(savedToken);const totalToday=getTodayLikesCount();let shouldRun=ls.getItem('wh_running')==='true';if(totalToday<300&&(ls.getItem('wh_auto_paused_limit')==='true'||shouldRun||ls.getItem('wh_vk_manually_stopped')!=='true')){ls.removeItem('wh_auto_paused_limit');shouldRun=true;ls.setItem('wh_running','true');}renderRunningState(shouldRun);logMsg('✔ Профиль активен: '+(savedName||'Пользователь')+' ✅','success','vk');if(shouldRun){logMsg('🚀 ВК Хантер запущен автоматически (новый день 24/7)! Охота активна ✅','success','vk');startHuntingLoop(true);}}setInterval(syncVkStateWithServer,7000);}function updateUiStats(){const todayStr=getToday();if(ls.getItem('wh_last_date')!==todayStr){ls.setItem('wh_last_date',todayStr);ls.setItem('wh_story_likes','0');ls.setItem('wh_post_likes','0');}const st=parseInt(ls.getItem('wh_story_likes')||'0'),po=parseInt(ls.getItem('wh_post_likes')||'0'),bday=parseInt(ls.getItem('wh_bday_count')||'0');if($('wh-stories'))$('wh-stories').innerText=st;if($('wh-post-likes'))$('wh-post-likes').innerText=po;if($('wh-today-likes'))$('wh-today-likes').innerText=st+po;if($('wh-bday-stat'))$('wh-bday-stat').innerText=bday;}function addStat(type){const k=type==='story'?'wh_story_likes':(type==='post'?'wh_post_likes':(type==='bday'?'wh_bday_count':'wh_welcome_count'));ls.setItem(k,(parseInt(ls.getItem(k)||'0')+1).toString());updateUiStats();}function renderRunningState(isRunning){const btn=$('wh-toggle-btn'),dot=$('wh-dot'),sub=$('wh-sub');const hasToken=!!ls.getItem('wh_token');const authVisible=$('wh-auth-card')&&$('wh-auth-card').style.display!=='none';if(!hasToken||authVisible){setBtnUI(btn,dot,sub,'🔒 Требуется авторизация в ВК','#475569','none','#64748b','⚠️ Сначала подключите профиль ВК в карточке ниже!','#f59e0b',true);return ;}if(isRunning)setBtnUI(btn,dot,sub,'⏹ Приостановить ВК Хантер','linear-gradient(135deg,#f43f5e,#be123c)','0 4px 16px rgba(244,63,94,0.45)','#10b981','🟢 Охота активна (Приоритет: Истории)','#34d399',false);else setBtnUI(btn,dot,sub,'🚀 Запустить охоту','linear-gradient(135deg,#10b981,#059669)','0 4px 16px rgba(16,185,129,0.45)','#10b981','⏸ На паузе (готов к охоте)','#94a3b8',false);}function toggleWolfState(){const hasToken=!!ls.getItem('wh_token');const authCardVisible=$('wh-auth-card')&&$('wh-auth-card').style.display!=='none';if(!hasToken||authCardVisible){alert('⚠️ Для запуска охоты сначала необходимо обязательно авторизоваться в блоке «Подключение профиля ВКонтакте» ниже!');const el=$('wh-auth-card')||$('wh-token-raw');if(el)el.scrollIntoView({behavior:'smooth',block:'center'});return ;}const next=!(ls.getItem('wh_running')==='true');ls.setItem('wh_running',next?'true':'false');if(!next){ls.setItem('wh_vk_manually_stopped','true');ls.removeItem('wh_auto_paused_limit');}else{ls.removeItem('wh_vk_manually_stopped');ls.removeItem('wh_auto_paused_limit');}renderRunningState(next);if(API_URL){try{fetch(API_URL+"?action=toggle",{mode:'no-cors'}).catch(()=>{});}catch(e){}}
+try{const t=ls.getItem('wh_token');if(t){fetch(TG_API_URL+'/api/vk/toggle',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:next?'start':'stop',access_token:t})}).catch(()=>{});}}catch(e){}if(next){logMsg("🚀 ВК Хантер запущен! Первый такт через 3 с, пауза 25–45 с.","success","vk");startHuntingLoop(false);}else{logMsg("⏹ ВК Хантер приостановлен пользователем.","warn","vk");stopHuntingLoop();}}
+async function syncVkStateWithServer(){try{const t=ls.getItem('wh_token');if(!t)return;const res=await fetch(TG_API_URL+'/api/vk/sync?access_token='+encodeURIComponent(t));if(res.ok){const data=await res.json();if(data&&data.status==='ok'){const sRun=!!data.is_running;const lRun=(ls.getItem('wh_running')==='true');if(sRun!==lRun){ls.setItem('wh_running',sRun?'true':'false');renderRunningState(sRun);if(sRun){logMsg("▶ [Синхронизация] Получен сигнал старта ВК ✅","success","vk");startHuntingLoop(false);}else{logMsg("⏹ [Синхронизация] Получен сигнал паузы ВК.","warn","vk");stopHuntingLoop();}}}}}catch(e){}}
+function startHuntingLoop(immediate=false){stopHuntingLoop();isHunting=true;if(immediate)executeCycleAndScheduleNext();else huntTimer=setTimeout(()=>executeCycleAndScheduleNext(),3000);}function stopHuntingLoop(){isHunting=false;if(huntTimer){clearTimeout(huntTimer);huntTimer=null;}}async function executeCycleAndScheduleNext(){if(!isHunting||vkFloodRemain>0)return ;try{await runHuntingCycle();}catch(e){logMsg("Ошибка шага: "+e.message,"error","vk");}finally{scheduleNextCycle();}}function scheduleNextCycle(){if(!isHunting)return ;if(huntTimer)clearTimeout(huntTimer);const sec=vkFloodRemain>0?(vkFloodRemain+2):(Math.floor(Math.random()*21)+25);huntTimer=setTimeout(()=>executeCycleAndScheduleNext(),sec*1000);}async function runOneCycleNow(){const hasToken=!!ls.getItem('wh_token');const authCardVisible=$('wh-auth-card')&&$('wh-auth-card').style.display!=='none';if(!hasToken||authCardVisible)return alert('⚠️ Сначала подключите профиль ВКонтакте в блоке ниже!');if(vkFloodRemain>0)return logMsg(`⏳ Защитная пауза ВК: ${vkFloodRemain} сек!`,"warn","vk");logMsg("⚡ Принудительный запуск такта...","info","vk");await runHuntingCycle();}async function huntStories(){if(getTodayLikesCount()>=300)return false;const token=ls.getItem('wh_token');if(!token)return false;logMsg("👁 [Фаза: Истории] Поиск свежих историй друзей...","info","vk");try{let list=[],authors={},data=null;try{const res=await fetch(TG_API_URL+'/api/vk/stories?access_token='+encodeURIComponent(token));if(res.ok){const j=await res.json();if(j&&j.response)data=j.response;}}catch(e){}if(!data){try{data=await callVkApi('execute',{code:'return API.stories.get({"extended": 1, "fields": "first_name,last_name"});'});}catch(stErr){logMsg("Ошибка чтения историй: "+stErr.message,"warn","vk");}}if(data){if(data.profiles&&Array.isArray(data.profiles)){data.profiles.forEach(p=>{authors[p.id]=(p.first_name+' '+(p.last_name||'')).trim();});}if(data.items&&Array.isArray(data.items)){for(let it of data.items){for(let s of (it.stories||[])){if(s&&s.id&&s.owner_id&&!s.is_deleted&&!s.is_expired&&s.can_like!==false&&s.can_like!==0){list.push({id:s.id,owner_id:s.owner_id,access_key:s.access_key||'',name:authors[s.owner_id]||('id'+s.owner_id)});}}}}}if(list&&list.length>0){for(let st of list){if(getTodayLikesCount()>=300)return false;if(isLogged('story',st.owner_id,st.id)||getAuthorDailyCount(st.owner_id)>=2)continue;try{try{await callVkApi('stories.getById',{stories:st.owner_id+'_'+st.id,extended:1});}catch(vErr){}const p={type:'story',owner_id:st.owner_id,item_id:st.id};if(st.access_key)p.access_key=st.access_key;try{await callVkApi('execute',{code:'return API.likes.add('+JSON.stringify(p)+');'});}catch(lErr){}setLogged('story',st.owner_id,st.id);incAuthorDailyCount(st.owner_id);addStat('story');logMsg(`🔥 [Истории] Охота: ${st.name} ❤`,"success","vk");return true;}catch(e){const errMsg=e.message||'';if(errMsg.toLowerCase().includes('non-standalone')){logMsg("⚠️ [Истории] ВК требует тип Standalone для лайков историй. Перехожу к постам.","warn","vk");return false;}if(errMsg.includes('15')||errMsg.includes('1133')||errMsg.toLowerCase().includes('scope')){logMsg("🔍 [Истории] Нет доступных историй.","info","vk");return false;}setLogged('story',st.owner_id,st.id);logMsg("⚠️ [Истории] Ошибка: "+errMsg,"warn","vk");return false;}}logMsg("🔍 [Истории] Все истории в текущей выборке уже отсмотрены. Ожидание свежих...","info","vk");return false;}else{logMsg("🔍 [Истории] Свежих историй друзей сейчас нет. Ожидание публикаций...","info","vk");return false;}}catch(e){logMsg("Истории: "+e.message,"warn","vk");}return false;}let postOffset=0;async function huntPosts(){if(getTodayLikesCount()>=300)return false;logMsg("🔍 [Фаза: Посты] Поиск свежих записей друзей...","info","vk");try{const code='var offset = parseInt(Args.offset);'+'var friends = API.friends.get({"count": 15, "offset": offset, "fields": "first_name,last_name,can_access_closed"}).items;'+'var i = 0; var found = null;'+'while (i < friends.length && found == null) {'+'    var f = friends[i];'+'    if (f.can_access_closed != false) {'+'        var wall = API.wall.get({"owner_id": f.id, "count": 3}).items;'+'        if (wall != null) {'+'            var j = 0;'+'            while (j < wall.length && found == null) {'+'                var p = wall[j];'+'                if (p.likes != null && p.likes.user_likes == 0 && p.likes.can_like != 0) {'+'                    found = {"owner_id": p.owner_id, "id": p.id, "first_name": f.first_name, "last_name": f.last_name, "text": p.text};'+'                }'+'                j = j + 1;'+'            }'+'        }'+'    }'+'    i = i + 1;'+'}'+'return found;';postOffset=(postOffset+15)%2500;const found=await callVkApi('execute',{code:code,offset:postOffset});if(found&&found.owner_id&&found.id){if(!isLogged('post',found.owner_id,found.id)){await callVkApi('likes.add',{type:'post',owner_id:found.owner_id,item_id:found.id});setLogged('post',found.owner_id,found.id);incAuthorDailyCount(found.owner_id);addStat('post');const fname=(found.first_name?(found.first_name+' '+(found.last_name||'')):('id'+found.owner_id)).trim();const t=(found.text||'Фото/Запись').substring(0,30).replace(/\n/g,' ');logMsg(`❤ [Пост] Лайк: ${fname} («${t}»)`,"success","vk");return true;}}}catch(e){logMsg("Посты: "+e.message,"warn","vk");}return false;}async function runHuntingCycle(){if(vkFloodRemain>0)return;if(!ls.getItem('wh_token'))return;const totalToday=getTodayLikesCount();if(totalToday>=300){stopHuntingLoop();ls.setItem('wh_auto_paused_limit','true');renderRunningState(false);const sub=$('wh-sub');if(sub){sub.innerText='🌙 Ночной сон (лимит 300 исчерпан). Автостарт в 00:00 МСК';sub.style.color='#f59e0b';}logMsg(`🛑 [Суточный лимит 300] Пауза на ночь (${totalToday} лайков). Автостарт в 00:00 МСК! 🌙`,'warn','vk');return;}let phase=parseInt(ls.getItem('wh_current_phase')||'0');ls.setItem('wh_current_phase',((phase+1)%3).toString());try{if(phase===0){logMsg('🎯 [Такт 1/3: Истории] Охота на истории (Приоритет №1)...','info','vk');await huntStories();}else if(phase===1){logMsg('🎂 [Такт 2/3: День Рождения] Поиск именинников дня...','info','vk');let done=await checkBirthdaysDaily();if(!done){logMsg('👁 [Такт 2/3: Истории] Именинников нет. Охота на истории (Приоритет №1)...','info','vk');await huntStories();}}else{logMsg('📰 [Такт 3/3: Посты] Разбавка ленты постом...','info','vk');await huntPosts();}}catch(e){const em=(e.message||'').toLowerCase();if(em.includes('blocked')||em.includes('banned')||em.includes('deactivated')){handleVkSecurityStop('Страница заморожена');}else{logMsg('Ошибка цикла: '+e.message,'error','vk');}}}async function checkBirthdaysDaily(){if(vkFloodRemain>0)return false;const bEn=$('wh-bday-enable')?.checked??true;const bText=ls.getItem('wh_bday_text')||$('wh-bday-text')?.value;if(!bEn||!bText)return false;const mskHours=(new Date().getUTCHours()+3)%24;if(mskHours<6||mskHours>22)return false;const todayStr=getToday();const now=new Date(),curDM=now.getDate()+'.'+(now.getMonth()+1),curY=now.getFullYear();let bdays=[];try{const cachedDate=ls.getItem('wh_bday_cache_date');if(cachedDate===todayStr){try{bdays=JSON.parse(ls.getItem('wh_bday_cache')||'[]');}catch(e){bdays=[];}}else{const res=await callVkApi('friends.get',{fields:'bdate,first_name,can_write_private_message'});if(res&&res.items){for(let f of res.items){if(!f.bdate)continue;const p=f.bdate.split('.');if(p.length>=2&&(parseInt(p[0])+'.'+parseInt(p[1]))===curDM){bdays.push({id:f.id,name:f.first_name||'друг',can_msg:f.can_write_private_message!==0});}}ls.setItem('wh_bday_cache',JSON.stringify(bdays));ls.setItem('wh_bday_cache_date',todayStr);if(bdays.length>0)logMsg(`🎂 [День Рождения] На сегодня найдено именинников: ${bdays.length}. Поздравляем по 1 в такте №2.`,"info","vk");}}}catch(e){return false;}if(!bdays||!bdays.length)return false;for(let f of bdays){const k=curY+'_'+f.id;if(!isLogged('bday',f.id,k)){if(f.can_msg===false){setLogged('bday',f.id,k);continue;}try{const msg=parseSpintax(bText,f.name);await callVkApi('messages.send',{user_id:f.id,message:msg,random_id:Math.floor(Math.random()*100000000)});setLogged('bday',f.id,k);addStat('bday');logMsg(`🎂 [День Рождения] Поздравлен(а): ${f.name} (id${f.id}) 🎉`,"success","vk");return true;}catch(e){setLogged('bday',f.id,k);logMsg(`⚠️ [День Рождения] id${f.id} (${f.name}): ${e.message}`,"warn","vk");return false;}}}return false;}function parseSpintax(text, firstName) {
+text = text.replace(/%first_name%/g, firstName || 'друг');
+let safety = 10;
+while (text.includes('{') && text.includes('}') && safety-- > 0) {
+text = text.replace(/\{([^\{}]+)\}/g, (_, s) => {
+const c = s.split('|'); return c[Math.floor(Math.random() * c.length)].trim();
+});
+}
+return text;
+}
+async function saveAndAuth(){resetVkFloodCooldown();ls.removeItem('wh_vk_flood_until');vkFloodRemain=0;const raw=$('wh-token-raw').value.trim(),msg=$('wh-msg');if(!raw)return alert('Вставьте ссылку или токен!');let token=raw,userId=null;if(raw.includes('access_token=')){const m=raw.match(/access_token=([^&]+)/);if(m&&m[1])token=m[1];const mu=raw.match(/user_id=([^&]+)/);if(mu&&mu[1])userId=mu[1];}else if(raw.includes('payload=')||raw.includes('"token"')||raw.includes('silent_token')){try{let pl=null;const hm=raw.match(/payload=([^&\s#]+)/);if(hm){try{pl=JSON.parse(decodeURIComponent(hm[1]));}catch(e){}}if(!pl){try{pl=JSON.parse(raw);}catch(e){}}if(pl&&pl.token)token=pl.token;if(pl&&pl.user&&pl.user.id)userId=String(pl.user.id);}catch(e){}}msg.innerText='⏳ Подключение профиля...';msg.style.color='#38bdf8';ls.setItem('wh_token',token);if(userId)ls.setItem('wh_user_id',userId);await fetchVkUserProfile(token);const fn=ls.getItem('wh_name')||(userId?'id'+userId:'Пользователь');ls.setItem('wh_running','false');if($('wh-name'))$('wh-name').innerText=fn;if($('wh-avatar'))$('wh-avatar').style.borderColor='#10b981';if($('wh-dot'))$('wh-dot').style.background='#10b981';if($('wh-auth-card'))$('wh-auth-card').style.display='none';if($('wh-reset-btn'))$('wh-reset-btn').style.display='inline-flex';renderRunningState(false);logMsg('✔ Профиль успешно подключен: '+fn+' ✅','success','vk');msg.innerText='';if(API_URL){try{fetch(API_URL+'?action=save&token='+encodeURIComponent(token),{mode:'no-cors'}).catch(()=>{});}catch(e){}}}
+
+function saveTexts() {
+const bt = $('wh-bday-text') ? $('wh-bday-text').value.trim() : '';
+const be = $('wh-bday-enable') ? $('wh-bday-enable').checked : true;
+ls.setItem('wh_bday_text', bt);
+ls.setItem('wh_bday_enable', be ? '1' : '0');
+logMsg("Шаблон поздравления сохранен ✅", "success", "vk");
+alert('Шаблон поздравления успешно сохранен!');
+}
+function resetAuth() {
+if (confirm('Сменить токен VK?')) {
+stopHuntingLoop();
+['wh_token', 'wh_name', 'wh_photo'].forEach(k => ls.removeItem(k));
+ls.setItem('wh_running', 'false');
+location.reload();
+}
+}
+async function resetTgAuth() {
+if (!confirm("Выйти из Telegram и подключить другой номер?")) return;
+try { await fetch(TG_API_URL + '/api/tg/logout', { method: 'POST' }); } catch(e) {}
+ls.removeItem('wh_tg_session_string'); ls.setItem('wh_tg_authorized', 'false');
+ls.setItem('wh_tg_running', 'false');
+ls.removeItem('wh_tg_reactions');
+ls.removeItem('wh_tg_manually_stopped');
+const authCard = $('wh-tg-auth-card'); if (authCard) authCard.style.display = 'block';
+if ($('wh-tg-reset-btn')) $('wh-tg-reset-btn').style.display = 'none';
+if ($('wh-tg-name')) $('wh-tg-name').innerText = 'Telegram Хантер';
+if ($('wh-tg-dot')) $('wh-tg-dot').style.background = '#64748b';
+if ($('wh-tg-step-code')) $('wh-tg-step-code').style.display = 'none';
+if ($('wh-tg-step-pwd')) $('wh-tg-step-pwd').style.display = 'none';
+if ($('wh-tg-phone-input')) $('wh-tg-phone-input').value = '';
+if ($('wh-tg-code-input')) $('wh-tg-code-input').value = '';
+if ($('wh-tg-pwd-input')) $('wh-tg-pwd-input').value = '';
+if ($('wh-tg-auth-msg')) $('wh-tg-auth-msg').innerHTML = '';
+renderTgRunningState(false);
+logMsg("🚪 Профиль Telegram отключен. Введите номер для входа.", "info", "tg");
+}
+function switchTab(tab) {
+try {
+const isTg = (tab === 'tg');
+const vkC = $('wh-view-vk'), tgC = $('wh-view-tg'), vkB = $('wh-tab-vk'), tgB = $('wh-tab-tg');
+if (vkC) vkC.style.display = isTg ? 'none' : 'block';
+if (tgC) tgC.style.display = isTg ? 'block' : 'none';
+if (vkB) {
+vkB.style.background = isTg ? 'transparent' : 'linear-gradient(135deg,#0077ff,#0055cc)';
+vkB.style.color = isTg ? '#94a3b8' : '#fff';
+vkB.style.boxShadow = isTg ? 'none' : '0 4px 14px rgba(0,119,255,0.4)';
+}
+if (tgB) {
+tgB.style.background = isTg ? 'linear-gradient(135deg,#0284c7,#0369a1)' : 'transparent';
+tgB.style.color = isTg ? '#fff' : '#94a3b8';
+tgB.style.boxShadow = isTg ? '0 4px 14px rgba(2,132,199,0.4)' : 'none';
+}
+ls.setItem('wh_active_tab', tab);
+if (isTg) {
+try { updateTgBackendStatus(); } catch(e){}
+}
+} catch(err) {
+console.error('switchTab error:', err);
+}
+}
+function getSelectedTgReactions() {
+const list = [];
+if ($('wh-tg-re-heart')?.checked) list.push('❤️');
+if ($('wh-tg-re-fire')?.checked) list.push('🔥');
+if ($('wh-tg-re-like')?.checked) list.push('👍');
+if ($('wh-tg-re-clap')?.checked) list.push('👏');
+if ($('wh-tg-re-love')?.checked) list.push('😍');
+return list.length ? list : ['❤️', '🔥', '👍'];
+}
+function saveTgReactions() {
+const list = getSelectedTgReactions();
+ls.setItem('wh_tg_reactions', JSON.stringify(list));
+if (ls.getItem('wh_tg_running') === 'true') {
+fetch(TG_API_URL + '/api/tg/toggle', {
+method: 'POST',
+headers: { 'Content-Type': 'application/json' },
+body: JSON.stringify({ action: 'start', reactions: list })
+}).catch(() => {});
+}
+}
+function normalizePhone(raw) {
+if (!raw) return '';
+let d = raw.replace(/\D/g, '');
+if (d.length === 10) return '+7' + d;
+if (d.length === 11 && (d.startsWith('8') || d.startsWith('7'))) return '+7' + d.slice(1);
+if (raw.startsWith('+')) return '+' + d;
+return d ? ('+' + d) : '';
+}
+async function requestTgCode() {
+const inputEl = $('wh-tg-phone-input');
+const rawPhone = inputEl?.value.trim() || '';
+const msg = $('wh-tg-auth-msg'), btn = $('wh-tg-btn-send');
+if (!rawPhone) return alert('Введите номер телефона!');
+const cleanDigits = rawPhone.replace(/\D/g, '');
+if (cleanDigits.length < 10) {
+if (msg) msg.innerHTML = `<span style="color:#ef4444; font-weight:700;">⚠️ Вы ввели код подтверждения (${cleanDigits}) вместо номера телефона!<br>Сначала введите номер телефона (+79991234567) и нажмите «📲 Получить код».</span>`;
+alert(`⚠️ Вы ввели ${cleanDigits.length}-значный код (${cleanDigits}) вместо номера телефона!\n\nСначала введите полный номер своего телефона (например: +79991234567), нажмите кнопку «Получить код», и только затем вводите полученный 5-значный код в появившееся поле.`);
+return;
+}
+const phone = normalizePhone(rawPhone);
+if (inputEl) inputEl.value = phone;
+if (msg) msg.innerHTML = `<span style="color:#38bdf8;">⏳ Отправка запроса в Telegram на ${phone}...</span>`;
+if (btn) btn.disabled = true;
+try {
+const res = await fetch(TG_API_URL + '/api/tg/send_code', {
+method: 'POST',
+headers: { 'Content-Type': 'application/json' },
+body: JSON.stringify({ phone })
+});
+const data = await res.json();
+if (res.ok && data.status === 'ok') {
+if ($('wh-tg-step-code')) $('wh-tg-step-code').style.display = 'block';
+if (msg) msg.innerHTML = `<span style="color:#34d399;">✔ Код отправлен в Telegram на ${phone}! Введите его ниже:</span>`;
+logMsg(`Код отправлен в Telegram (${phone}) ✅`, 'success', 'tg');
+} else throw new Error(data.message || 'Ошибка запроса кода');
+} catch(err) {
+if (msg) msg.innerHTML = `<span style="color:#f87171;">❌ ${err.message}</span>`;
+logMsg('Ошибка TG:' + err.message, 'warn', 'tg');
+} finally {
+if (btn) btn.disabled = false;
+}
+}
+async function verifyTgCode() {
+const code = $('wh-tg-code-input')?.value.trim();
+const pwd = $('wh-tg-pwd-input')?.value.trim();
+const msg = $('wh-tg-auth-msg'), btn = $('wh-tg-btn-verify');
+if (!code) return alert('Введите 5-значный код из Telegram!');
+if (msg) msg.innerHTML = '<span style="color:#38bdf8;">⏳ Авторизация профиля...</span>';
+if (btn) btn.disabled = true;
+try {
+const res = await fetch(TG_API_URL + '/api/tg/verify_code', {
+method: 'POST',
+headers: { 'Content-Type': 'application/json' },
+body: JSON.stringify({ code, password: pwd })
+});
+const data = await res.json();
+if (data.status === 'need_password') {
+if ($('wh-tg-step-pwd')) $('wh-tg-step-pwd').style.display = 'block';
+if (msg) msg.innerHTML = '<span style="color:#fbbf24;">🔐 Введите 2FA облачный пароль и нажмите «Подключить»:</span>';
+return;
+}
+if (res.ok && data.status === 'ok') {
+if (msg) msg.innerText = '';
+ls.setItem('wh_tg_authorized', 'true');
+if (data.session_string) ls.setItem('wh_tg_session_string', data.session_string);
+logMsg('Telegram профиль успешно подключен!✅', 'success', 'tg');
+updateTgBackendStatus();
+} else throw new Error(data.message || 'Неверный код');
+} catch(err) {
+if (msg) msg.innerHTML = `<span style="color:#f87171;">❌ ${err.message}</span>`;
+} finally {
+if (btn) btn.disabled = false;
+}
+}
+async function toggleTgHunterState() {
+const isAuth = ls.getItem('wh_tg_authorized') === 'true';
+if (!isAuth) return alert('Сначала авторизуйте Telegram профиль выше!');
+const cur = ls.getItem('wh_tg_running') === 'true';
+const action = cur ? 'stop' : 'start';
+if (action === 'stop') {
+ls.setItem('wh_tg_manually_stopped', 'true');
+} else {
+ls.removeItem('wh_tg_manually_stopped');
+}
+const reactions = getSelectedTgReactions();
+try {
+const res = await fetch(TG_API_URL + '/api/tg/toggle', {
+method: 'POST',
+headers: { 'Content-Type': 'application/json' },
+body: JSON.stringify({ action, reactions })
+});
+const data = await res.json();
+if (res.ok && data.status === 'ok') {
+ls.setItem('wh_tg_running', data.is_running ? 'true' : 'false');
+renderTgRunningState(data.is_running);
+if (data.is_running) logMsg('▶ Telegram Охота запущена в облаке 24/7!', 'success', 'tg');
+else logMsg('⏹ Telegram Охота приостановлена пользователем.', 'warn', 'tg');
+} else alert(data.message || 'Ошибка переключения');
+} catch(e) {
+logMsg('Связь с TG: ' + e.message, 'warn', 'tg');
+}
+}
+async function updateTgBackendStatus() {
+try {
+const res = await fetch(TG_API_URL + '/api/tg/status');
+if (!res.ok) {
+if (ls.getItem('wh_tg_authorized') !== 'true') {
+const sub = $('wh-tg-sub');
+if (sub) { sub.innerText = '⚠️ Сервер Telegram запускается...'; sub.style.color = '#f59e0b'; }
+}
+return;
+}
+const data = await res.json();
+if (data.status === 'ok') {
+const authCard = $('wh-tg-auth-card');
+const isAuth = !!data.is_authorized;
+let isRun = !!data.is_running;
+const user = data.user;
+if (isAuth && user) {
+ls.setItem('wh_tg_authorized', 'true');
+if (authCard) authCard.style.display = 'none';
+const fn = (user.first_name || '') + ' ' + (user.last_name || '') + (user.username ? '(@' + user.username + ')' : '');
+if ($('wh-tg-name')) $('wh-tg-name').innerText = fn.trim() || 'Telegram Профиль';
+if ($('wh-tg-dot')) $('wh-tg-dot').style.background = '#10b981';
+if ($('wh-tg-reset-btn')) $('wh-tg-reset-btn').style.display = 'inline-flex';
+const todayReactions = (data.reactions_today !== undefined) ? parseInt(data.reactions_today) : 0;
+if (!isRun && todayReactions < 150 && ls.getItem('wh_tg_manually_stopped') !== 'true') {
+isRun = true;
+autoStartTgHunter();
+}
+ls.setItem('wh_tg_running', isRun ? 'true' : 'false');
+renderTgRunningState(isRun);
+} else {
+const sStr = ls.getItem('wh_tg_session_string');
+if (sStr && !window.__tgRestoring) {
+window.__tgRestoring = true;
+fetch(TG_API_URL + '/api/tg/restore_session', {
+method: 'POST',
+headers: { 'Content-Type': 'application/json' },
+body: JSON.stringify({ session_string: sStr })
+}).then(r => r.json()).then(res => {
+window.__tgRestoring = false;
+if (res.status === 'ok') updateTgBackendStatus();
+}).catch(() => { window.__tgRestoring = false; });
+}
+ls.setItem('wh_tg_authorized', 'false');
+ls.setItem('wh_tg_running', 'false');
+if (authCard) authCard.style.display = 'block';
+if ($('wh-tg-name')) $('wh-tg-name').innerText = 'Telegram Хантер';
+if ($('wh-tg-dot')) $('wh-tg-dot').style.background = '#64748b';
+if ($('wh-tg-reset-btn')) $('wh-tg-reset-btn').style.display = 'none';
+renderTgRunningState(false);
+}
+const likes = (data && data.reactions_today !== undefined) ? parseInt(data.reactions_today) : 0;
+const views = (data && data.views_today !== undefined) ? parseInt(data.views_today) : likes;
+ls.setItem('wh_tg_reactions', likes.toString());
+if ($('wh-tg-stat-reactions')) $('wh-tg-stat-reactions').innerText = likes;
+if ($('wh-tg-stat-views')) $('wh-tg-stat-views').innerText = views;
+if ($('wh-tg-stat-limit')) $('wh-tg-stat-limit').innerText = likes + ' / 150';
+if (data.logs && data.logs.length) {
+const stream = $('wh-tg-log-stream');
+if (stream) {
+stream.innerHTML = '';
+data.logs.forEach(l => {
+const row = document.createElement('div');
+row.style.color = l.type === 'success' ? '#38bdf8' : (l.type === 'warn' ? '#fbbf24' : '#94a3b8');
+row.innerHTML = '<span style="color:#64748b;">[' + l.time + ']</span>' + l.text;
+stream.appendChild(row);
+});
+stream.scrollTop = stream.scrollHeight;
+}
+}
+}
+} catch(e) {
+if (ls.getItem('wh_tg_authorized') !== 'true') {
+renderTgRunningState(false);
+}
+}
+}
+function renderTgRunningState(isRunning) {
+const btn = $('wh-tg-toggle-btn'), dot = $('wh-tg-dot'), sub = $('wh-tg-sub');
+const isAuth = ls.getItem('wh_tg_authorized') === 'true';
+if (!isAuth) {
+setBtnUI(btn, dot, sub, '▶ Запустить TG Хантер', '#475569', 'none', '#64748b', '⚠️ Требуется авторизация в Telegram', '#f59e0b', true);
+return;
+}
+if (isRunning) setBtnUI(btn, dot, sub, '⏹ Приостановить TG Хантер', 'linear-gradient(135deg,#f43f5e,#be123c)', '0 4px 16px rgba(244,63,94,0.45)', '#10b981', '🟢 Автоохота Telegram активна 24/7', '#34d399', false);
+else setBtnUI(btn, dot, sub, '▶ Запустить TG Хантер', 'linear-gradient(135deg,#0284c7,#0369a1)', '0 4px 16px rgba(2,132,199,0.45)', '#10b981', '⏸ На паузе (готов к охоте)', '#94a3b8', false);
+}
+async function runTgCycleNow() {
+if ("true" !== ls.getItem("wh_tg_authorized")) return alert("Сначала авторизуйте Telegram профиль выше!");
+if (parseInt(ls.getItem("wh_tg_reactions") || "0") >= 150) return alert("🛑 Суточный лимит 150 реакций Telegram исчерпан!");
+const btn = $("wh-tg-btn-now");
+if (btn) { btn.disabled = true; btn.innerText = "⚡ Лайкаем..."; }
+logMsg("⚡ Разовый лайк на историю Telegram...", "info", "tg");
+try {
+const resp = await fetch(TG_API_URL + "/api/tg/like_once", {
+method: "POST",
+headers: { "Content-Type": "application/json" },
+body: JSON.stringify({ reactions: getSelectedTgReactions() })
+});
+const res = await resp.json();
+if (res.status === "ok") {
+if (res.reacted) {
+logMsg(`⚡ Разовый лайк: ${res.contact} ${res.emoji} ✅`, "success", "tg");
+} else {
+logMsg("⚡ Свежих непросмотренных историй друзей сейчас нет.", "info", "tg");
+}
+setTimeout(updateTgBackendStatus, 800);
+} else {
+alert(res.message || "Ошибка");
+}
+} catch(e) {
+logMsg("Ошибка TG:" + e.message, "warn", "tg");
+} finally {
+if (btn) { btn.disabled = false; btn.innerText = "⚡ Лайкнуть сейчас";}}}initWolf();window.switchTab=switchTab;window.saveAndAuth=saveAndAuth;window.resetAuth=resetAuth;window.runOneCycleNow=runOneCycleNow;window.toggleWolfState=toggleWolfState;window.runTgCycleNow=runTgCycleNow;window.toggleTgHunterState=toggleTgHunterState;window.requestTgCode=requestTgCode;window.verifyTgCode=verifyTgCode;window.resetTgAuth=resetTgAuth;window.copyConsole=copyConsole;window.clearConsole=clearConsole;window.saveTexts=saveTexts;window.saveTgReactions=saveTgReactions;window.autoStartTgHunter=autoStartTgHunter;
+</script>
