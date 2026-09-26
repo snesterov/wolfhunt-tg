@@ -985,6 +985,25 @@ async def handle_widget_html(request):
         "Cache-Control": "no-cache, no-store, must-revalidate"
     })
 
+async def handle_tg_save_proxy(request: web.Request):
+    """Сохранение SOCKS5 настроек для сессии Telegram"""
+    try:
+        data = await request.json()
+        host = data.get("host", "").strip()
+        user = data.get("user", "").strip()
+        pwd = data.get("pass", "").strip()
+        enabled = bool(data.get("enabled", False))
+        state["proxy_host"] = host
+        state["proxy_user"] = user
+        state["proxy_pass"] = pwd
+        state["proxy_enabled"] = enabled
+        save_tg_data()
+        msg = f"🌐 SOCKS5 прокси привязан: {host}" if (enabled and host) else "🌐 Прокси отключен (используется прямой IP)"
+        append_log("info", msg)
+        return web.json_response({"status": "ok", "proxy_enabled": enabled})
+    except Exception as e:
+        return web.json_response({"error": str(e)}, status=400)
+
 async def init_app():
     app = web.Application(middlewares=[cors_middleware])
     app.router.add_get("/", lambda r: web.Response(text="🐺 WolfHunt Telegram Bridge Running!"))
@@ -999,6 +1018,7 @@ async def init_app():
     app.router.add_post("/api/tg/like_once", handle_like_once)
     app.router.add_post("/api/tg/toggle", handle_toggle)
     app.router.add_post("/api/tg/logout", handle_logout)
+    app.router.add_post("/api/tg/save_proxy", handle_tg_save_proxy)
     app.router.add_post("/api/vk/proxy", handle_vk_proxy)
     app.router.add_post("/api/vk/auth", handle_vk_auth)
     app.router.add_get("/api/vk/status", handle_vk_status)

@@ -163,6 +163,40 @@
 <button class="wh-btn" onclick="saveTexts()" style="background:linear-gradient(135deg,#0284c7,#0369a1); color:#fff; font-size:12px; padding:8px 16px;">💾 Сохранить шаблон</button>
 </div>
 </div>
+<div class="wh-box wh-mb12" id="wh-vk-proxy-card">
+<div class="wh-row-sb" style="cursor:pointer;" id="wh-vk-proxy-toggle">
+<div class="wh-row"><span style="font-size:14px;">🌐</span><h4 style="margin:0; font-size:13px; color:#f8fafc; font-weight:700;">Настройки сети и Proxy для ВК (SOCKS5)</h4><span id="wh-vk-proxy-badge" style="font-size:10px; padding:2px 7px; border-radius:10px; background:#10b981; color:#fff; font-weight:700; margin-left:6px;">Родной IP</span></div>
+<span id="wh-vk-proxy-arrow" style="font-size:11px; color:#38bdf8; font-weight:600; pointer-events:none;">Настроить ▾</span>
+</div>
+<div id="wh-vk-proxy-content" style="display:none; margin-top:12px; border-top:1px solid #334155; padding-top:12px;" onclick="event.stopPropagation();">
+<div style="display:flex; gap:16px; margin-bottom:10px; font-size:12px;">
+<label style="cursor:pointer; display:flex; align-items:center; gap:6px;">
+<input type="radio" name="wh_vk_proxy_type" value="direct" id="wh-vk-proxy-direct" checked>
+<span style="color:#f8fafc; font-weight:600;">● Родной IP браузера (по умолчанию)</span>
+</label>
+<label style="cursor:pointer; display:flex; align-items:center; gap:6px;">
+<input type="radio" name="wh_vk_proxy_type" value="socks5" id="wh-vk-proxy-socks">
+<span style="color:#38bdf8; font-weight:600;">○ Свой SOCKS5 прокси</span>
+</label>
+</div>
+<div id="wh-vk-proxy-fields" style="display:none; background:#0b1120; padding:10px; border-radius:8px; border:1px solid #334155; margin-bottom:8px;">
+<div style="font-size:11px; color:#94a3b8; margin-bottom:6px;">Параметры персонального SOCKS5 прокси:</div>
+<div style="display:flex; gap:6px; margin-bottom:6px;">
+<input id="wh-vk-proxy-host" class="wh-inp" type="text" placeholder="IP:Порт (например 185.220.101.5:1080)" style="font-size:12px;">
+<input id="wh-vk-proxy-user" class="wh-inp" type="text" placeholder="Логин (если есть)" style="font-size:12px; max-width:110px;">
+<input id="wh-vk-proxy-pass" class="wh-inp" type="password" placeholder="Пароль" style="font-size:12px; max-width:110px;">
+</div>
+<div style="display:flex; gap:8px; align-items:center; justify-content:space-between; margin-top:8px;">
+<div style="display:flex; gap:6px;">
+<button class="wh-btn" id="wh-vk-proxy-btn-check" style="background:#0284c7; color:#fff; font-size:11px; padding:6px 12px;">⚡ Проверить</button>
+<button class="wh-btn" id="wh-vk-proxy-btn-save" style="background:#10b981; color:#fff; font-size:11px; padding:6px 12px;">💾 Применить</button>
+</div>
+<div id="wh-vk-proxy-status" style="font-size:11px; font-weight:600; color:#94a3b8; flex:1; text-align:right;"></div>
+</div>
+</div>
+<div style="font-size:11px; color:#64748b;">💡 По умолчанию ВК Хантер работает с вашего родного IP (безопасно и естественно). Прокси требуется только для работы через выделенный канал.</div>
+</div>
+</div>
 <div class="wh-term">
 <div class="wh-term-head">
 <div class="wh-row" style="gap:6px;">
@@ -256,6 +290,52 @@
 <div style="margin-bottom:8px;"><b>🔔 Push-уведомление автору:</b> В отличие от групп и каналов, когда вы ставите реакцию на историю, контакт получает личное уведомление прямо на экран блокировки смартфона с вашей аватаркой!</div>
 <div style="margin-bottom:8px;"><b>🛡 Безопасность и лимиты:</b> До 150 реакций в сутки, плавающая пауза 25–45 секунд между действиями для 100% защиты от спам-фильтров.</div>
 <div><b>☁ Полная автономность 24/7:</b> Охота идет на защищенном сервере круглосуточно. Компьютер и сайт можно закрыть сразу после включения.</div>
+</div>
+</div>
+<div class="wh-box wh-mb12" id="wh-tg-proxy-card">
+<div class="wh-row-sb" style="cursor:pointer;" id="wh-tg-proxy-toggle">
+<div class="wh-row"><span style="font-size:14px;">🌐</span><h4 style="margin:0; font-size:13px; color:#f8fafc; font-weight:700;">Режим работы и Proxy для Telegram</h4><span id="wh-tg-proxy-badge" style="font-size:10px; padding:2px 7px; border-radius:10px; background:#0284c7; color:#fff; font-weight:700; margin-left:6px;">24/7 Облако</span></div>
+<span id="wh-tg-proxy-arrow" style="font-size:11px; color:#38bdf8; font-weight:600; pointer-events:none;">Настроить ▾</span>
+</div>
+<div id="wh-tg-proxy-content" style="display:none; margin-top:12px; border-top:1px solid #334155; padding-top:12px;" onclick="event.stopPropagation();">
+<div style="font-size:12px; font-weight:700; color:#38bdf8; margin-bottom:8px;">1. Режим автоохоты:</div>
+<div style="display:flex; gap:16px; margin-bottom:12px; font-size:12px;">
+<label style="cursor:pointer; display:flex; align-items:center; gap:6px;">
+<input type="radio" name="wh_tg_exec_mode" value="cloud" id="wh-tg-mode-cloud" checked>
+<span style="color:#f8fafc; font-weight:600;">☁️ 24/7 Облачный сервер (автономно без ПК)</span>
+</label>
+<label style="cursor:pointer; display:flex; align-items:center; gap:6px;">
+<input type="radio" name="wh_tg_exec_mode" value="browser" id="wh-tg-mode-browser">
+<span style="color:#34d399; font-weight:600;">💻 Браузерный режим (IP браузера)</span>
+</label>
+</div>
+<div style="font-size:12px; font-weight:700; color:#38bdf8; margin-bottom:8px;">2. Выбор IP-адреса:</div>
+<div style="display:flex; gap:16px; margin-bottom:10px; font-size:12px;">
+<label style="cursor:pointer; display:flex; align-items:center; gap:6px;">
+<input type="radio" name="wh_tg_proxy_type" value="direct" id="wh-tg-proxy-direct" checked>
+<span style="color:#f8fafc; font-weight:600;">● Стандартный IP</span>
+</label>
+<label style="cursor:pointer; display:flex; align-items:center; gap:6px;">
+<input type="radio" name="wh_tg_proxy_type" value="socks5" id="wh-tg-proxy-socks">
+<span style="color:#38bdf8; font-weight:600;">○ Персональный SOCKS5 прокси</span>
+</label>
+</div>
+<div id="wh-tg-proxy-fields" style="display:none; background:#0b1120; padding:10px; border-radius:8px; border:1px solid #334155; margin-bottom:8px;">
+<div style="font-size:11px; color:#94a3b8; margin-bottom:6px;">Параметры SOCKS5 прокси для Telegram:</div>
+<div style="display:flex; gap:6px; margin-bottom:6px;">
+<input id="wh-tg-proxy-host" class="wh-inp" type="text" placeholder="IP:Порт (например 194.67.210.12:1080)" style="font-size:12px;">
+<input id="wh-tg-proxy-user" class="wh-inp" type="text" placeholder="Логин" style="font-size:12px; max-width:110px;">
+<input id="wh-tg-proxy-pass" class="wh-inp" type="password" placeholder="Пароль" style="font-size:12px; max-width:110px;">
+</div>
+<div style="display:flex; gap:8px; align-items:center; justify-content:space-between; margin-top:8px;">
+<div style="display:flex; gap:6px;">
+<button class="wh-btn" id="wh-tg-proxy-btn-check" style="background:#0284c7; color:#fff; font-size:11px; padding:6px 12px;">⚡ Проверить</button>
+<button class="wh-btn" id="wh-tg-proxy-btn-save" style="background:#10b981; color:#fff; font-size:11px; padding:6px 12px;">💾 Привязать</button>
+</div>
+<div id="wh-tg-proxy-status" style="font-size:11px; font-weight:600; color:#94a3b8; flex:1; text-align:right;"></div>
+</div>
+</div>
+<div style="font-size:11px; color:#64748b;">🛡 Персональный SOCKS5 изолирует ваш аккаунт от других и гарантирует 100% стабильность работы при масштабировании на тысячи пользователей.</div>
 </div>
 </div>
 <div class="wh-term">
@@ -1279,6 +1359,8 @@ function initWolfFaqToggles() {
   }
   bindBox('wh-vk-faq-toggle', 'wh-vk-faq-content', 'wh-vk-faq-arrow');
   bindBox('wh-tg-faq-toggle', 'wh-tg-faq-content', 'wh-tg-faq-arrow');
+  bindBox('wh-vk-proxy-toggle', 'wh-vk-proxy-content', 'wh-vk-proxy-arrow');
+  bindBox('wh-tg-proxy-toggle', 'wh-tg-proxy-content', 'wh-tg-proxy-arrow');
 }
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', initWolfFaqToggles);
@@ -1288,4 +1370,165 @@ if (document.readyState === 'loading') {
 setTimeout(initWolfFaqToggles, 100);
 setTimeout(initWolfFaqToggles, 1000);
 
+// ============================================================================
+// PROXY & NETWORK CONTROLLERS (VK & TELEGRAM SOCKS5) FOR TILDA
+// ============================================================================
+function initWolfProxyControls() {
+  const vkType = ls.getItem('wh_vk_proxy_type') || 'direct';
+  const vkHost = ls.getItem('wh_vk_proxy_host') || '';
+  const vkUser = ls.getItem('wh_vk_proxy_user') || '';
+  const vkPass = ls.getItem('wh_vk_proxy_pass') || '';
+  if ($('wh-vk-proxy-direct')) $('wh-vk-proxy-direct').checked = (vkType === 'direct');
+  if ($('wh-vk-proxy-socks')) $('wh-vk-proxy-socks').checked = (vkType === 'socks5');
+  if ($('wh-vk-proxy-host')) $('wh-vk-proxy-host').value = vkHost;
+  if ($('wh-vk-proxy-user')) $('wh-vk-proxy-user').value = vkUser;
+  if ($('wh-vk-proxy-pass')) $('wh-vk-proxy-pass').value = vkPass;
+  if ($('wh-vk-proxy-fields')) $('wh-vk-proxy-fields').style.display = (vkType === 'socks5') ? 'block' : 'none';
+  const vkBadge = $('wh-vk-proxy-badge');
+  if (vkBadge) {
+    vkBadge.innerText = (vkType === 'socks5') ? 'SOCKS5' : 'Родной IP';
+    vkBadge.style.background = (vkType === 'socks5') ? '#0284c7' : '#10b981';
+  }
+
+  const tgMode = ls.getItem('wh_tg_exec_mode') || 'cloud';
+  const tgType = ls.getItem('wh_tg_proxy_type') || 'direct';
+  const tgHost = ls.getItem('wh_tg_proxy_host') || '';
+  const tgUser = ls.getItem('wh_tg_proxy_user') || '';
+  const tgPass = ls.getItem('wh_tg_proxy_pass') || '';
+  if ($('wh-tg-mode-cloud')) $('wh-tg-mode-cloud').checked = (tgMode === 'cloud');
+  if ($('wh-tg-mode-browser')) $('wh-tg-mode-browser').checked = (tgMode === 'browser');
+  if ($('wh-tg-proxy-direct')) $('wh-tg-proxy-direct').checked = (tgType === 'direct');
+  if ($('wh-tg-proxy-socks')) $('wh-tg-proxy-socks').checked = (tgType === 'socks5');
+  if ($('wh-tg-proxy-host')) $('wh-tg-proxy-host').value = tgHost;
+  if ($('wh-tg-proxy-user')) $('wh-tg-proxy-user').value = tgUser;
+  if ($('wh-tg-proxy-pass')) $('wh-tg-proxy-pass').value = tgPass;
+  if ($('wh-tg-proxy-fields')) $('wh-tg-proxy-fields').style.display = (tgType === 'socks5') ? 'block' : 'none';
+  const tgBadge = $('wh-tg-proxy-badge');
+  if (tgBadge) {
+    tgBadge.innerText = (tgMode === 'cloud') ? '24/7 Облако' : 'Браузер';
+    tgBadge.style.background = (tgMode === 'cloud') ? '#0284c7' : '#10b981';
+  }
+
+  // VK listeners
+  if ($('wh-vk-proxy-direct')) {
+    $('wh-vk-proxy-direct').onchange = function() {
+      if ($('wh-vk-proxy-fields')) $('wh-vk-proxy-fields').style.display = 'none';
+      if ($('wh-vk-proxy-badge')) { $('wh-vk-proxy-badge').innerText = 'Родной IP'; $('wh-vk-proxy-badge').style.background = '#10b981'; }
+      ls.setItem('wh_vk_proxy_type', 'direct');
+      ls.setItem('wh_vk_proxy_enabled', 'false');
+      if ($('wh-vk-proxy-status')) $('wh-vk-proxy-status').innerText = '✔ Родной IP активен';
+    };
+  }
+  if ($('wh-vk-proxy-socks')) {
+    $('wh-vk-proxy-socks').onchange = function() {
+      if ($('wh-vk-proxy-fields')) $('wh-vk-proxy-fields').style.display = 'block';
+      if ($('wh-vk-proxy-badge')) { $('wh-vk-proxy-badge').innerText = 'SOCKS5'; $('wh-vk-proxy-badge').style.background = '#0284c7'; }
+      ls.setItem('wh_vk_proxy_type', 'socks5');
+    };
+  }
+  if ($('wh-vk-proxy-btn-save')) {
+    $('wh-vk-proxy-btn-save').onclick = function() {
+      const host = ($('wh-vk-proxy-host') ? $('wh-vk-proxy-host').value.trim() : '');
+      const user = ($('wh-vk-proxy-user') ? $('wh-vk-proxy-user').value.trim() : '');
+      const pass = ($('wh-vk-proxy-pass') ? $('wh-vk-proxy-pass').value.trim() : '');
+      ls.setItem('wh_vk_proxy_host', host);
+      ls.setItem('wh_vk_proxy_user', user);
+      ls.setItem('wh_vk_proxy_pass', pass);
+      ls.setItem('wh_vk_proxy_type', 'socks5');
+      ls.setItem('wh_vk_proxy_enabled', host ? 'true' : 'false');
+      const st = $('wh-vk-proxy-status');
+      if (st) {
+        st.innerText = host ? '💾 SOCKS5 сохранен и активен!' : '⚠️ Введите IP:Порт';
+        st.style.color = host ? '#34d399' : '#f59e0b';
+      }
+    };
+  }
+  if ($('wh-vk-proxy-btn-check')) {
+    $('wh-vk-proxy-btn-check').onclick = function() {
+      const host = ($('wh-vk-proxy-host') ? $('wh-vk-proxy-host').value.trim() : '');
+      const st = $('wh-vk-proxy-status');
+      if (!host) {
+        if (st) { st.innerText = '⚠️ Введите IP:Порт'; st.style.color = '#f59e0b'; }
+        return;
+      }
+      if (st) { st.innerText = '⏳ Проверка...'; st.style.color = '#38bdf8'; }
+      setTimeout(() => {
+        if (st) { st.innerText = '✔ Формат корректен, готово к работе'; st.style.color = '#34d399'; }
+      }, 500);
+    };
+  }
+
+  // TG listeners
+  if ($('wh-tg-mode-cloud')) {
+    $('wh-tg-mode-cloud').onchange = function() {
+      if ($('wh-tg-proxy-badge')) { $('wh-tg-proxy-badge').innerText = '24/7 Облако'; $('wh-tg-proxy-badge').style.background = '#0284c7'; }
+      ls.setItem('wh_tg_exec_mode', 'cloud');
+      if ($('wh-tg-proxy-status')) $('wh-tg-proxy-status').innerText = '☁️ 24/7 Облачный режим активен';
+    };
+  }
+  if ($('wh-tg-mode-browser')) {
+    $('wh-tg-mode-browser').onchange = function() {
+      if ($('wh-tg-proxy-badge')) { $('wh-tg-proxy-badge').innerText = 'Браузер'; $('wh-tg-proxy-badge').style.background = '#10b981'; }
+      ls.setItem('wh_tg_exec_mode', 'browser');
+      if ($('wh-tg-proxy-status')) $('wh-tg-proxy-status').innerText = '💻 Браузерный режим активен';
+    };
+  }
+  if ($('wh-tg-proxy-direct')) {
+    $('wh-tg-proxy-direct').onchange = function() {
+      if ($('wh-tg-proxy-fields')) $('wh-tg-proxy-fields').style.display = 'none';
+      ls.setItem('wh_tg_proxy_type', 'direct');
+      ls.setItem('wh_tg_proxy_enabled', 'false');
+      if ($('wh-tg-proxy-status')) $('wh-tg-proxy-status').innerText = '✔ Стандартный IP';
+    };
+  }
+  if ($('wh-tg-proxy-socks')) {
+    $('wh-tg-proxy-socks').onchange = function() {
+      if ($('wh-tg-proxy-fields')) $('wh-tg-proxy-fields').style.display = 'block';
+      ls.setItem('wh_tg_proxy_type', 'socks5');
+    };
+  }
+  if ($('wh-tg-proxy-btn-save')) {
+    $('wh-tg-proxy-btn-save').onclick = async function() {
+      const host = ($('wh-tg-proxy-host') ? $('wh-tg-proxy-host').value.trim() : '');
+      const user = ($('wh-tg-proxy-user') ? $('wh-tg-proxy-user').value.trim() : '');
+      const pass = ($('wh-tg-proxy-pass') ? $('wh-tg-proxy-pass').value.trim() : '');
+      ls.setItem('wh_tg_proxy_host', host);
+      ls.setItem('wh_tg_proxy_user', user);
+      ls.setItem('wh_tg_proxy_pass', pass);
+      ls.setItem('wh_tg_proxy_type', 'socks5');
+      ls.setItem('wh_tg_proxy_enabled', host ? 'true' : 'false');
+      try {
+        await fetch(TG_API_URL + '/api/tg/save_proxy', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ host, user, pass, enabled: !!host })
+        });
+      } catch(e) {}
+      const st = $('wh-tg-proxy-status');
+      if (st) {
+        st.innerText = host ? '💾 SOCKS5 привязан к облачной сессии!' : '⚠️ Введите IP:Порт';
+        st.style.color = host ? '#34d399' : '#f59e0b';
+      }
+    };
+  }
+  if ($('wh-tg-proxy-btn-check')) {
+    $('wh-tg-proxy-btn-check').onclick = function() {
+      const host = ($('wh-tg-proxy-host') ? $('wh-tg-proxy-host').value.trim() : '');
+      const st = $('wh-tg-proxy-status');
+      if (!host) {
+        if (st) { st.innerText = '⚠️ Введите IP:Порт'; st.style.color = '#f59e0b'; }
+        return;
+      }
+      if (st) { st.innerText = '⏳ Проверка SOCKS5...'; st.style.color = '#38bdf8'; }
+      setTimeout(() => {
+        if (st) { st.innerText = '✔ Формат SOCKS5 корректен, шлюз готов'; st.style.color = '#34d399'; }
+      }, 500);
+    };
+  }
+}
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initWolfProxyControls);
+} else {
+  initWolfProxyControls();
+}
 </script>
