@@ -345,12 +345,24 @@ const errCode = res.error.error_code;
 const errLower = errMsg.toLowerCase();
 if (errCode === 9 || errLower.includes('flood') || errLower.includes('too many')) {
 stopHuntingLoop();
+ls.setItem('wh_running', 'false');
 renderRunningState(false);
+triggerVkFloodCooldown(1800);
 const sub = $('wh-sub');
 if (sub) { sub.innerText = '⏸ Пауза: Flood control ВК (требуется 20-30 мин покоя)'; sub.style.color = '#f59e0b'; }
-logMsg("⏳ [VK Flood Control] ВКонтакте временно ограничил этот токен за превышение частоты запросов.", "warn", "vk");
-logMsg("👉 Чтобы не продлевать ограничение, сервис остановлен. Дайте ему отдохнуть 20-30 мин.", "info", "vk");
-logMsg("👉 Либо нажмите «Сменить аккаунт» и получите свежий токен с чистым лимитом.", "success", "vk");
+logMsg("🛑 [VK Flood Control] ВКонтакте временно ограничил этот токен за превышение частоты запросов.", "error", "vk");
+logMsg("👉 Сервис полностью остановлен. Дайте аккаунту отдохнуть 20–30 минут покоя.", "warn", "vk");
+logMsg("👉 Либо нажмите «Сменить аккаунт» и подключите свежий токен с чистым лимитом.", "info", "vk");
+try {
+const t = ls.getItem('wh_token');
+if (t) {
+fetch(TG_API_URL + '/api/vk/toggle', {
+method: 'POST',
+headers: { 'Content-Type': 'application/json' },
+body: JSON.stringify({ action: 'stop', access_token: t })
+}).catch(()=>{});
+}
+} catch(e) {}
 return resolve(null);
 }
 if (errCode === 5 && (errLower.includes('blocked') || errLower.includes('banned') || errLower.includes('deactivated'))) {
@@ -413,17 +425,18 @@ if ($('wh-dot')) $('wh-dot').style.background = "#10b981";
 if ($('wh-auth-card')) $('wh-auth-card').style.display = "none";
 if ($('wh-reset-btn')) $('wh-reset-btn').style.display = "inline-flex";
 const totalToday = getTodayLikesCount();
-let shouldRun = ls.getItem('wh_running') === 'true';
-if (totalToday < 300 && (ls.getItem('wh_auto_paused_limit') === 'true' || shouldRun || ls.getItem('wh_vk_manually_stopped') !== 'true')) {
-ls.removeItem('wh_auto_paused_limit');
-shouldRun = true;
-ls.setItem('wh_running', 'true');
+let shouldRun = (ls.getItem('wh_running') === 'true');
+if (totalToday >= 300) {
+shouldRun = false;
+ls.setItem('wh_running', 'false');
 }
 renderRunningState(shouldRun);
 logMsg("✔ Профиль активен: " + (savedName || "Пользователь") + " ✅", "success", "vk");
 if (shouldRun) {
-logMsg("🚀 ВК Хантер запущен автоматически (новый день 24/7)! Охота активна ✅", "success", "vk");
-startHuntingLoop(true);
+logMsg("▶ Возобновление охоты ВК... ✅", "success", "vk");
+startHuntingLoop(false);
+} else {
+stopHuntingLoop();
 }
 }
 setInterval(syncVkStateWithServer, 7000);
@@ -484,17 +497,19 @@ const el = $('wh-auth-card') || $('wh-token-raw');
 if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
 return;
 }
-const next = !(ls.getItem('wh_running') === 'true');
+const cur = (ls.getItem('wh_running') === 'true');
+const next = !cur;
 ls.setItem('wh_running', next ? 'true' : 'false');
-if (!next) {
-ls.setItem('wh_vk_manually_stopped', 'true');
-ls.removeItem('wh_auto_paused_limit');
-} else {
-ls.removeItem('wh_vk_manually_stopped');
-ls.removeItem('wh_auto_paused_limit');
-}
 renderRunningState(next);
-if (API_URL) { try { fetch(API_URL + "?action=toggle", { mode: 'no-cors' }).catch(() => {}); } catch(e) {} }
+
+if (next) {
+logMsg("🚀 ВК Хантер запущен! Первый такт через 3 с, пауза 25–45 с.", "success", "vk");
+startHuntingLoop(false);
+} else {
+logMsg("⏹ ВК Хантер полностью остановлен пользователем.", "warn", "vk");
+stopHuntingLoop();
+}
+
 try {
 const t = ls.getItem('wh_token');
 if (t) {
@@ -505,13 +520,6 @@ body: JSON.stringify({ action: next ? 'start' : 'stop', access_token: t })
 }).catch(()=>{});
 }
 } catch(e) {}
-if (next) {
-logMsg("🚀 ВК Хантер запущен! Первый такт через 3 с, пауза 25–45 с.", "success", "vk");
-startHuntingLoop(false);
-} else {
-logMsg("⏹ ВК Хантер приостановлен пользователем.", "warn", "vk");
-stopHuntingLoop();
-}
 }
 
 async function syncVkStateWithServer(){try{const t=ls.getItem('wh_token');if(!t)return;const res=await fetch(TG_API_URL+'/api/vk/sync?access_token='+encodeURIComponent(t));if(res.ok){const data=await res.json();if(data&&data.status==='ok'){const sRun=!!data.is_running;const lRun=(ls.getItem('wh_running')==='true');if(sRun!==lRun){ls.setItem('wh_running',sRun?'true':'false');renderRunningState(sRun);if(sRun){logMsg("▶ [Синхронизация] Получен сигнал старта ВК ✅","success","vk");startHuntingLoop(false);}else{logMsg("⏹ [Синхронизация] Получен сигнал паузы ВК.","warn","vk");stopHuntingLoop();}}}}}catch(e){}}
@@ -524,20 +532,24 @@ else huntTimer = setTimeout(() => executeCycleAndScheduleNext(), 3000);
 function stopHuntingLoop() {
 isHunting = false;
 if (huntTimer) { clearTimeout(huntTimer); huntTimer = null; }
+if (vkFloodTimer) { clearInterval(vkFloodTimer); vkFloodTimer = null; }
 }
 async function executeCycleAndScheduleNext() {
-if (!isHunting || vkFloodRemain > 0) return;
+if (!isHunting || ls.getItem('wh_running') !== 'true') return;
+if (vkFloodRemain > 0) return;
 try {
 await checkBirthdaysDaily();
 await runHuntingCycle();
 } catch (e) {
 logMsg("Ошибка шага: " + e.message, "error", "vk");
 } finally {
+if (isHunting && ls.getItem('wh_running') === 'true' && vkFloodRemain === 0) {
 scheduleNextCycle();
 }
 }
+}
 function scheduleNextCycle() {
-if (!isHunting || vkFloodRemain > 0) return;
+if (!isHunting || ls.getItem('wh_running') !== 'true' || vkFloodRemain > 0) return;
 if (huntTimer) clearTimeout(huntTimer);
 const sec = Math.floor(Math.random() * 21) + 25;
 huntTimer = setTimeout(() => executeCycleAndScheduleNext(), sec * 1000);
