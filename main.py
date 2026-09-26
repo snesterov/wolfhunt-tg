@@ -788,9 +788,51 @@ async def handle_download_extension(request):
             })
     return web.Response(text="Файл расширения временно недоступен", status=404)
 
+async def handle_widget_js(request):
+    """Динамический загрузчик виджета для Tilda"""
+    js_code = """(async function() {
+  try {
+    let root = document.getElementById('wolfhunt-root') || document.getElementById('wolfhunt-container');
+    if (!root) {
+      root = document.createElement('div');
+      root.id = 'wolfhunt-root';
+      const target = document.querySelector('.t123') || document.querySelector('.r') || document.body;
+      target.appendChild(root);
+    }
+    const res = await fetch('https://wolfhunt-tg.onrender.com/widget.html?v=' + Date.now());
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const html = await res.text();
+    const range = document.createRange();
+    const fragment = range.createContextualFragment(html);
+    root.innerHTML = '';
+    root.appendChild(fragment);
+  } catch(err) {
+    console.error('[WolfHunt Dynamic Loader] Error:', err);
+  }
+})();"""
+    return web.Response(text=js_code, content_type="application/javascript", headers={
+        "Access-Control-Allow-Origin": "*",
+        "Cache-Control": "no-cache, no-store, must-revalidate"
+    })
+
+async def handle_widget_html(request):
+    """Отдача разметки и скрипта виджета WolfHunt"""
+    html_path = os.path.join(os.path.dirname(__file__), "wolfhunt_tilda.html")
+    if os.path.exists(html_path):
+        with open(html_path, "r", encoding="utf-8") as f:
+            content = f.read()
+    else:
+        content = "<div style='color:#f87171; padding:20px; font-family:sans-serif;'><h3>WolfHunt Widget: файл wolfhunt_tilda.html не найден на сервере</h3></div>"
+    return web.Response(text=content, content_type="text/html", headers={
+        "Access-Control-Allow-Origin": "*",
+        "Cache-Control": "no-cache, no-store, must-revalidate"
+    })
+
 async def init_app():
     app = web.Application(middlewares=[cors_middleware])
     app.router.add_get("/", lambda r: web.Response(text="🐺 WolfHunt Telegram Bridge Running!"))
+    app.router.add_get("/widget.js", handle_widget_js)
+    app.router.add_get("/widget.html", handle_widget_html)
     app.router.add_get("/downloads/WOLFHUNT_CHROME_EXTENSION.zip", handle_download_extension)
     app.router.add_get("/download/extension", handle_download_extension)
     app.router.add_get("/api/tg/status", handle_status)
