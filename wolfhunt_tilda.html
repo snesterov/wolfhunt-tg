@@ -46,12 +46,12 @@
     <div style="display:flex; align-items:center; gap:10px;">
       <span style="font-size:22px;">🚀</span>
       <div>
-        <div style="font-weight:800; font-size:13px; color:#fcd34d;" id="wh-tilda-update-title">Внимание: Вышло обновление расширения Chrome v2.0.1!</div>
-        <div style="font-size:11px; color:#e2e8f0; margin-top:2px;" id="wh-tilda-update-desc">Сбор именинников 1 раз в сутки пачками по 5, защитные паузы и новый 3D-логотип Волка. Обновите папку расширения.</div>
+        <div style="font-weight:800; font-size:13px; color:#fcd34d;" id="wh-tilda-update-title">Внимание: Вышло обновление расширения Chrome v2.0.3!</div>
+        <div style="font-size:11px; color:#e2e8f0; margin-top:2px;" id="wh-tilda-update-desc">Новая яркая 3D-иконка Волка на панели Chrome, фирменный синий дизайн ВК, исправленный аватар Telegram и индикатор обновлений.</div>
       </div>
     </div>
     <div style="display:flex; gap:8px;">
-      <a href="https://wolfhunt-tg.onrender.com/downloads/WOLFHUNT_CHROME_EXTENSION.zip" class="wh-btn" style="background:#f59e0b; color:#0f172a; padding:8px 14px; font-size:12px; font-weight:800; border-radius:8px; text-decoration:none;">📥 Скачать архив v2.0.1</a>
+      <a href="https://wolfhunt-tg.onrender.com/downloads/WOLFHUNT_CHROME_EXTENSION.zip" class="wh-btn" style="background:#f59e0b; color:#0f172a; padding:8px 14px; font-size:12px; font-weight:800; border-radius:8px; text-decoration:none;">📥 Скачать архив v2.0.3</a>
     </div>
   </div>
 </div>
@@ -818,6 +818,9 @@ async function syncVkStateWithServer() {
           renderRunningState(false);
           logMsg("⏹ [Синхронизация] Получен сигнал паузы ВК.", "warn", "vk");
           stopHuntingLoop();
+        }
+        if (data.has_update && $('wh-tilda-update-banner')) {
+          $('wh-tilda-update-banner').style.display = 'block';
         }
       }
     }

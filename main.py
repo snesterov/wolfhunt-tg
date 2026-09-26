@@ -492,10 +492,10 @@ async def handle_vk_proxy(request):
 # VK MULTI-TENANT CLOUD HUNTER (24/7 AUTONOMOUS BACKGROUND ENGINE)
 # ==============================================================================
 VK_USERS_FILE = "wolfhunt_vk_users.json"
-LATEST_EXTENSION_VERSION = "2.0.1"
+LATEST_EXTENSION_VERSION = "2.0.3"
 EXTENSION_DOWNLOAD_URL = "https://wolfhunt-tg.onrender.com/downloads/WOLFHUNT_CHROME_EXTENSION.zip"
-EXTENSION_UPDATE_TITLE = "Доступно обновление расширения WolfHunt PRO v2.0.1!"
-EXTENSION_UPDATE_DESC = "Сбор именинников 1 раз в сутки пачками по 5, защитные паузы и новый 3D-логотип Волка. Обновите папку расширения."
+EXTENSION_UPDATE_TITLE = "Доступно обновление расширения WolfHunt PRO v2.0.3!"
+EXTENSION_UPDATE_DESC = "Новая яркая 3D-иконка Волка на панели Chrome, фирменный синий дизайн ВК, исправленный аватар Telegram и индикатор обновлений."
 
 VK_USERS_DB = {}
 VK_USER_LOGS = {}
