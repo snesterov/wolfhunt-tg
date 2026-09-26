@@ -70,8 +70,8 @@
 <div class="wh-row" style="gap:8px; align-items:center; flex-wrap:wrap;">
 <h3 id="wh-name" style="margin:0; font-size:18px; font-weight:800; color:#fff;">ВК Хантер</h3>
 <a id="wh-vk-profile-link" href="#" target="_blank" style="display:none; font-size:11px; color:#38bdf8; text-decoration:none; background:#1e293b; padding:2px 8px; border-radius:4px; border:1px solid #334155; font-weight:600;"></a>
-<button id="wh-vk-net-mode-btn" class="wh-badge" onclick="toggleProxyCard('vk')" style="cursor:pointer; background:rgba(16,185,129,0.2); color:#34d399; border:1px solid rgba(16,185,129,0.4); display:inline-flex; align-items:center; gap:5px; font-weight:700; font-size:11px; padding:3px 9px; border-radius:6px; transition:0.2s;" title="Нажмите для настройки SOCKS5 прокси">
-<span>🌐</span> <span id="wh-vk-net-mode-text">DIRECT IP (Родной)</span> <span style="font-size:9px; color:#38bdf8;">(Настроить ▾)</span>
+<button id="wh-vk-net-mode-btn" class="wh-badge" onclick="toggleProxyCard('vk')" style="cursor:pointer; background:rgba(2,132,199,0.2); color:#38bdf8; border:1px solid rgba(2,132,199,0.4); display:inline-flex; align-items:center; gap:5px; font-weight:700; font-size:11px; padding:3px 9px; border-radius:6px; transition:0.2s;" title="Нажмите для настройки режима и SOCKS5 прокси">
+<span>🌐</span> <span id="wh-vk-net-mode-text">☁️ 24/7 ОБЛАКО (Автономно)</span> <span style="font-size:9px; color:#38bdf8;">(Настроить ▾)</span>
 </button>
 </div>
 <p id="wh-sub" style="margin:3px 0 0 0; font-size:12px; color:#f59e0b; font-weight:600;">⚠️ Требуется авторизация в ВК</p>
@@ -84,22 +84,34 @@
 </div>
 <div class="wh-box wh-mb12" id="wh-vk-proxy-card" style="margin-bottom:12px; border:1px solid #0284c7; background:linear-gradient(145deg,#0f172a,#1e293b);">
 <div class="wh-row-sb" style="cursor:pointer;" id="wh-vk-proxy-toggle">
-<div class="wh-row"><span style="font-size:14px;">🌐</span><h4 style="margin:0; font-size:13px; color:#f8fafc; font-weight:700;">Настройки сети и Proxy для ВК (SOCKS5)</h4><span id="wh-vk-proxy-badge" style="font-size:10px; padding:2px 7px; border-radius:10px; background:#10b981; color:#fff; font-weight:700; margin-left:6px;">Родной IP</span></div>
+<div class="wh-row"><span style="font-size:14px;">🌐</span><h4 style="margin:0; font-size:13px; color:#f8fafc; font-weight:700;">Режим работы и Proxy для ВК (SOCKS5)</h4><span id="wh-vk-proxy-badge" style="font-size:10px; padding:2px 7px; border-radius:10px; background:#0284c7; color:#fff; font-weight:700; margin-left:6px;">24/7 Облако</span></div>
 <span id="wh-vk-proxy-arrow" style="font-size:11px; color:#38bdf8; font-weight:600; pointer-events:none;">Настроить ▾</span>
 </div>
 <div id="wh-vk-proxy-content" style="display:none; margin-top:12px; border-top:1px solid #334155; padding-top:12px;" onclick="event.stopPropagation();">
-<div style="display:flex; gap:16px; margin-bottom:10px; font-size:12px;">
+<div style="font-size:12px; font-weight:700; color:#38bdf8; margin-bottom:8px;">1. Режим автоохоты:</div>
+<div style="display:flex; gap:16px; margin-bottom:12px; font-size:12px; flex-wrap:wrap;">
+<label style="cursor:pointer; display:flex; align-items:center; gap:6px;">
+<input type="radio" name="wh_vk_exec_mode" value="cloud" id="wh-vk-mode-cloud" checked>
+<span style="color:#f8fafc; font-weight:600;">☁️ 24/7 Облачный сервер (автономно при ВЫКЛЮЧЕННОМ ПК)</span>
+</label>
+<label style="cursor:pointer; display:flex; align-items:center; gap:6px;">
+<input type="radio" name="wh_vk_exec_mode" value="browser" id="wh-vk-mode-browser">
+<span style="color:#34d399; font-weight:600;">💻 Браузерный режим (IP браузера / расширения)</span>
+</label>
+</div>
+<div style="font-size:12px; font-weight:700; color:#38bdf8; margin-bottom:8px;">2. Выбор IP-адреса для автоохоты:</div>
+<div style="display:flex; gap:16px; margin-bottom:10px; font-size:12px; flex-wrap:wrap;">
 <label style="cursor:pointer; display:flex; align-items:center; gap:6px;">
 <input type="radio" name="wh_vk_proxy_type" value="direct" id="wh-vk-proxy-direct" checked>
-<span style="color:#f8fafc; font-weight:600;">● Родной IP браузера (по умолчанию)</span>
+<span style="color:#f8fafc; font-weight:600;">● Стандартный IP (сервера или браузера)</span>
 </label>
 <label style="cursor:pointer; display:flex; align-items:center; gap:6px;">
 <input type="radio" name="wh_vk_proxy_type" value="socks5" id="wh-vk-proxy-socks">
-<span style="color:#38bdf8; font-weight:600;">○ Свой SOCKS5 прокси</span>
+<span style="color:#38bdf8; font-weight:600;">○ Персональный SOCKS5 прокси</span>
 </label>
 </div>
 <div id="wh-vk-proxy-fields" style="display:none; background:#0b1120; padding:10px; border-radius:8px; border:1px solid #334155; margin-bottom:8px;">
-<div style="font-size:11px; color:#94a3b8; margin-bottom:6px;">Параметры персонального SOCKS5 прокси:</div>
+<div style="font-size:11px; color:#94a3b8; margin-bottom:6px;">Параметры персонального SOCKS5 прокси для ВК:</div>
 <div style="display:flex; gap:6px; margin-bottom:6px;">
 <input id="wh-vk-proxy-host" class="wh-inp" type="text" placeholder="IP:Порт (например 185.220.101.5:1080)" style="font-size:12px;">
 <input id="wh-vk-proxy-user" class="wh-inp" type="text" placeholder="Логин (если есть)" style="font-size:12px; max-width:110px;">
@@ -108,12 +120,12 @@
 <div style="display:flex; gap:8px; align-items:center; justify-content:space-between; margin-top:8px;">
 <div style="display:flex; gap:6px;">
 <button class="wh-btn" id="wh-vk-proxy-btn-check" style="background:#0284c7; color:#fff; font-size:11px; padding:6px 12px;">⚡ Проверить</button>
-<button class="wh-btn" id="wh-vk-proxy-btn-save" style="background:#10b981; color:#fff; font-size:11px; padding:6px 12px;">💾 Применить</button>
+<button class="wh-btn" id="wh-vk-proxy-btn-save" style="background:#10b981; color:#fff; font-size:11px; padding:6px 12px;">💾 Привязать к облаку</button>
 </div>
 <div id="wh-vk-proxy-status" style="font-size:11px; font-weight:600; color:#94a3b8; flex:1; text-align:right;"></div>
 </div>
 </div>
-<div style="font-size:11px; color:#64748b;">💡 По умолчанию ВК Хантер работает с вашего родного IP (безопасно и естественно). Прокси требуется только для работы через выделенный канал.</div>
+<div style="font-size:11px; color:#64748b; line-height:1.5;">💡 <b>24/7 Облачный сервер:</b> ВК Хантер ставит лайки историям (Приоритет №1) и постам круглосуточно на облачном сервере, даже когда ваш ПК и браузер полностью выключены! SOCKS5 прокси позволяет привязать к облаку ваш персональный IP.</div>
 </div>
 </div>
 <div class="wh-grid">
@@ -1440,10 +1452,13 @@ setTimeout(initWolfFaqToggles, 1000);
 // PROXY & NETWORK CONTROLLERS (VK & TELEGRAM SOCKS5) FOR TILDA
 // ============================================================================
 function initWolfProxyControls() {
+  const vkMode = ls.getItem('wh_vk_exec_mode') || 'cloud';
   const vkType = ls.getItem('wh_vk_proxy_type') || 'direct';
   const vkHost = ls.getItem('wh_vk_proxy_host') || '';
   const vkUser = ls.getItem('wh_vk_proxy_user') || '';
   const vkPass = ls.getItem('wh_vk_proxy_pass') || '';
+  if ($('wh-vk-mode-cloud')) $('wh-vk-mode-cloud').checked = (vkMode === 'cloud');
+  if ($('wh-vk-mode-browser')) $('wh-vk-mode-browser').checked = (vkMode === 'browser');
   if ($('wh-vk-proxy-direct')) $('wh-vk-proxy-direct').checked = (vkType === 'direct');
   if ($('wh-vk-proxy-socks')) $('wh-vk-proxy-socks').checked = (vkType === 'socks5');
   if ($('wh-vk-proxy-host')) $('wh-vk-proxy-host').value = vkHost;
@@ -1452,8 +1467,16 @@ function initWolfProxyControls() {
   if ($('wh-vk-proxy-fields')) $('wh-vk-proxy-fields').style.display = (vkType === 'socks5') ? 'block' : 'none';
   const vkBadge = $('wh-vk-proxy-badge');
   if (vkBadge) {
-    vkBadge.innerText = (vkType === 'socks5') ? 'SOCKS5' : 'Родной IP';
-    vkBadge.style.background = (vkType === 'socks5') ? '#0284c7' : '#10b981';
+    if (vkType === 'socks5') {
+      vkBadge.innerText = 'SOCKS5';
+      vkBadge.style.background = '#0284c7';
+    } else if (vkMode === 'cloud') {
+      vkBadge.innerText = '24/7 Облако';
+      vkBadge.style.background = '#0284c7';
+    } else {
+      vkBadge.innerText = 'Браузер';
+      vkBadge.style.background = '#10b981';
+    }
   }
 
   const tgMode = ls.getItem('wh_tg_exec_mode') || 'cloud';
@@ -1476,13 +1499,29 @@ function initWolfProxyControls() {
   }
 
   // VK listeners
+  if ($('wh-vk-mode-cloud')) {
+    $('wh-vk-mode-cloud').onchange = function() {
+      ls.setItem('wh_vk_exec_mode', 'cloud');
+      if ($('wh-vk-proxy-badge')) { $('wh-vk-proxy-badge').innerText = '24/7 Облако'; $('wh-vk-proxy-badge').style.background = '#0284c7'; }
+      if ($('wh-vk-proxy-status')) $('wh-vk-proxy-status').innerText = '☁️ 24/7 Облачный режим активен';
+      updateProxyHeaderBadges();
+    };
+  }
+  if ($('wh-vk-mode-browser')) {
+    $('wh-vk-mode-browser').onchange = function() {
+      ls.setItem('wh_vk_exec_mode', 'browser');
+      if ($('wh-vk-proxy-badge')) { $('wh-vk-proxy-badge').innerText = 'Браузер'; $('wh-vk-proxy-badge').style.background = '#10b981'; }
+      if ($('wh-vk-proxy-status')) $('wh-vk-proxy-status').innerText = '💻 Браузерный режим активен';
+      updateProxyHeaderBadges();
+    };
+  }
   if ($('wh-vk-proxy-direct')) {
     $('wh-vk-proxy-direct').onchange = function() {
       if ($('wh-vk-proxy-fields')) $('wh-vk-proxy-fields').style.display = 'none';
-      if ($('wh-vk-proxy-badge')) { $('wh-vk-proxy-badge').innerText = 'Родной IP'; $('wh-vk-proxy-badge').style.background = '#10b981'; }
       ls.setItem('wh_vk_proxy_type', 'direct');
       ls.setItem('wh_vk_proxy_enabled', 'false');
-      if ($('wh-vk-proxy-status')) $('wh-vk-proxy-status').innerText = '✔ Родной IP активен';
+      if ($('wh-vk-proxy-status')) $('wh-vk-proxy-status').innerText = '✔ Стандартный IP активен';
+      updateProxyHeaderBadges();
     };
   }
   if ($('wh-vk-proxy-socks')) {
@@ -1490,23 +1529,36 @@ function initWolfProxyControls() {
       if ($('wh-vk-proxy-fields')) $('wh-vk-proxy-fields').style.display = 'block';
       if ($('wh-vk-proxy-badge')) { $('wh-vk-proxy-badge').innerText = 'SOCKS5'; $('wh-vk-proxy-badge').style.background = '#0284c7'; }
       ls.setItem('wh_vk_proxy_type', 'socks5');
+      updateProxyHeaderBadges();
     };
   }
   if ($('wh-vk-proxy-btn-save')) {
-    $('wh-vk-proxy-btn-save').onclick = function() {
+    $('wh-vk-proxy-btn-save').onclick = async function() {
       const host = ($('wh-vk-proxy-host') ? $('wh-vk-proxy-host').value.trim() : '');
       const user = ($('wh-vk-proxy-user') ? $('wh-vk-proxy-user').value.trim() : '');
       const pass = ($('wh-vk-proxy-pass') ? $('wh-vk-proxy-pass').value.trim() : '');
+      const isSocks = $('wh-vk-proxy-socks') && $('wh-vk-proxy-socks').checked && !!host;
       ls.setItem('wh_vk_proxy_host', host);
       ls.setItem('wh_vk_proxy_user', user);
       ls.setItem('wh_vk_proxy_pass', pass);
-      ls.setItem('wh_vk_proxy_type', 'socks5');
-      ls.setItem('wh_vk_proxy_enabled', host ? 'true' : 'false');
+      ls.setItem('wh_vk_proxy_type', isSocks ? 'socks5' : 'direct');
+      ls.setItem('wh_vk_proxy_enabled', isSocks ? 'true' : 'false');
+
+      const uid = ls.getItem('wh_user_id') || '';
+      try {
+        await fetch(TG_API_URL + '/api/vk/save_proxy', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ user_id: uid, host, user, pass, enabled: isSocks })
+        });
+      } catch(e) {}
+
       const st = $('wh-vk-proxy-status');
       if (st) {
-        st.innerText = host ? '💾 SOCKS5 сохранен и активен!' : '⚠️ Введите IP:Порт';
-        st.style.color = host ? '#34d399' : '#f59e0b';
+        st.innerText = isSocks ? '💾 SOCKS5 привязан к 24/7 облаку!' : '✔ Стандартный IP сохранен';
+        st.style.color = '#34d399';
       }
+      updateProxyHeaderBadges();
     };
   }
   if ($('wh-vk-proxy-btn-check')) {
@@ -1530,6 +1582,7 @@ function initWolfProxyControls() {
       if ($('wh-tg-proxy-badge')) { $('wh-tg-proxy-badge').innerText = '24/7 Облако'; $('wh-tg-proxy-badge').style.background = '#0284c7'; }
       ls.setItem('wh_tg_exec_mode', 'cloud');
       if ($('wh-tg-proxy-status')) $('wh-tg-proxy-status').innerText = '☁️ 24/7 Облачный режим активен';
+      updateProxyHeaderBadges();
     };
   }
   if ($('wh-tg-mode-browser')) {
@@ -1537,6 +1590,7 @@ function initWolfProxyControls() {
       if ($('wh-tg-proxy-badge')) { $('wh-tg-proxy-badge').innerText = 'Браузер'; $('wh-tg-proxy-badge').style.background = '#10b981'; }
       ls.setItem('wh_tg_exec_mode', 'browser');
       if ($('wh-tg-proxy-status')) $('wh-tg-proxy-status').innerText = '💻 Браузерный режим активен';
+      updateProxyHeaderBadges();
     };
   }
   if ($('wh-tg-proxy-direct')) {
@@ -1545,12 +1599,14 @@ function initWolfProxyControls() {
       ls.setItem('wh_tg_proxy_type', 'direct');
       ls.setItem('wh_tg_proxy_enabled', 'false');
       if ($('wh-tg-proxy-status')) $('wh-tg-proxy-status').innerText = '✔ Стандартный IP';
+      updateProxyHeaderBadges();
     };
   }
   if ($('wh-tg-proxy-socks')) {
     $('wh-tg-proxy-socks').onchange = function() {
       if ($('wh-tg-proxy-fields')) $('wh-tg-proxy-fields').style.display = 'block';
       ls.setItem('wh_tg_proxy_type', 'socks5');
+      updateProxyHeaderBadges();
     };
   }
   if ($('wh-tg-proxy-btn-save')) {
@@ -1575,6 +1631,7 @@ function initWolfProxyControls() {
         st.innerText = host ? '💾 SOCKS5 привязан к облачной сессии!' : '⚠️ Введите IP:Порт';
         st.style.color = host ? '#34d399' : '#f59e0b';
       }
+      updateProxyHeaderBadges();
     };
   }
   if ($('wh-tg-proxy-btn-check')) {
@@ -1594,17 +1651,24 @@ function initWolfProxyControls() {
   const updateProxyHeaderBadges = () => {
     const curVkType = ls.getItem('wh_vk_proxy_type') || 'direct';
     const curVkHost = ls.getItem('wh_vk_proxy_host') || '';
+    const curVkMode = ls.getItem('wh_vk_exec_mode') || 'cloud';
     const curTgType = ls.getItem('wh_tg_proxy_type') || 'direct';
     const curTgHost = ls.getItem('wh_tg_proxy_host') || '';
     const curTgMode = ls.getItem('wh_tg_exec_mode') || 'cloud';
 
     const vkTxt = $('wh-vk-net-mode-text');
     if (vkTxt) {
-      vkTxt.innerText = (curVkType === 'socks5' && curVkHost) ? ('SOCKS5: ' + curVkHost) : 'DIRECT IP (Родной)';
+      if (curVkType === 'socks5' && curVkHost) {
+        vkTxt.innerText = 'SOCKS5: ' + curVkHost;
+      } else if (curVkMode === 'browser') {
+        vkTxt.innerText = '💻 БРАУЗЕР (Родной IP)';
+      } else {
+        vkTxt.innerText = '☁️ 24/7 ОБЛАКО (Автономно)';
+      }
       if ($('wh-vk-net-mode-btn')) {
-        $('wh-vk-net-mode-btn').style.background = (curVkType === 'socks5') ? 'rgba(2,132,199,0.2)' : 'rgba(16,185,129,0.2)';
-        $('wh-vk-net-mode-btn').style.color = (curVkType === 'socks5') ? '#38bdf8' : '#34d399';
-        $('wh-vk-net-mode-btn').style.borderColor = (curVkType === 'socks5') ? 'rgba(2,132,199,0.4)' : 'rgba(16,185,129,0.4)';
+        $('wh-vk-net-mode-btn').style.background = (curVkType === 'socks5' || curVkMode === 'cloud') ? 'rgba(2,132,199,0.2)' : 'rgba(16,185,129,0.2)';
+        $('wh-vk-net-mode-btn').style.color = (curVkType === 'socks5' || curVkMode === 'cloud') ? '#38bdf8' : '#34d399';
+        $('wh-vk-net-mode-btn').style.borderColor = (curVkType === 'socks5' || curVkMode === 'cloud') ? 'rgba(2,132,199,0.4)' : 'rgba(16,185,129,0.4)';
       }
     }
     const tgTxt = $('wh-tg-net-mode-text');

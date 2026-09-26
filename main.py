@@ -15,6 +15,10 @@ from telethon import TelegramClient
 from telethon.sessions import StringSession
 from telethon.errors import SessionPasswordNeededError, PhoneCodeInvalidError, FloodWaitError
 from telethon.tl import functions, types
+try:
+    from aiohttp_socks import ProxyConnector
+except ImportError:
+    ProxyConnector = None
 
 API_ID = 2040
 API_HASH = "b18441a1ff607e10a989891a5462e627"
@@ -534,17 +538,34 @@ def parse_spintax(text: str, first_name: str = "друг") -> str:
         text = re.sub(r"\{([^{}]+)\}", lambda m: random.choice(m.group(1).split("|")).strip(), text)
     return text
 
-async def call_vk_api_cloud(session: aiohttp.ClientSession, method: str, params: dict) -> dict:
+async def call_vk_api_cloud(session: aiohttp.ClientSession, method: str, params: dict, u: dict = None) -> dict:
     params["v"] = "5.131"
     url = f"https://api.vk.com/method/{method}"
     headers = {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
         "Referer": "https://vk.com/"
     }
+    timeout = aiohttp.ClientTimeout(total=10)
+
+    proxy_url = None
+    if u and u.get("proxy_enabled") and u.get("proxy_host"):
+        host = u["proxy_host"]
+        user = u.get("proxy_user", "")
+        pwd = u.get("proxy_pass", "")
+        if user and pwd:
+            proxy_url = f"socks5://{user}:{pwd}@{host}"
+        else:
+            proxy_url = f"socks5://{host}"
+
     try:
-        async with session.post(url, data=params, headers=headers, timeout=aiohttp.ClientTimeout(total=10)) as resp:
-            data = await resp.json(content_type=None)
-            return data
+        if proxy_url and ProxyConnector:
+            connector = ProxyConnector.from_url(proxy_url)
+            async with aiohttp.ClientSession(connector=connector) as p_session:
+                async with p_session.post(url, data=params, headers=headers, timeout=timeout) as resp:
+                    return await resp.json(content_type=None)
+        else:
+            async with session.post(url, data=params, headers=headers, timeout=timeout) as resp:
+                return await resp.json(content_type=None)
     except Exception as e:
         return {"error": {"error_msg": str(e), "error_code": -1}}
 
@@ -552,7 +573,7 @@ async def run_vk_tact_stories(session: aiohttp.ClientSession, u: dict) -> bool:
     token = u["vk_token"]
     u_id = str(u["vk_user_id"])
     append_vk_user_log(u_id, "info", "👁 [Фаза: Истории] Поиск свежих историй друзей...")
-    res = await call_vk_api_cloud(session, "stories.get", {"access_token": token, "extended": "1"})
+    res = await call_vk_api_cloud(session, "stories.get", {"access_token": token, "extended": "1"}, u)
     if "response" not in res or not res["response"].get("items"):
         return False
     items = res["response"]["items"]
@@ -570,7 +591,7 @@ async def run_vk_tact_stories(session: aiohttp.ClientSession, u: dict) -> bool:
         fn = (p_info.get("first_name", "") + " " + p_info.get("last_name", "")).strip() or f"id{owner_id}"
         await call_vk_api_cloud(session, "stories.sendInteraction", {
             "access_token": token, "owner_id": owner_id, "story_id": s_id, "message": "❤"
-        })
+        }, u)
         seen_cache.append(seen_key)
         if len(seen_cache) > 500: seen_cache.pop(0)
         u["vk_today_stories"] = u.get("vk_today_stories", 0) + 1
@@ -595,7 +616,7 @@ async def run_vk_tact_birthdays(session: aiohttp.ClientSession, u: dict) -> bool
     if u.get("bday_cache_date") != today_str:
         res = await call_vk_api_cloud(session, "friends.get", {
             "access_token": token, "fields": "bdate,first_name,can_write_private_message"
-        })
+        }, u)
         bdays = []
         if "response" in res and res["response"].get("items"):
             for f in res["response"]["items"]:
@@ -636,7 +657,7 @@ async def run_vk_tact_birthdays(session: aiohttp.ClientSession, u: dict) -> bool
             msg = parse_spintax(bday_text, f["name"])
             await call_vk_api_cloud(session, "messages.send", {
                 "access_token": token, "user_id": f["id"], "message": msg, "random_id": random.randint(1000000, 99999999)
-            })
+            }, u)
             congratulated.append(b_key)
             u["vk_bday_count"] = u.get("vk_bday_count", 0) + 1
             sent_batch_count += 1
@@ -662,7 +683,7 @@ async def run_vk_tact_posts(session: aiohttp.ClientSession, u: dict) -> bool:
     append_vk_user_log(u_id, "info", "🔍 [Фаза: Посты] Поиск свежих записей друзей...")
     res = await call_vk_api_cloud(session, "newsfeed.get", {
         "access_token": token, "filters": "post", "count": "15"
-    })
+    }, u)
     if "response" not in res or not res["response"].get("items"): return False
     items = res["response"]["items"]
     seen_posts = u.setdefault("seen_posts", [])
@@ -677,7 +698,7 @@ async def run_vk_tact_posts(session: aiohttp.ClientSession, u: dict) -> bool:
             seen_posts.append(p_key); continue
         await call_vk_api_cloud(session, "likes.add", {
             "access_token": token, "type": "post", "owner_id": owner_id, "item_id": post_id
-        })
+        }, u)
         seen_posts.append(p_key)
         if len(seen_posts) > 500: seen_posts.pop(0)
         u["vk_today_posts"] = u.get("vk_today_posts", 0) + 1
@@ -861,14 +882,15 @@ async def handle_vk_status(request: web.Request):
         "screen_name": u.get("vk_screen_name"),
         "today_stories": u.get("vk_today_stories", 0),
         "today_posts": u.get("vk_today_posts", 0),
-        "today_stories": u.get("vk_today_stories", 0),
-        "today_posts": u.get("vk_today_posts", 0),
         "today_total": u.get("vk_today_stories", 0) + u.get("vk_today_posts", 0),
         "today_bdays": u.get("vk_bday_count", 0),
         "all_time_stories": u.get("vk_all_time_stories", 0),
         "all_time_posts": u.get("vk_all_time_posts", 0),
         "all_time_bdays": u.get("vk_all_time_bdays", 0),
         "all_time_total": u.get("vk_all_time_stories", 0) + u.get("vk_all_time_posts", 0),
+        "proxy_enabled": u.get("proxy_enabled", False),
+        "proxy_host": u.get("proxy_host", ""),
+        "proxy_user": u.get("proxy_user", ""),
         "bday_text": u.get("vk_bday_text", default_bday),
         "bday_enabled": u.get("vk_bday_enabled", True),
         "client_mode": u.get("client_mode", "chrome_extension_home_ip"),
@@ -996,6 +1018,34 @@ async def handle_widget_html(request):
         "Cache-Control": "no-cache, no-store, must-revalidate"
     })
 
+async def handle_vk_save_proxy(request: web.Request):
+    """Сохранение SOCKS5 настроек для профиля ВКонтакте в 24/7 облаке"""
+    try:
+        data = await request.json()
+        u_id = str(data.get("user_id", "")).strip()
+        host = data.get("host", "").strip()
+        user = data.get("user", "").strip()
+        pwd = data.get("pass", "").strip()
+        enabled = bool(data.get("enabled", False))
+
+        if not u_id and VK_USERS_DB:
+            u_id = next(iter(VK_USERS_DB))
+
+        if u_id and u_id in VK_USERS_DB:
+            u = VK_USERS_DB[u_id]
+            u["proxy_host"] = host
+            u["proxy_user"] = user
+            u["proxy_pass"] = pwd
+            u["proxy_enabled"] = enabled
+            save_vk_data()
+            msg = f"🌐 SOCKS5 прокси привязан к 24/7 облаку: {host}" if (enabled and host) else "🌐 24/7 Облако переключено на прямой IP сервера"
+            append_vk_user_log(u_id, "info", msg)
+            return web.json_response({"status": "ok", "proxy_enabled": enabled})
+        else:
+            return web.json_response({"status": "ok", "proxy_enabled": enabled, "note": "saved_default"})
+    except Exception as e:
+        return web.json_response({"error": str(e)}, status=400)
+
 async def handle_tg_save_proxy(request: web.Request):
     """Сохранение SOCKS5 настроек для сессии Telegram"""
     try:
@@ -1038,6 +1088,7 @@ async def init_app():
     app.router.add_post("/api/vk/toggle", handle_vk_toggle)
     app.router.add_post("/api/vk/save_settings", handle_vk_save_settings)
     app.router.add_post("/api/vk/like_once", handle_vk_like_once)
+    app.router.add_post("/api/vk/save_proxy", handle_vk_save_proxy)
 
     # Запуск фонового keep-alive
     load_vk_data()
