@@ -452,17 +452,20 @@ if (vkFloodTimer) { clearInterval(vkFloodTimer); vkFloodTimer = null; }
 ls.removeItem('wh_vk_flood_until');
 const b = $('wh-btn-now'); if (b) { b.disabled = false; b.innerText = '⚡ Лайкнуть сейчас'; }
 }
-function triggerVkFloodCooldown(seconds = 180) {
-ls.setItem('wh_vk_flood_until', (Date.now() + seconds * 1000).toString());
+function resumeVkFloodCooldown(seconds) {
 vkFloodRemain = seconds;
 const b = $('wh-btn-now'); if (b) b.disabled = true;
-logMsg(`⏳ Защитная пауза ВК: ${vkFloodRemain}с`, "warn", "vk");
 if (vkFloodTimer) clearInterval(vkFloodTimer);
 vkFloodTimer = setInterval(() => {
 vkFloodRemain--;
 if (b) b.innerText = `⏳ Пауза (${vkFloodRemain}с)`;
 if (vkFloodRemain <= 0) resetVkFloodCooldown();
 }, 1000);
+}
+function triggerVkFloodCooldown(seconds = 180) {
+ls.setItem('wh_vk_flood_until', (Date.now() + seconds * 1000).toString());
+resumeVkFloodCooldown(seconds);
+logMsg(`⏳ Защитная пауза ВК: ${seconds}с`, "warn", "vk");
 }
 function handleVkSecurityStop(reasonText) {
 stopHuntingLoop();
@@ -637,12 +640,13 @@ const savedFloodUntil = parseInt(ls.getItem('wh_vk_flood_until') || '0', 10);
 const nowMs = Date.now();
 if (savedFloodUntil > nowMs) {
 const remSec = Math.ceil((savedFloodUntil - nowMs) / 1000);
-triggerVkFloodCooldown(remSec);
+resumeVkFloodCooldown(remSec);
 } else {
 resetVkFloodCooldown();
 }
 if (savedToken) {
 if (savedName && $('wh-name')) $('wh-name').innerText = savedName;
+else if (savedUid && $('wh-name')) $('wh-name').innerText = 'id' + savedUid;
 if (savedPhoto && $('wh-avatar')) {
 $('wh-avatar').src = savedPhoto;
 $('wh-avatar').style.borderColor = "#10b981";
@@ -655,14 +659,12 @@ $('wh-vk-profile-link').style.display = 'inline-block';
 if ($('wh-dot')) $('wh-dot').style.background = "#10b981";
 if ($('wh-auth-card')) $('wh-auth-card').style.display = "none";
 if ($('wh-reset-btn')) $('wh-reset-btn').style.display = "inline-flex";
-if (!savedName && vkFloodRemain <= 0) {
-fetchAndRenderVkProfile(savedToken);
-}
 const totalToday = getTodayLikesCount();
 ls.setItem('wh_running', 'false');
 renderRunningState(false);
 stopHuntingLoop();
-logMsg("✔ Профиль готов: " + (savedName || "Пользователь") + " (на паузе) ⏸", "info", "vk");
+const displayName = savedName || (savedUid ? 'id' + savedUid : 'Пользователь');
+logMsg("✔ Профиль готов: " + displayName + " (на паузе) ⏸", "info", "vk");
 } else {
 stopHuntingLoop();
 renderRunningState(false);
