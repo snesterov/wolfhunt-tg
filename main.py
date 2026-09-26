@@ -33,6 +33,8 @@ state = {
     "is_running": False,
     "reactions_today": 0,
     "views_today": 0,
+    "reactions_all_time": 0,
+    "views_all_time": 0,
     "reactions_list": ["❤️", "🔥", "👍"],
     "last_date": str(datetime.now().date()),
     "logs": []
@@ -40,6 +42,39 @@ state = {
 
 seen_stories = set()
 hunter_task = None
+
+TG_STATE_FILE = "wolfhunt_tg_db.json"
+
+def load_tg_data():
+    global state
+    if os.path.exists(TG_STATE_FILE):
+        try:
+            with open(TG_STATE_FILE, "r", encoding="utf-8") as f:
+                saved = json.load(f)
+                state.update(saved)
+                print(f"[TG SaaS] Loaded persistent state from {TG_STATE_FILE}: {state.get('reactions_all_time', 0)} total reactions")
+        except Exception as e:
+            print(f"[TG SaaS] Error loading {TG_STATE_FILE}: {e}")
+
+def save_tg_data():
+    try:
+        # Exclude unpickleable objects
+        to_save = {
+            "is_authorized": state.get("is_authorized", False),
+            "user": state.get("user"),
+            "is_running": state.get("is_running", False),
+            "reactions_today": state.get("reactions_today", 0),
+            "views_today": state.get("views_today", 0),
+            "reactions_all_time": state.get("reactions_all_time", 0),
+            "views_all_time": state.get("views_all_time", 0),
+            "last_date": state.get("last_date", str(datetime.now().date())),
+            "reactions_list": state.get("reactions_list", ["❤️", "🔥", "👍"]),
+            "logs": state.get("logs", [])[-50:]
+        }
+        with open(TG_STATE_FILE, "w", encoding="utf-8") as f:
+            json.dump(to_save, f, ensure_ascii=False, indent=2)
+    except Exception as e:
+        print(f"[TG SaaS] Error saving {TG_STATE_FILE}: {e}")
 
 def add_log(text, log_type="info"):
     now_time = datetime.now().strftime("%H:%M:%S")
@@ -117,6 +152,8 @@ async def hunter_loop():
                     # Просмотр истории
                     await client(functions.stories.ReadStoriesRequest(peer=peer, max_id=story.id))
                     state["views_today"] += 1
+                    state["views_all_time"] = state.get("views_all_time", 0) + 1
+                    save_tg_data()
 
                     # Реакция - СТАВИТСЯ СРАЗУ!
                     emoji = random.choice(state["reactions_list"])
@@ -128,6 +165,8 @@ async def hunter_loop():
                     seen_stories.add(story_key)
                     seen_users_this_round.add(user_id)
                     state["reactions_today"] += 1
+                    state["reactions_all_time"] = state.get("reactions_all_time", 0) + 1
+                    save_tg_data()
                     new_count += 1
                     contact_name = users_map.get(user_id, f"Пользователь {user_id}")
                     pause = random.randint(25, 45)
@@ -171,6 +210,8 @@ async def handle_status(request):
         "is_running": state["is_running"],
         "reactions_today": state["reactions_today"],
         "views_today": state["views_today"],
+        "reactions_all_time": state.get("reactions_all_time", 0),
+        "views_all_time": state.get("views_all_time", 0),
         "limit": DAILY_LIMIT,
         "logs": state["logs"][-15:]
     })
@@ -367,6 +408,8 @@ async def handle_like_once(request):
                 # Просмотр истории
                 await client(functions.stories.ReadStoriesRequest(peer=peer, max_id=story.id))
                 state["views_today"] += 1
+                    state["views_all_time"] = state.get("views_all_time", 0) + 1
+                    save_tg_data()
 
                 # Реакция - строго РАЗОВО!
                 emoji = random.choice(state["reactions_list"])
@@ -377,6 +420,8 @@ async def handle_like_once(request):
                 ))
                 seen_stories.add(story_key)
                 state["reactions_today"] += 1
+                    state["reactions_all_time"] = state.get("reactions_all_time", 0) + 1
+                    save_tg_data()
                 contact_name = users_map.get(user_id, f"Пользователь {user_id}")
                 add_log(f"⚡ Разовый лайк: {contact_name} {emoji} ({state['reactions_today']}/{DAILY_LIMIT})", "success")
 
@@ -451,7 +496,8 @@ EXTENSION_UPDATE_DESC = "Сбор именинников 1 раз в сутки 
 VK_USERS_DB = {}
 VK_USER_LOGS = {}
 
-def load_vk_data():
+def load_vk_data()
+    load_tg_data():
     global VK_USERS_DB
     if os.path.exists(VK_USERS_FILE):
         try:
@@ -733,6 +779,13 @@ async def handle_vk_sync(request: web.Request):
         if "today_stories" in data: u["vk_today_stories"] = int(data["today_stories"])
         if "today_posts" in data: u["vk_today_posts"] = int(data["today_posts"])
         if "bday_count" in data: u["vk_bday_count"] = int(data["bday_count"])
+        if "all_time_stories" in data:
+            u["vk_all_time_stories"] = max(u.get("vk_all_time_stories", 0), int(data["all_time_stories"]))
+        if "all_time_posts" in data:
+            u["vk_all_time_posts"] = max(u.get("vk_all_time_posts", 0), int(data["all_time_posts"]))
+        if "all_time_bdays" in data:
+            u["vk_all_time_bdays"] = max(u.get("vk_all_time_bdays", 0), int(data["all_time_bdays"]))
+        u["vk_all_time_total"] = u.get("vk_all_time_stories", 0) + u.get("vk_all_time_posts", 0)
         
         if data.get("bday_text_update"):
             u["vk_bday_text"] = data["bday_text_update"]
@@ -758,7 +811,14 @@ async def handle_vk_sync(request: web.Request):
             "bday_enabled": u.get("vk_bday_enabled", True),
             "is_running": u.get("vk_running", True),
             "tariff": u.get("tariff", "pro"),
+            "today_stories": u.get("vk_today_stories", 0),
+            "today_posts": u.get("vk_today_posts", 0),
+            "today_bdays": u.get("vk_bday_count", 0),
             "today_total": u.get("vk_today_stories", 0) + u.get("vk_today_posts", 0),
+            "all_time_stories": u.get("vk_all_time_stories", 0),
+            "all_time_posts": u.get("vk_all_time_posts", 0),
+            "all_time_bdays": u.get("vk_all_time_bdays", 0),
+            "all_time_total": u.get("vk_all_time_total", 0),
             "extension_version": ext_ver,
             "latest_extension_version": LATEST_EXTENSION_VERSION,
             "has_update": has_update,
@@ -790,8 +850,14 @@ async def handle_vk_status(request: web.Request):
         "screen_name": u.get("vk_screen_name"),
         "today_stories": u.get("vk_today_stories", 0),
         "today_posts": u.get("vk_today_posts", 0),
+        "today_stories": u.get("vk_today_stories", 0),
+        "today_posts": u.get("vk_today_posts", 0),
         "today_total": u.get("vk_today_stories", 0) + u.get("vk_today_posts", 0),
         "today_bdays": u.get("vk_bday_count", 0),
+        "all_time_stories": u.get("vk_all_time_stories", 0),
+        "all_time_posts": u.get("vk_all_time_posts", 0),
+        "all_time_bdays": u.get("vk_all_time_bdays", 0),
+        "all_time_total": u.get("vk_all_time_stories", 0) + u.get("vk_all_time_posts", 0),
         "bday_text": u.get("vk_bday_text", default_bday),
         "bday_enabled": u.get("vk_bday_enabled", True),
         "client_mode": u.get("client_mode", "chrome_extension_home_ip"),
@@ -923,6 +989,7 @@ async def init_app():
 
     # Запуск фонового keep-alive
     load_vk_data()
+    load_tg_data()
     asyncio.create_task(keep_alive_loop())
     asyncio.create_task(vk_multi_user_hunter_worker())
 

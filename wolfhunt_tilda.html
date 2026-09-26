@@ -229,9 +229,9 @@
 <div id="wh-tg-auth-msg" style="font-size:11px; margin-top:8px; font-weight:600;"></div>
 </div>
 <div class="wh-grid">
-<div class="wh-card"><span class="wh-title" style="color:#38bdf8;">🔥 Реакций на истории</span><div id="wh-tg-stat-reactions" class="wh-val" style="color:#38bdf8;">0</div><span class="wh-sub">Push авторам на экран</span></div>
-<div class="wh-card"><span class="wh-title" style="color:#c084fc;">👁 Просмотрено историй</span><div id="wh-tg-stat-views" class="wh-val" style="color:#c084fc;">0</div><span class="wh-sub">Только живые контакты</span></div>
-<div class="wh-card"><span class="wh-title" style="color:#34d399;">⚡ Суточный лимит</span><div id="wh-tg-stat-limit" class="wh-val" style="color:#34d399;">0 / 150</div><span class="wh-sub">Безопасный порог TG</span></div>
+<div class="wh-card"><span class="wh-title" style="color:#38bdf8;">🔥 Реакций на истории</span><div id="wh-tg-stat-reactions" class="wh-val" style="color:#38bdf8;">0</div><span id="wh-tg-reactions-sub" class="wh-sub">Всего: 0</span></div>
+<div class="wh-card"><span class="wh-title" style="color:#c084fc;">👁 Просмотрено историй</span><div id="wh-tg-stat-views" class="wh-val" style="color:#c084fc;">0</div><span id="wh-tg-views-sub" class="wh-sub">Всего: 0</span></div>
+<div class="wh-card"><span class="wh-title" style="color:#34d399;">⚡ Суточный лимит</span><div id="wh-tg-stat-limit" class="wh-val" style="color:#34d399;">0 / 150</div><span id="wh-tg-limit-sub" class="wh-sub" style="color:#34d399; font-weight:700;">Всего: 0</span></div>
 <div class="wh-card"><span class="wh-title" style="color:#f59e0b;">🛡 Защита от спама</span><div class="wh-val" style="color:#f59e0b; font-size:19px; margin-top:6px;">25–45 сек</div><span class="wh-sub">Плавающая пауза</span></div>
 </div>
 <div class="wh-box" style="margin-bottom:12px;">
@@ -554,9 +554,19 @@ ls.setItem('wh_story_likes', '0'); ls.setItem('wh_post_likes', '0');
 }
 const st = parseInt(ls.getItem('wh_story_likes') || '0'), po = parseInt(ls.getItem('wh_post_likes') || '0');
 const bday = parseInt(ls.getItem('wh_bday_count') || '0');
+const allSt = ls.getItem('wh_all_time_stories') || st.toString();
+const allPo = ls.getItem('wh_all_time_posts') || po.toString();
+const allTot = ls.getItem('wh_all_time_total') || (st + po).toString();
+const allBd = ls.getItem('wh_all_time_bdays') || bday.toString();
+
 if ($('wh-stories')) $('wh-stories').innerText = st;
+if ($('wh-stories-sub')) $('wh-stories-sub').innerText = 'Всего: ' + allSt;
 if ($('wh-post-likes')) $('wh-post-likes').innerText = po;
-if ($('wh-today-likes')) $('wh-today-likes').innerText = st + po;
+if ($('wh-post-sub')) $('wh-post-sub').innerText = 'Всего: ' + allPo;
+if ($('wh-today-likes')) $('wh-today-likes').innerText = (st + po) + ' / 300';
+if ($('wh-total-all-sub')) $('wh-total-all-sub').innerText = 'Всего: ' + allTot;
+if ($('wh-bday-stat')) $('wh-bday-stat').innerText = bday;
+if ($('wh-bday-sub')) $('wh-bday-sub').innerText = 'Всего: ' + allBd;
 if ($('wh-msg-total')) $('wh-msg-total').innerText = bday;
 if ($('wh-msg-sub')) $('wh-msg-sub').innerText = `Поздравлено: ${bday}`;
 }
@@ -638,7 +648,35 @@ body: JSON.stringify({ action: next ? 'start' : 'stop', access_token: t })
 } catch(e) {}
 }
 
-async function syncVkStateWithServer(){try{const t=ls.getItem('wh_token');if(!t)return;const res=await fetch(TG_API_URL+'/api/vk/sync?access_token='+encodeURIComponent(t));if(res.ok){const data=await res.json();if(data&&data.status==='ok'){const sRun=!!data.is_running;const lRun=(ls.getItem('wh_running')==='true');if(sRun!==lRun){ls.setItem('wh_running',sRun?'true':'false');renderRunningState(sRun);if(sRun){logMsg("▶ [Синхронизация] Получен сигнал старта ВК ✅","success","vk");startHuntingLoop(false);}else{logMsg("⏹ [Синхронизация] Получен сигнал паузы ВК.","warn","vk");stopHuntingLoop();}}}}}catch(e){}}
+async function syncVkStateWithServer(){
+  try{
+    const t=ls.getItem('wh_token');
+    if(!t)return;
+    const res=await fetch(TG_API_URL+'/api/vk/sync?access_token='+encodeURIComponent(t));
+    if(res.ok){
+      const data=await res.json();
+      if(data&&data.status==='ok'){
+        const sRun=!!data.is_running;
+        const lRun=(ls.getItem('wh_running')==='true');
+        if(sRun!==lRun){
+          ls.setItem('wh_running',sRun?'true':'false');
+          renderRunningState(sRun);
+          if(sRun){logMsg("▶ [Синхронизация] Получен сигнал старта ВК ✅","success","vk");startHuntingLoop(false);}
+          else{logMsg("⏹ [Синхронизация] Получен сигнал паузы ВК.","warn","vk");stopHuntingLoop();}
+        }
+        // Pull full server stats to Tilda UI
+        if(data.today_stories !== undefined) ls.setItem('wh_story_likes', data.today_stories.toString());
+        if(data.today_posts !== undefined) ls.setItem('wh_post_likes', data.today_posts.toString());
+        if(data.today_bdays !== undefined) ls.setItem('wh_bday_count', data.today_bdays.toString());
+        if(data.all_time_stories !== undefined) ls.setItem('wh_all_time_stories', data.all_time_stories.toString());
+        if(data.all_time_posts !== undefined) ls.setItem('wh_all_time_posts', data.all_time_posts.toString());
+        if(data.all_time_bdays !== undefined) ls.setItem('wh_all_time_bdays', data.all_time_bdays.toString());
+        if(data.all_time_total !== undefined) ls.setItem('wh_all_time_total', data.all_time_total.toString());
+        updateUiStats();
+      }
+    }
+  }catch(e){}
+}
 
 function startHuntingLoop(immediate = false) {
 stopHuntingLoop(); isHunting = true;
