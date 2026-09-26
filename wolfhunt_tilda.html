@@ -53,8 +53,9 @@
 <span id="wh-dot" style="position:absolute; bottom:2px; right:2px; width:12px; height:12px; border-radius:50%; background:#64748b; border:2px solid #0f172a;"></span>
 </div>
 <div>
-<div class="wh-row">
+<div class="wh-row" style="gap:8px; align-items:center; flex-wrap:wrap;">
 <h3 id="wh-name" style="margin:0; font-size:18px; font-weight:800; color:#fff;">ВК Хантер</h3>
+<a id="wh-vk-profile-link" href="#" target="_blank" style="display:none; font-size:11px; color:#38bdf8; text-decoration:none; background:#1e293b; padding:2px 8px; border-radius:4px; border:1px solid #334155; font-weight:600;"></a>
 <span class="wh-badge" style="background:rgba(16,185,129,0.2); color:#34d399; border:1px solid rgba(16,185,129,0.4);">DIRECT IP ACTIVE</span>
 </div>
 <p id="wh-sub" style="margin:3px 0 0 0; font-size:12px; color:#f59e0b; font-weight:600;">⚠️ Требуется авторизация в ВК</p>
@@ -428,8 +429,64 @@ setInterval(() => {
 if (ls.getItem('wh_active_tab') === 'tg') updateTgBackendStatus();
 }, 4000);
 }
+async function fetchAndRenderVkProfile(token) {
+if (!token) token = ls.getItem('wh_token');
+if (!token) return;
+try {
+let userData = null;
+try {
+const res = await callVkApi('users.get', { fields: 'photo_100', access_token: token });
+if (res && res[0]) userData = res[0];
+} catch(e) {}
+
+if (!userData) {
+try {
+const resp = await fetch(TG_API_URL + '/api/vk/proxy', {
+method: 'POST',
+headers: { 'Content-Type': 'application/json' },
+body: JSON.stringify({ method: 'users.get', access_token: token, params: { fields: 'photo_100' } })
+});
+if (resp.ok) {
+const pData = await resp.json();
+if (pData && pData.response && pData.response[0]) userData = pData.response[0];
+}
+} catch(e) {}
+}
+
+if (userData) {
+const fn = (userData.first_name + " " + (userData.last_name || "")).trim();
+const photo = userData.photo_100 || "";
+const uid = userData.id;
+if (fn) {
+ls.setItem('wh_name', fn);
+if ($('wh-name')) $('wh-name').innerText = fn;
+}
+if (photo) {
+ls.setItem('wh_photo', photo);
+if ($('wh-avatar')) {
+$('wh-avatar').src = photo;
+$('wh-avatar').style.borderColor = "#10b981";
+}
+}
+if (uid) {
+ls.setItem('wh_user_id', String(uid));
+const lnk = $('wh-vk-profile-link');
+if (lnk) {
+lnk.href = 'https://vk.com/id' + uid;
+lnk.innerText = 'id' + uid + ' ↗';
+lnk.style.display = 'inline-block';
+}
+}
+if ($('wh-dot')) $('wh-dot').style.background = "#10b981";
+if ($('wh-auth-card')) $('wh-auth-card').style.display = "none";
+if ($('wh-reset-btn')) $('wh-reset-btn').style.display = "inline-flex";
+}
+} catch(e) {
+console.warn('fetchAndRenderVkProfile error:', e);
+}
+}
 async function initWolf() {
-const savedToken = ls.getItem('wh_token'), savedName = ls.getItem('wh_name'), savedPhoto = ls.getItem('wh_photo');
+const savedToken = ls.getItem('wh_token'), savedName = ls.getItem('wh_name'), savedPhoto = ls.getItem('wh_photo'), savedUid = ls.getItem('wh_user_id');
 updateUiStats();
 loadCachedLogs('vk');
 loadTgSettings();
@@ -437,11 +494,19 @@ ls.removeItem('wh_vk_flood_until');
 vkFloodRemain = 0;
 if (savedToken) {
 if (savedName && $('wh-name')) $('wh-name').innerText = savedName;
-if (savedPhoto && $('wh-avatar')) $('wh-avatar').src = savedPhoto;
-if ($('wh-avatar')) $('wh-avatar').style.borderColor = "#10b981";
+if (savedPhoto && $('wh-avatar')) {
+$('wh-avatar').src = savedPhoto;
+$('wh-avatar').style.borderColor = "#10b981";
+}
+if (savedUid && $('wh-vk-profile-link')) {
+$('wh-vk-profile-link').href = 'https://vk.com/id' + savedUid;
+$('wh-vk-profile-link').innerText = 'id' + savedUid + ' ↗';
+$('wh-vk-profile-link').style.display = 'inline-block';
+}
 if ($('wh-dot')) $('wh-dot').style.background = "#10b981";
 if ($('wh-auth-card')) $('wh-auth-card').style.display = "none";
 if ($('wh-reset-btn')) $('wh-reset-btn').style.display = "inline-flex";
+fetchAndRenderVkProfile(savedToken);
 const totalToday = getTodayLikesCount();
 let shouldRun = (ls.getItem('wh_running') === 'true');
 if (totalToday >= 300) {
@@ -890,27 +955,10 @@ if (pl && pl.user && pl.user.id) { userId = String(pl.user.id); }
 msg.innerText = "⏳ Подключение профиля..."; msg.style.color = "#38bdf8";
 ls.setItem('wh_token', token);
 if (userId) ls.setItem('wh_user_id', userId);
-let fn = ls.getItem('wh_name') || (userId ? 'id' + userId : 'Сергей Нестеров');
-let photo = ls.getItem('wh_photo') || '';
-try {
-const params = { fields: 'photo_100', access_token: token };
-if (userId) params.user_ids = userId;
-const u = await callVkApi('users.get', params);
-if (u && u[0]) {
-fn = (u[0].first_name + " " + u[0].last_name).trim();
-photo = u[0].photo_100;
-ls.setItem('wh_name', fn);
-if (photo) ls.setItem('wh_photo', photo);
-}
-} catch (e) {
-}
+await fetchAndRenderVkProfile(token);
 ls.setItem('wh_running', 'false');
-if ($('wh-name')) $('wh-name').innerText = fn;
-if ($('wh-avatar') && photo) { $('wh-avatar').src = photo; $('wh-avatar').style.borderColor = "#10b981"; }
-if ($('wh-dot')) $('wh-dot').style.background = "#10b981";
-if ($('wh-auth-card')) $('wh-auth-card').style.display = "none";
-if ($('wh-reset-btn')) $('wh-reset-btn').style.display = "inline-flex";
 renderRunningState(false);
+const fn = ls.getItem('wh_name') || 'Пользователь';
 logMsg("✔ Профиль успешно подключен: " + fn + " ✅", "success", "vk");
 msg.innerText = "";
 if (API_URL) {
@@ -935,7 +983,7 @@ alert('Шаблоны успешно сохранены!');
 function resetAuth() {
 if (confirm('Сменить токен VK?')) {
 stopHuntingLoop();
-['wh_token', 'wh_name', 'wh_photo'].forEach(k => ls.removeItem(k));
+['wh_token', 'wh_name', 'wh_photo', 'wh_user_id'].forEach(k => ls.removeItem(k));
 ls.setItem('wh_running', 'false');
 location.reload();
 }
