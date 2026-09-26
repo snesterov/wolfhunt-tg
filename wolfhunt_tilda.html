@@ -70,7 +70,7 @@
 <div class="wh-card"><span class="wh-title" style="color:#c084fc;">🔥 Лайков историй</span><div id="wh-stories" class="wh-val" style="color:#c084fc;">0</div><span class="wh-sub">Приоритет №1</span></div>
 <div class="wh-card"><span class="wh-title" style="color:#38bdf8;">❤ Лайков постов</span><div id="wh-post-likes" class="wh-val" style="color:#38bdf8;">0</div><span class="wh-sub">Разбавка ленты</span></div>
 <div class="wh-card"><span class="wh-title" style="color:#34d399;">⚡ Всего за сутки</span><div id="wh-today-likes" class="wh-val" style="color:#34d399;">0</div><span class="wh-sub">Истории + Посты (до 300)</span></div>
-<div class="wh-card"><span class="wh-title" style="color:#f59e0b;">💬 Сообщений в ЛС</span><div id="wh-msg-total" class="wh-val" style="color:#f59e0b;">0</div><span id="wh-msg-sub" class="wh-sub" style="color:#cbd5e1; font-weight:600;">🎂 ДР: 0 · 👋 Приветствий: 0</span></div>
+<div class="wh-card"><span class="wh-title" style="color:#f59e0b;">🎂 Поздравлений с ДР</span><div id="wh-msg-total" class="wh-val" style="color:#f59e0b;">0</div><span id="wh-msg-sub" class="wh-sub" style="color:#cbd5e1; font-weight:600;">Отправлено сегодня в ЛС</span></div>
 </div>
 <div id="wh-auth-card" class="wh-box" style="background:linear-gradient(145deg,#1e293b,#0f172a); border:2px dashed #3b82f6;">
 <h4 style="margin:0 0 6px 0; font-size:14px; color:#60a5fa; font-weight:700;">⚡ Подключение профиля ВКонтакте</h4>
@@ -116,35 +116,28 @@
 </div>
 <div class="wh-box" style="margin-bottom:12px;">
 <div class="wh-row-sb" style="cursor:pointer;" onclick="const el=document.getElementById('wh-vk-faq-content'); el.style.display=(el.style.display==='none'?'block':'none');">
-<div class="wh-row"><span>💡</span><h4 style="margin:0; font-size:13px; color:#f8fafc; font-weight:700;">Как устроена логика и 4 такта ВК Хантера</h4></div>
+<div class="wh-row"><span>💡</span><h4 style="margin:0; font-size:13px; color:#f8fafc; font-weight:700;">Как устроена логика и 3 такта ВК Хантера</h4></div>
 <span style="font-size:11px; color:#38bdf8; font-weight:600;">Развернуть / Свернуть ▾</span>
 </div>
 <div id="wh-vk-faq-content" style="display:none; margin-top:12px; font-size:12px; color:#cbd5e1; line-height:1.6; border-top:1px solid #334155; padding-top:12px;">
-<div style="margin-bottom:8px;"><b>🎯 Такты 1 и 2 (Приоритет №1 — Истории):</b> Охота за свежими историями друзей. Push-уведомление автору с вашим лицом.</div>
-<div style="margin-bottom:8px;"><b>🤝 Такт 3 (Вновь принятые друзья):</b> Проверка подтвердивших дружбу, отправка приветствия без дублей.</div>
-<div style="margin-bottom:8px;"><b>📰 Такт 4 (Разбавка постом):</b> Лайк свежей записи друга для естественности алгоритмов ВК.</div>
+<div style="margin-bottom:8px;"><b>🎯 Такт 1 (Приоритет №1 — Истории):</b> Охота за свежими историями друзей. Просмотр и лайк с push-уведомлением автору на экран смартфона.</div>
+<div style="margin-bottom:8px;"><b>🎂 Такт 2 (Поздравления с Днем Рождения):</b> Проверка именинников среди друзей и отправка персонального поздравления в ЛС (с 06:00 МСК) по Spintax шаблону.</div>
+<div style="margin-bottom:8px;"><b>📰 Такт 3 (Разбавка постом):</b> Лайк свежей записи друга на стене для естественности алгоритмов ВК.</div>
 <div><b>🛡 Лимиты безопасности:</b> До 300 лайков в сутки, плавающая пауза 25–45 сек между тактами.</div>
 </div>
 </div>
 <div class="wh-box">
-<h4 style="margin:0 0 12px 0; font-size:13px; color:#f8fafc; font-weight:700;">💬 Рандомизатор автосообщений (Spintax)</h4>
-<div style="margin-bottom:12px;">
-<div class="wh-row-sb" style="margin-bottom:6px;">
-<label style="font-size:12px; font-weight:600; color:#cbd5e1;">Приветствие вновь принятым друзьям</label>
-<input type="checkbox" id="wh-welcome-enable" checked style="transform:scale(1.1); cursor:pointer;">
-</div>
-<textarea id="wh-welcome-text" class="wh-txt" rows="2">{Привет|Здравствуйте|Добрый день}, %first_name%! {Рад знакомству|Приятно познакомиться|Рад видеть в друзьях}. {Будем на связи|Отличного дня} {👋|🤝|✨}</textarea>
-</div>
+<h4 style="margin:0 0 12px 0; font-size:13px; color:#f8fafc; font-weight:700;">🎂 Поздравление с Днем Рождения (Spintax в ЛС)</h4>
 <div>
 <div class="wh-row-sb" style="margin-bottom:6px;">
-<label style="font-size:12px; font-weight:600; color:#cbd5e1;">Поздравление с днем рождения (с 06:00 МСК)</label>
+<label style="font-size:12px; font-weight:600; color:#cbd5e1;">Шаблон поздравления именинникам (с 06:00 МСК)</label>
 <input type="checkbox" id="wh-bday-enable" checked style="transform:scale(1.1); cursor:pointer;">
 </div>
-<textarea id="wh-bday-text" class="wh-txt" rows="2">{С днем рождения|С праздником|Поздравляю с днем рождения}, %first_name%! {Желаю крепкого здоровья, энергии и грандиозных успехов|Всего самого наилучшего и исполнения желаний}! {🎂|🎉|🎁|🥂}</textarea>
+<textarea id="wh-bday-text" class="wh-txt" rows="3">{С днем рождения|С праздником|Поздравляю с днем рождения}, %first_name%! {Желаю крепкого здоровья, энергии и грандиозных успехов|Всего самого наилучшего и исполнения желаний}! {🎂|🎉|🎁|🥂}</textarea>
 </div>
 <div class="wh-row-sb" style="margin-top:12px; flex-wrap:wrap; gap:8px;">
 <span style="font-size:11px; color:#64748b;">Переменная <code>%first_name%</code> подставляет имя друга.</span>
-<button class="wh-btn" onclick="saveTexts()" style="background:linear-gradient(135deg,#0284c7,#0369a1); color:#fff; font-size:12px; padding:8px 16px;">💾 Сохранить шаблоны</button>
+<button class="wh-btn" onclick="saveTexts()" style="background:linear-gradient(135deg,#0284c7,#0369a1); color:#fff; font-size:12px; padding:8px 16px;">💾 Сохранить шаблон</button>
 </div>
 </div>
 <div class="wh-term">
@@ -490,6 +483,10 @@ const savedToken = ls.getItem('wh_token'), savedName = ls.getItem('wh_name'), sa
 updateUiStats();
 loadCachedLogs('vk');
 loadTgSettings();
+const savedBdayText = ls.getItem('wh_bday_text');
+if (savedBdayText && $('wh-bday-text')) $('wh-bday-text').value = savedBdayText;
+const savedBdayEn = ls.getItem('wh_bday_enable');
+if (savedBdayEn !== null && $('wh-bday-enable')) $('wh-bday-enable').checked = (savedBdayEn === '1');
 ls.removeItem('wh_vk_flood_until');
 vkFloodRemain = 0;
 if (savedToken) {
@@ -534,15 +531,15 @@ ls.setItem('wh_last_date', todayStr);
 ls.setItem('wh_story_likes', '0'); ls.setItem('wh_post_likes', '0');
 }
 const st = parseInt(ls.getItem('wh_story_likes') || '0'), po = parseInt(ls.getItem('wh_post_likes') || '0');
-const bday = parseInt(ls.getItem('wh_bday_count') || '0'), wel = parseInt(ls.getItem('wh_welcome_count') || '0');
+const bday = parseInt(ls.getItem('wh_bday_count') || '0');
 if ($('wh-stories')) $('wh-stories').innerText = st;
 if ($('wh-post-likes')) $('wh-post-likes').innerText = po;
 if ($('wh-today-likes')) $('wh-today-likes').innerText = st + po;
-if ($('wh-msg-total')) $('wh-msg-total').innerText = bday + wel;
-if ($('wh-msg-sub')) $('wh-msg-sub').innerText = `🎂 ДР: ${bday} · 👋 Приветствий: ${wel}`;
+if ($('wh-msg-total')) $('wh-msg-total').innerText = bday;
+if ($('wh-msg-sub')) $('wh-msg-sub').innerText = `Поздравлено: ${bday}`;
 }
 function addStat(type) {
-const k = type === 'story' ? 'wh_story_likes' : (type === 'post' ? 'wh_post_likes' : (type === 'bday' ? 'wh_bday_count' : 'wh_welcome_count'));
+const k = type === 'story' ? 'wh_story_likes' : (type === 'post' ? 'wh_post_likes' : 'wh_bday_count');
 ls.setItem(k, (parseInt(ls.getItem(k) || '0') + 1).toString());
 updateUiStats();
 }
@@ -635,7 +632,6 @@ async function executeCycleAndScheduleNext() {
 if (!isHunting || ls.getItem('wh_running') !== 'true') return;
 if (vkFloodRemain > 0) return;
 try {
-await checkBirthdaysDaily();
 await runHuntingCycle();
 } catch (e) {
 logMsg("Ошибка шага: " + e.message, "error", "vk");
@@ -792,21 +788,19 @@ return;
 let phase = parseInt(ls.getItem('wh_current_phase') || '0');
 try {
 if (phase === 0) {
-logMsg("🎯 [Такт 1/4: Истории] Охота на истории (Приоритет №1)...", "info", "vk");
+logMsg("🎯 [Такт 1/3: Истории] Охота на истории (Приоритет №1)...", "info", "vk");
 await huntStories();
 ls.setItem('wh_current_phase', '1');
 } else if (phase === 1) {
-logMsg("🎯 [Такт 2/4: Истории] Второй шаг охоты на истории...", "info", "vk");
-await huntStories();
-ls.setItem('wh_current_phase', '2');
-} else if (phase === 2) {
-logMsg("🤝 [Такт 3/4: Друзья] Проверка новых друзей...", "info", "vk");
-let done = await checkNewlyAcceptedFriends();
+logMsg("🎂 [Такт 2/3: День Рождения] Проверка именинников среди друзей...", "info", "vk");
+const bdaySent = await checkBirthdaysDaily();
 if (vkFloodRemain > 0) return;
-if (!done) await huntStories();
-ls.setItem('wh_current_phase', '3');
+if (!bdaySent) {
+await huntStories();
+}
+ls.setItem('wh_current_phase', '2');
 } else {
-logMsg("📰 [Такт 4/4: Посты] Разбавка ленты постом...", "info", "vk");
+logMsg("📰 [Такт 3/3: Посты] Разбавка ленты постом...", "info", "vk");
 await huntPosts();
 ls.setItem('wh_current_phase', '0');
 }
@@ -823,15 +817,12 @@ logMsg("Ошибка цикла: " + e.message, "error", "vk");
 }
 }
 async function checkBirthdaysDaily() {
-if (vkFloodRemain > 0) return;
+if (vkFloodRemain > 0) return false;
 const bEn = $('wh-bday-enable')?.checked ?? true;
 const bText = ls.getItem('wh_bday_text') || $('wh-bday-text')?.value;
-if (!bEn || !bText) return;
+if (!bEn || !bText) return false;
 const mskHours = (new Date().getUTCHours() + 3) % 24;
-if (mskHours < 6) return;
-const todayStr = getToday();
-if (ls.getItem('wh_bday_last_check') === todayStr) return;
-ls.setItem('wh_bday_last_check', todayStr);
+if (mskHours < 6) return false;
 const now = new Date(), curDM = now.getDate() + '.' + (now.getMonth() + 1), curY = now.getFullYear();
 try {
 const friends = await callVkApi('friends.get', { fields: 'bdate,first_name' });
@@ -845,81 +836,18 @@ if (!isLogged('bday', f.id, k)) {
 try {
 const msg = parseSpintax(bText, f.first_name);
 await callVkApi('messages.send', { user_id: f.id, message: msg, random_id: Math.floor(Math.random() * 100000000) });
-setLogged('bday', f.id, k); addStat('bday');
+setLogged('bday', f.id, k);
+addStat('bday');
 logMsg(`🎉 [День Рождения] Поздравлен: ${f.first_name} (id${f.id})`, "success", "vk");
-} catch(e) { setLogged('bday', f.id, k); }
-}
-}
-}
-}
-} catch(e) {}
-}
-async function checkNewlyAcceptedFriends() {
-if (vkFloodRemain > 0) return false;
-const wEn = $('wh-welcome-enable')?.checked ?? true;
-const wText = ls.getItem('wh_welcome_text') || $('wh-welcome-text')?.value;
-try {
-const reqs = await callVkApi('friends.getRequests', { need_viewed: 0, count: 20, extended: 1 });
-if (reqs && reqs.items && reqs.items.length > 0) {
-for (let req of reqs.items) {
-const uid = (typeof req === 'object') ? (req.user_id || req.id) : req;
-if (!uid) continue;
-let uName = 'друг';
-if (typeof req === 'object' && req.first_name) {
-uName = (req.first_name + ' ' + (req.last_name || '')).trim();
-} else {
-try {
-const uArr = await callVkApi('users.get', { user_ids: uid });
-if (uArr && uArr[0]) uName = (uArr[0].first_name + ' ' + (uArr[0].last_name || '')).trim();
-} catch(e) {}
-}
-try {
-await callVkApi('friends.add', { user_id: uid });
-logMsg(`🤝 [Заявка принята] ${uName} (id${uid}) добавлен(а) в друзья!`, "success", "vk");
-if (wEn && wText && !isLogged('welcome', uid, uid)) {
-const msg = parseSpintax(wText, uName.split(' ')[0]);
-await callVkApi('messages.send', { user_id: uid, message: msg, random_id: Math.floor(Math.random() * 100000000) });
-setLogged('welcome', uid, uid);
-addStat('welcome');
-logMsg(`👋 [Приветствие в ЛС] ${uName}: «${msg.substring(0, 35)}...»`, "success", "vk");
-}
-return true; // Сделали 1 полезное действие за такт
-} catch(err) {
-logMsg(`Ошибка приёма заявки id${uid}: ${err.message}`, "warn", "vk");
-}
-}
-}
-if (wEn && wText) {
-let known = JSON.parse(ls.getItem('wh_known_friends') || '[]');
-if (!known.length) {
-const res0 = await callVkApi('friends.get', { count: 1000 });
-if (res0 && res0.items) {
-ls.setItem('wh_known_friends', JSON.stringify(res0.items));
-logMsg(`🛡 [База друзей] Зафиксировано ${res0.items.length} друзей.`, "info", "vk");
-}
-return false;
-}
-const knownSet = new Set(known);
-const res = await callVkApi('friends.get', { count: 30 });
-if (!res || !res.items) return false;
-const newAccepted = res.items.filter(id => !knownSet.has(id));
-if (!newAccepted.length) return false;
-for (let uid of newAccepted) {
-knownSet.add(uid); known.push(uid);
-ls.setItem('wh_known_friends', JSON.stringify(known));
-if (isLogged('welcome', uid, uid)) continue;
-const users = await callVkApi('users.get', { user_ids: uid });
-const u = (users && users[0]) ? users[0] : { first_name: 'друг' };
-const msg = parseSpintax(wText, u.first_name);
-await callVkApi('messages.send', { user_id: uid, message: msg, random_id: Math.floor(Math.random() * 100000000) });
-setLogged('welcome', uid, uid); addStat('welcome');
-logMsg(`👋 [Новый друг] Приветствие в ЛС: ${u.first_name} (id${uid})`, "success", "vk");
 return true;
-}
-}
 } catch(e) {
-logMsg("Друзья: " + e.message, "warn", "vk");
+setLogged('bday', f.id, k);
 }
+}
+}
+}
+}
+} catch(e) {}
 return false;
 }
 function parseSpintax(text, firstName) {
@@ -966,19 +894,18 @@ try { fetch(API_URL + "?action=save&token=" + encodeURIComponent(token), { mode:
 }
 }
 function saveTexts() {
-const wt = $('wh-welcome-text').value.trim(), bt = $('wh-bday-text').value.trim();
-const we = $('wh-welcome-enable').checked, be = $('wh-bday-enable').checked;
-ls.setItem('wh_welcome_text', wt); ls.setItem('wh_bday_text', bt);
-ls.setItem('wh_welcome_enable', we ? '1' : '0'); ls.setItem('wh_bday_enable', be ? '1' : '0');
+const bt = $('wh-bday-text')?.value.trim() || '';
+const be = $('wh-bday-enable')?.checked ?? true;
+ls.setItem('wh_bday_text', bt);
+ls.setItem('wh_bday_enable', be ? '1' : '0');
 if (API_URL) {
 try {
-const qs = "?action=save&welcome_enabled=" + (we ? 'true' : 'false') + "&welcome_text=" + encodeURIComponent(wt) +
-"&bday_enabled=" + (be ? 'true' : 'false') + "&bday_text=" + encodeURIComponent(bt);
+const qs = "?action=save&bday_enabled=" + (be ? 'true' : 'false') + "&bday_text=" + encodeURIComponent(bt);
 fetch(API_URL + qs, { mode: 'no-cors' }).catch(() => {});
 } catch(e) {}
 }
-logMsg("Шаблоны сохранены ✅", "success", "vk");
-alert('Шаблоны успешно сохранены!');
+logMsg("Шаблон поздравления с ДР сохранен ✅", "success", "vk");
+alert('Шаблон поздравления с Днем Рождения успешно сохранен!');
 }
 function resetAuth() {
 if (confirm('Сменить токен VK?')) {
