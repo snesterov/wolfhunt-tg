@@ -925,7 +925,7 @@ async def handle_download_extension(request):
     return web.Response(text="Файл расширения временно недоступен", status=404)
 
 async def handle_widget_js(request):
-    """Динамический загрузчик виджета для Tilda"""
+    """Динамический загрузчик виджета для Tilda с автоматической подгрузкой свежего UI"""
     js_code = """(async function() {
   try {
     let root = document.getElementById('wolfhunt-root') || document.getElementById('wolfhunt-container');
@@ -935,13 +935,21 @@ async def handle_widget_js(request):
       const target = document.querySelector('.t123') || document.querySelector('.r') || document.body;
       target.appendChild(root);
     }
-    const res = await fetch('https://wolfhunt-tg.onrender.com/widget.html?v=' + Date.now());
-    if (!res.ok) throw new Error('HTTP ' + res.status);
-    const html = await res.text();
-    const range = document.createRange();
-    const fragment = range.createContextualFragment(html);
-    root.innerHTML = '';
-    root.appendChild(fragment);
+    let html = null;
+    try {
+      const cdnRes = await fetch('https://cdn.jsdelivr.net/gh/snesterov/wolfhunt-tg@main/wolfhunt_tilda.html?v=' + Date.now());
+      if (cdnRes.ok) html = await cdnRes.text();
+    } catch(e) {}
+    if (!html) {
+      const res = await fetch('https://wolfhunt-tg.onrender.com/widget.html?v=' + Date.now());
+      if (res.ok) html = await res.text();
+    }
+    if (html) {
+      const range = document.createRange();
+      const fragment = range.createContextualFragment(html);
+      root.innerHTML = '';
+      root.appendChild(fragment);
+    }
   } catch(err) {
     console.error('[WolfHunt Dynamic Loader] Error:', err);
   }
@@ -952,7 +960,20 @@ async def handle_widget_js(request):
     })
 
 async def handle_widget_html(request):
-    """Отдача разметки и скрипта виджета WolfHunt"""
+    """Отдача разметки и скрипта виджета WolfHunt с автосинхронизацией из CDN"""
+    try:
+        async with aiohttp.ClientSession() as session:
+            async with session.get("https://cdn.jsdelivr.net/gh/snesterov/wolfhunt-tg@main/wolfhunt_tilda.html", timeout=aiohttp.ClientTimeout(total=3)) as r:
+                if r.status == 200:
+                    cdn_html = await r.text()
+                    if "wh-all-time-total" in cdn_html:
+                        return web.Response(text=cdn_html, content_type="text/html", headers={
+                            "Access-Control-Allow-Origin": "*",
+                            "Cache-Control": "no-cache, no-store, must-revalidate"
+                        })
+    except Exception as e:
+        print("[Widget HTML] CDN fetch fallback:", e)
+
     html_path = os.path.join(os.path.dirname(__file__), "wolfhunt_tilda.html")
     if os.path.exists(html_path):
         with open(html_path, "r", encoding="utf-8") as f:
