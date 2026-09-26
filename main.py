@@ -496,14 +496,15 @@ EXTENSION_UPDATE_DESC = "Сбор именинников 1 раз в сутки 
 VK_USERS_DB = {}
 VK_USER_LOGS = {}
 
-def load_vk_data()
-    load_tg_data():
+def load_vk_data():
     global VK_USERS_DB
     if os.path.exists(VK_USERS_FILE):
         try:
             with open(VK_USERS_FILE, "r", encoding="utf-8") as f:
                 VK_USERS_DB = json.load(f)
-                print(f"[VK SaaS] Loaded {len(VK_USERS_DB)} active VK profiles from cloud storage")
+                for u in VK_USERS_DB.values():
+                    u["vk_running"] = False
+                print(f"[VK SaaS] Loaded {len(VK_USERS_DB)} active VK profiles from cloud storage (all paused by default)")
         except Exception as e:
             print(f"[VK SaaS] Error loading storage: {e}")
 
@@ -809,7 +810,7 @@ async def handle_vk_sync(request: web.Request):
             "user_id": u_id,
             "bday_text": u.get("vk_bday_text", default_bday),
             "bday_enabled": u.get("vk_bday_enabled", True),
-            "is_running": u.get("vk_running", True),
+            "is_running": u.get("vk_running", False),
             "tariff": u.get("tariff", "pro"),
             "today_stories": u.get("vk_today_stories", 0),
             "today_posts": u.get("vk_today_posts", 0),

@@ -609,19 +609,10 @@ if ($('wh-auth-card')) $('wh-auth-card').style.display = "none";
 if ($('wh-reset-btn')) $('wh-reset-btn').style.display = "inline-flex";
 fetchAndRenderVkProfile(savedToken);
 const totalToday = getTodayLikesCount();
-let shouldRun = (ls.getItem('wh_running') === 'true');
-if (totalToday >= 300) {
-shouldRun = false;
 ls.setItem('wh_running', 'false');
-}
-renderRunningState(shouldRun);
-logMsg("✔ Профиль активен: " + (savedName || "Пользователь") + " ✅", "success", "vk");
-if (shouldRun) {
-logMsg("▶ Возобновление охоты ВК... ✅", "success", "vk");
-startHuntingLoop(false);
-} else {
+renderRunningState(false);
 stopHuntingLoop();
-}
+logMsg("✔ Профиль готов: " + (savedName || "Пользователь") + " (на паузе) ⏸", "info", "vk");
 } else {
 stopHuntingLoop();
 renderRunningState(false);
@@ -720,7 +711,7 @@ body: JSON.stringify({ action: next ? 'start' : 'stop', access_token: t })
 } catch(e) {}
 }
 
-async function syncVkStateWithServer(){try{const t=ls.getItem('wh_token');if(!t)return;const res=await fetch(TG_API_URL+'/api/vk/sync?access_token='+encodeURIComponent(t));if(res.ok){const data=await res.json();if(data&&data.status==='ok'){const sRun=!!data.is_running;const lRun=(ls.getItem('wh_running')==='true');if(sRun!==lRun){ls.setItem('wh_running',sRun?'true':'false');renderRunningState(sRun);if(sRun){logMsg("▶ [Синхронизация] Получен сигнал старта ВК ✅","success","vk");startHuntingLoop(false);}else{logMsg("⏹ [Синхронизация] Получен сигнал паузы ВК.","warn","vk");stopHuntingLoop();}}}}}catch(e){}}
+async function syncVkStateWithServer(){try{const t=ls.getItem('wh_token');if(!t)return;const res=await fetch(TG_API_URL+'/api/vk/sync?access_token='+encodeURIComponent(t));if(res.ok){const data=await res.json();if(data&&data.status==='ok'){if(data.all_time_stories)ls.setItem('wh_all_time_stories',data.all_time_stories);if(data.all_time_posts)ls.setItem('wh_all_time_posts',data.all_time_posts);if(data.all_time_bdays)ls.setItem('wh_all_time_bdays',data.all_time_bdays);if(data.all_time_total)ls.setItem('wh_all_time_total',data.all_time_total);updateUiStats();const sRun=!!data.is_running;const lRun=(ls.getItem('wh_running')==='true');if(!sRun&&lRun){ls.setItem('wh_running','false');renderRunningState(false);logMsg("⏹ [Синхронизация] Получен сигнал паузы ВК.","warn","vk");stopHuntingLoop();}}}}}catch(e){}}
 
 function startHuntingLoop(immediate = false) {
 stopHuntingLoop(); isHunting = true;
@@ -1214,10 +1205,6 @@ if ($('wh-tg-name')) $('wh-tg-name').innerText = fn.trim() || 'Telegram Проф
 if ($('wh-tg-dot')) $('wh-tg-dot').style.background = '#10b981';
 if ($('wh-tg-reset-btn')) $('wh-tg-reset-btn').style.display = 'inline-flex';
 const todayReactions = (data.reactions_today !== undefined) ? parseInt(data.reactions_today) : 0;
-if (!isRun && todayReactions < 150 && ls.getItem('wh_tg_manually_stopped') !== 'true') {
-isRun = true;
-autoStartTgHunter();
-}
 ls.setItem('wh_tg_running', isRun ? 'true' : 'false');
 renderTgRunningState(isRun);
 } else {
