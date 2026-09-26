@@ -80,159 +80,32 @@
 <button id="wh-reset-btn" class="wh-btn" onclick="resetAuth()" style="display:none; background:#1e293b; color:#cbd5e1; border:1px solid #475569; font-size:12px; padding:10px 14px;" title="Сменить профиль ВК">🔄 Сменить аккаунт</button>
 </div>
 </div>
-<div class="wh-grid">
-<div class="wh-card"><span class="wh-title" style="color:#c084fc;">🔥 Лайков историй</span><div id="wh-stories" class="wh-val" style="color:#c084fc;">0</div><span class="wh-sub">Приоритет №1</span></div>
-<div class="wh-card"><span class="wh-title" style="color:#38bdf8;">❤ Лайков постов</span><div id="wh-post-likes" class="wh-val" style="color:#38bdf8;">0</div><span class="wh-sub">Разбавка ленты</span></div>
-<div class="wh-card"><span class="wh-title" style="color:#34d399;">⚡ Всего за сутки</span><div id="wh-today-likes" class="wh-val" style="color:#34d399;">0</div><span class="wh-sub">Истории + Посты (до 300)</span></div>
-<div class="wh-card"><span class="wh-title" style="color:#f59e0b;">🎂 Поздравлений с ДР</span><div id="wh-msg-total" class="wh-val" style="color:#f59e0b;">0</div><span id="wh-msg-sub" class="wh-sub" style="color:#cbd5e1; font-weight:600;">Отправлено сегодня в ЛС</span></div>
-</div>
-<div id="wh-auth-card" class="wh-box" style="background:linear-gradient(145deg,#1e293b,#0f172a); border:2px dashed #3b82f6;">
-<h4 style="margin:0 0 6px 0; font-size:14px; color:#60a5fa; font-weight:700;">⚡ Подключение профиля ВКонтакте</h4>
-<p style="font-size:12px; color:#94a3b8; margin:0 0 10px 0;">1. Нажмите кнопку и подтвердите доступ (истории, стена, друзья).<br>2. Скопируйте ссылку из адресной строки и вставьте в поле.</p>
-<div style="margin-bottom:10px;">
-<a href="https://oauth.vk.com/authorize?client_id=4083558&scope=friends,wall,stories&redirect_uri=https://oauth.vk.com/blank.html&response_type=token" target="_blank" class="wh-btn" style="background:linear-gradient(135deg,#2563eb,#1d4ed8); color:#fff; font-weight:700; padding:10px 20px; font-size:13px; box-shadow:0 4px 14px rgba(37,99,235,0.35);">🚀 1. Авторизоваться ↗</a>
-</div>
-<div style="display:flex; gap:8px;">
-<input id="wh-token-raw" class="wh-inp" type="text" placeholder="2. Вставьте скопированную ссылку или токен...">
-<button class="wh-btn" onclick="saveAndAuth()" style="background:linear-gradient(135deg,#10b981,#059669); color:#fff; white-space:nowrap; padding:10px 20px; font-size:13px; box-shadow:0 4px 14px rgba(16,185,129,0.35);">⚡ Подключить</button>
-</div>
-<div id="wh-msg" style="font-size:11px; margin-top:8px; font-weight:600;"></div>
-<div style="font-size:11px; color:#64748b; margin-top:8px; line-height:1.4;">
-💡 <b>Подсказка:</b> если ВК пишет «Flood control» — это временная защита от кликов. Подождите 3–5 минут, пауза снимется сама.
-</div>
-</div>
-<div class="wh-box wh-mb12" style="background:linear-gradient(135deg,rgba(30,41,59,0.8),rgba(15,23,42,0.9)); border:1px solid #3b82f6; border-radius:12px; padding:12px; margin-bottom:12px;">
-<div class="wh-row-sb" style="flex-wrap:wrap; gap:10px;">
-<div>
-<div style="font-size:13px; font-weight:700; color:#f8fafc; display:flex; align-items:center; gap:6px;">
-<span>🧩</span> Расширение WolfHunt (Chrome / Яндекс Браузер)
-<span style="font-size:10px; background:#1e293b; color:#38bdf8; border:1px solid #334155; padding:2px 6px; border-radius:4px; font-weight:600;">🖥 Только Десктоп</span>
-</div>
-<div style="font-size:11px; color:#94a3b8; margin-top:3px;">
-Охотится в фоновом режиме на ПК при закрытом сайте. Полная синхронизация Старт / Стоп.
-</div>
-</div>
-<div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
-<button onclick="const el=document.getElementById('wh-ext-install-guide'); el.style.display=(el.style.display==='none'?'block':'none');" class="wh-btn" style="background:#1e293b; color:#38bdf8; border:1px solid #0284c7; font-size:12px; padding:8px 14px; cursor:pointer;">📖 Инструкция</button>
-<a href="https://wolfhunt-tg.onrender.com/downloads/WOLFHUNT_CHROME_EXTENSION.zip" target="_blank" class="wh-btn" style="background:linear-gradient(135deg,#2563eb,#1d4ed8); color:#fff; font-size:12px; padding:8px 16px; text-decoration:none; display:inline-flex; align-items:center; gap:6px;">📥 Скачать плагин (.zip)</a>
-</div>
-</div>
-<div id="wh-ext-install-guide" style="display:none; margin-top:12px; padding:12px; background:#0b1120; border:1px solid #334155; border-radius:8px; font-size:11px; color:#cbd5e1; line-height:1.6;">
-<div style="font-weight:700; color:#38bdf8; margin-bottom:6px; font-size:12px;">📋 Пошаговая установка за 1 минуту (Chrome и Яндекс Браузер):</div>
-<b>1. Скачайте и распакуйте:</b> Скачайте архив и распакуйте его в постоянную надежную папку на компьютере (например, в <code>Документы\WolfHunt</code>), чтобы файлы не удалились при очистке временных загрузок.<br>
-<b>2. Откройте страницу расширений в браузере:</b>
-<br>• В <b>Google Chrome</b> перейдите по адресу: <code>chrome://extensions</code>
-<br>• В <b>Яндекс Браузере</b> перейдите по адресу: <code>browser://tune</code> или <code>chrome://extensions</code>
-<br><b>3. Включите «Режим разработчика»:</b> переключатель находится в правом верхнем углу страницы расширений.<br>
-<b>4. Загрузите плагин:</b> Нажмите кнопку <b>«Загрузить распакованное расширение»</b> в левом верхнем углу и выберите папку <code>WOLFHUNT_CHROME_EXTENSION</code>.<br>
-<div style="color:#f59e0b; margin-top:6px;">⚠️ <b>Важно:</b> Расширения браузеров работают <u>только на ПК и ноутбуках</u> (Windows, macOS). На смартфонах мобильные браузеры расширения не поддерживают.<div style="margin-top:10px; padding-top:10px; border-top:1px solid #334155;">
-  <b style="color:#fcd34d;">🔄 Как обновить расширение до новой версии:</b>
-  <div style="margin-top:4px; font-size:11px; color:#94a3b8; line-height:1.5;">
-    1. Скачайте свежий архив <a href="https://wolfhunt-tg.onrender.com/downloads/WOLFHUNT_CHROME_EXTENSION.zip" style="color:#38bdf8; font-weight:700;">WOLFHUNT_CHROME_EXTENSION.zip</a>.<br>
-    2. Распакуйте в ту же папку (<code>D:\downloads\WOLFHUNT_CHROME_EXTENSION</code>) с заменой файлов.<br>
-    3. В браузере на <code>chrome://extensions</code> (или <code>browser://extensions</code>) нажмите круговую стрелку «Обновить» на карточке плагина. Все данные сохраняются автоматически!
+<div class="wh-grid" style="grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));">
+  <div class="wh-card">
+    <span class="wh-title" style="color:#38bdf8;">🔥 Реакций сегодня</span>
+    <div id="wh-tg-stat-reactions" class="wh-val" style="color:#38bdf8;">0</div>
+    <span id="wh-tg-reactions-sub" class="wh-sub">Push авторам</span>
   </div>
-</div>
-</div>
-</div>
-</div>
-<div class="wh-box" style="margin-bottom:12px;">
-<div class="wh-row-sb" style="cursor:pointer;" onclick="const el=document.getElementById('wh-vk-faq-content'); el.style.display=(el.style.display==='none'?'block':'none');">
-<div class="wh-row"><span>💡</span><h4 style="margin:0; font-size:13px; color:#f8fafc; font-weight:700;">Как устроена логика и 3 такта ВК Хантера</h4></div>
-<span style="font-size:11px; color:#38bdf8; font-weight:600;">Развернуть / Свернуть ▾</span>
-</div>
-<div id="wh-vk-faq-content" style="display:none; margin-top:12px; font-size:12px; color:#cbd5e1; line-height:1.6; border-top:1px solid #334155; padding-top:12px;">
-<div style="margin-bottom:8px;"><b>🎯 Такт 1 (Приоритет №1 — Истории):</b> Охота за свежими историями друзей. Просмотр и лайк с push-уведомлением автору на экран смартфона.</div>
-<div style="margin-bottom:8px;"><b>🎂 Такт 2 (Поздравления с Днем Рождения):</b> Проверка именинников среди друзей и отправка персонального поздравления в ЛС (с 06:00 МСК) по Spintax шаблону.</div>
-<div style="margin-bottom:8px;"><b>📰 Такт 3 (Разбавка постом):</b> Лайк свежей записи друга на стене для естественности алгоритмов ВК.</div>
-<div><b>🛡 Лимиты безопасности:</b> До 300 лайков в сутки, плавающая пауза 25–45 сек между тактами.</div>
-</div>
-</div>
-<div class="wh-box">
-<h4 style="margin:0 0 12px 0; font-size:13px; color:#f8fafc; font-weight:700;">🎂 Поздравление с Днем Рождения (Spintax в ЛС)</h4>
-<div>
-<div class="wh-row-sb" style="margin-bottom:6px;">
-<label style="font-size:12px; font-weight:600; color:#cbd5e1;">Шаблон поздравления именинникам (с 06:00 МСК)</label>
-<input type="checkbox" id="wh-bday-enable" checked style="transform:scale(1.1); cursor:pointer;">
-</div>
-<textarea id="wh-bday-text" class="wh-txt" rows="3">{С днем рождения|С праздником|Поздравляю с днем рождения}, %first_name%! {Желаю крепкого здоровья, энергии и грандиозных успехов|Всего самого наилучшего и исполнения желаний}! {🎂|🎉|🎁|🥂}</textarea>
-</div>
-<div class="wh-row-sb" style="margin-top:12px; flex-wrap:wrap; gap:8px;">
-<span style="font-size:11px; color:#64748b;">Переменная <code>%first_name%</code> подставляет имя друга.</span>
-<button class="wh-btn" onclick="saveTexts()" style="background:linear-gradient(135deg,#0284c7,#0369a1); color:#fff; font-size:12px; padding:8px 16px;">💾 Сохранить шаблон</button>
-</div>
-</div>
-<div class="wh-term">
-<div class="wh-term-head">
-<div class="wh-row" style="gap:6px;">
-<span style="width:8px; height:8px; border-radius:50%; background:#10b981; display:inline-block; box-shadow:0 0 6px #10b981;"></span>
-<span style="font-size:11px; font-weight:700; color:#34d399;">ТЕРМИНАЛ ВК ХАНТЕРА</span>
-</div>
-<div class="wh-row" style="gap:6px;">
-<button id="wh-btn-now" class="wh-btn" onclick="runOneCycleNow()" style="background:linear-gradient(135deg,#2563eb,#1d4ed8); color:#fff; font-size:11px; padding:6px 12px;">⚡ Лайкнуть сейчас</button>
-<button class="wh-btn" onclick="copyConsole('vk')" style="background:#1e293b; color:#cbd5e1; font-size:11px; padding:6px 11px; border:1px solid #475569;">📋 Лог</button>
-<button class="wh-btn" onclick="clearConsole('vk')" style="background:#1e293b; color:#64748b; border:1px solid #334155; font-size:11px; padding:5px 8px;">✕</button>
-</div>
-</div>
-<div id="wh-log-stream" class="wh-stream"><div>[Система]: Инициализация панели...</div></div>
-</div>
-</div>
-<div id="wh-view-tg" style="display:none;">
-<div class="wh-hdr">
-<div class="wh-row" style="gap:12px;">
-<div style="position:relative; width:52px; height:52px; border-radius:50%; background:linear-gradient(135deg,#0284c7,#0369a1); display:flex; align-items:center; justify-content:center; border:3px solid #0ea5e9;">
-<span style="font-size:24px;">✈</span>
-<span id="wh-tg-dot" style="position:absolute; bottom:2px; right:2px; width:12px; height:12px; border-radius:50%; background:#64748b; border:2px solid #0f172a;"></span>
-</div>
-<div>
-<div class="wh-row">
-<h3 id="wh-tg-name" style="margin:0; font-size:18px; font-weight:800; color:#fff;">Telegram Хантер</h3>
-<span class="wh-badge" style="background:rgba(14,165,233,0.2); color:#38bdf8; border:1px solid rgba(14,165,233,0.4);">CLOUD 24/7 ACTIVE</span>
-</div>
-<p id="wh-tg-sub" style="margin:3px 0 0 0; font-size:12px; color:#f59e0b; font-weight:600;">⚠️ Требуется авторизация в Telegram</p>
-</div>
-</div>
-<div class="wh-row">
-<button id="wh-tg-toggle-btn" class="wh-btn" onclick="toggleTgHunterState()" title="⚠️ Сначала авторизуйте профиль Telegram в блоке ниже!" style="background:#475569; color:#94a3b8; padding:11px 24px; font-size:13px; box-shadow:none; cursor:not-allowed; opacity:0.75;">🔒 Требуется авторизация в Telegram</button>
-<button id="wh-tg-reset-btn" class="wh-btn" onclick="resetTgAuth()" style="display:none; background:#1e293b; color:#cbd5e1; border:1px solid #475569; font-size:12px; padding:10px 14px;" title="Сменить аккаунт Telegram">🔄 Сменить аккаунт</button>
-</div>
-</div>
-<div id="wh-tg-auth-card" class="wh-box" style="background:linear-gradient(145deg,#0c1a30,#0f172a); border:2px dashed #0284c7; margin-bottom:14px; transition:box-shadow 0.3s ease, border-color 0.3s ease;">
-<div class="wh-row" style="margin-bottom:6px;">
-<span class="wh-badge" style="background:#0284c7; color:#fff; font-size:11px;">ШАГ 1</span>
-<h4 style="margin:0; font-size:15px; color:#38bdf8; font-weight:800;">Подключение профиля Telegram онлайн</h4>
-</div>
-<p style="font-size:12px; color:#94a3b8; margin:0 0 10px 0;">Авторизация выполняется 1 раз. Введите номер телефона — 5-значный проверочный код придёт в ваш мессенджер Telegram.</p>
-
-<div style="background:rgba(2,132,199,0.1); border-left:4px solid #0284c7; border-radius:6px; padding:10px 14px; margin-bottom:14px; font-size:11px; line-height:1.6; color:#e2e8f0;">
-<div style="font-weight:700; color:#38bdf8; margin-bottom:4px; font-size:12px;">📌 Важные правила для успешного подключения:</div>
-<div>• <b>Куда приходит код:</b> Telegram отправляет проверочный код <u>НЕ в SMS</u> на телефон, а сообщением прямо в приложение Telegram (в официальный служебный диалог <b>«Telegram / Служебные уведомления»</b> с синей галочкой).</div>
-<div>• <b>Защита от частых кликов (Flood Wait):</b> <u>Не нажимайте кнопку повторно!</u> Если нажимать «Получить код» несколько раз подряд или ввести неверный номер, Telegram активирует защитную блокировку от 40 минут до 24 часов и код не будет отправляться. Нажмите один раз и проверьте чат в приложении Telegram.</div>
-<div>• <b>Формат номера:</b> Вводите номер строго в международном формате с кодом страны (например: <code>+79951234567</code>). На этом номере должен быть активен Telegram на вашем телефоне или ПК.</div>
-<div>• <b>Облачный пароль 2FA:</b> Если в вашем аккаунте Telegram включен двухэтапный облачный пароль, после ввода 5-значного кода откроется поле для его ввода.</div>
-</div>
-
-<div id="wh-tg-step-phone" style="display:flex; flex-wrap:wrap; gap:8px;">
-<input id="wh-tg-phone-input" class="wh-inp" type="tel" placeholder="Введите номер телефона (+7995...)" style="flex:1; min-width:200px;">
-<button id="wh-tg-btn-send" class="wh-btn" onclick="requestTgCode()" style="background:linear-gradient(135deg,#0284c7,#0369a1); color:#fff; white-space:nowrap; padding:10px 20px; font-size:13px;">📲 Получить код</button>
-</div>
-<div id="wh-tg-step-code" style="display:none; margin-top:10px;">
-<div style="font-size:11px; color:#34d399; font-weight:600; margin-bottom:6px;">✔ Код отправлен в Telegram! Введите его ниже:</div>
-<div style="display:flex; gap:8px;">
-<input id="wh-tg-code-input" class="wh-inp" type="text" placeholder="5-значный код из чата Telegram" style="flex:1; min-width:180px;">
-<button id="wh-tg-btn-verify" class="wh-btn" onclick="verifyTgCode()" style="background:linear-gradient(135deg,#10b981,#059669); color:#fff; white-space:nowrap; padding:10px 20px; font-size:13px;">⚡ Подключить</button>
-</div>
-<div id="wh-tg-step-pwd" style="display:none; margin-top:8px;">
-<input id="wh-tg-pwd-input" class="wh-inp" type="password" placeholder="Облачный пароль 2FA (если включен в Telegram)">
-</div>
-</div>
-<div id="wh-tg-auth-msg" style="font-size:11px; margin-top:8px; font-weight:600;"></div>
-</div>
-<div class="wh-grid">
-<div class="wh-card"><span class="wh-title" style="color:#38bdf8;">🔥 Реакций на истории</span><div id="wh-tg-stat-reactions" class="wh-val" style="color:#38bdf8;">0</div><span id="wh-tg-reactions-sub" class="wh-sub">Всего: 0</span></div>
-<div class="wh-card"><span class="wh-title" style="color:#c084fc;">👁 Просмотрено историй</span><div id="wh-tg-stat-views" class="wh-val" style="color:#c084fc;">0</div><span id="wh-tg-views-sub" class="wh-sub">Всего: 0</span></div>
-<div class="wh-card"><span class="wh-title" style="color:#34d399;">⚡ Суточный лимит</span><div id="wh-tg-stat-limit" class="wh-val" style="color:#34d399;">0 / 150</div><span id="wh-tg-limit-sub" class="wh-sub" style="color:#34d399; font-weight:700;">Всего: 0</span></div>
-<div class="wh-card"><span class="wh-title" style="color:#f59e0b;">🛡 Защита от спама</span><div class="wh-val" style="color:#f59e0b; font-size:19px; margin-top:6px;">25–45 сек</div><span class="wh-sub">Плавающая пауза</span></div>
+  <div class="wh-card">
+    <span class="wh-title" style="color:#c084fc;">👁 Просмотрено историй</span>
+    <div id="wh-tg-stat-views" class="wh-val" style="color:#c084fc;">0</div>
+    <span id="wh-tg-views-sub" class="wh-sub">Всего: 0</span>
+  </div>
+  <div class="wh-card">
+    <span class="wh-title" style="color:#f59e0b;">🛡 Защита от спама</span>
+    <div class="wh-val" style="color:#f59e0b; font-size:20px; margin-top:6px;">25–45 сек</div>
+    <span class="wh-sub">Плавающая пауза</span>
+  </div>
+  <div class="wh-card" style="border-color:#10b981; background:linear-gradient(145deg,#1e293b,#064e3b);">
+    <span class="wh-title" style="color:#34d399;">⚡ Всего реакций сегодня</span>
+    <div id="wh-tg-stat-limit" class="wh-val" style="color:#34d399;">0 / 150</div>
+    <span class="wh-sub" style="color:#a7f3d0;">Суточный лимит TG</span>
+  </div>
+  <div class="wh-card" style="border-color:#f59e0b; background:linear-gradient(145deg,#1e293b,#78350f);">
+    <span class="wh-title" style="color:#fcd34d;">🏆 ВСЕГО РЕАКЦИЙ (ВСЁ ВРЕМЯ)</span>
+    <div id="wh-tg-stat-all-time" class="wh-val" style="color:#fde047;">0</div>
+    <span class="wh-sub" style="color:#fef08a;">Накопительный счетчик</span>
+  </div>
 </div>
 <div class="wh-box" style="margin-bottom:12px;">
 <h4 style="margin:0 0 10px 0; font-size:13px; color:#f8fafc; font-weight:700;">❤️ Эмодзи реакций на истории Telegram</h4>
@@ -565,6 +438,7 @@ if ($('wh-post-likes')) $('wh-post-likes').innerText = po;
 if ($('wh-post-sub')) $('wh-post-sub').innerText = 'Всего: ' + allPo;
 if ($('wh-today-likes')) $('wh-today-likes').innerText = (st + po) + ' / 300';
 if ($('wh-total-all-sub')) $('wh-total-all-sub').innerText = 'Всего: ' + allTot;
+if ($('wh-all-time-total')) $('wh-all-time-total').innerText = allTot;
 if ($('wh-bday-stat')) $('wh-bday-stat').innerText = bday;
 if ($('wh-bday-sub')) $('wh-bday-sub').innerText = 'Всего: ' + allBd;
 if ($('wh-msg-total')) $('wh-msg-total').innerText = bday;
