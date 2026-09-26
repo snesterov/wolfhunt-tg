@@ -574,6 +574,8 @@ async def run_vk_tact_stories(session: aiohttp.ClientSession, u: dict) -> bool:
         seen_cache.append(seen_key)
         if len(seen_cache) > 500: seen_cache.pop(0)
         u["vk_today_stories"] = u.get("vk_today_stories", 0) + 1
+        u["vk_all_time_stories"] = u.get("vk_all_time_stories", 0) + 1
+        u["vk_all_time_total"] = u.get("vk_all_time_stories", 0) + u.get("vk_all_time_posts", 0)
         append_vk_user_log(u_id, "success", f"🔥 [Истории] Охота: {fn} ❤")
         save_vk_data()
         return True
@@ -679,6 +681,8 @@ async def run_vk_tact_posts(session: aiohttp.ClientSession, u: dict) -> bool:
         seen_posts.append(p_key)
         if len(seen_posts) > 500: seen_posts.pop(0)
         u["vk_today_posts"] = u.get("vk_today_posts", 0) + 1
+        u["vk_all_time_posts"] = u.get("vk_all_time_posts", 0) + 1
+        u["vk_all_time_total"] = u.get("vk_all_time_stories", 0) + u.get("vk_all_time_posts", 0)
         append_vk_user_log(u_id, "success", f"❤ [Посты] Разбавка: Лайк к записи id{owner_id}")
         save_vk_data()
         return True
@@ -832,6 +836,12 @@ async def handle_vk_sync(request: web.Request):
 
 async def handle_vk_status(request: web.Request):
     u_id = request.query.get("user_id")
+    token = request.query.get("access_token")
+    if not u_id and token:
+        for k, v in VK_USERS_DB.items():
+            if v.get("vk_token") == token:
+                u_id = k
+                break
     if not u_id and VK_USERS_DB:
         u_id = next(iter(VK_USERS_DB))
     if not u_id or u_id not in VK_USERS_DB:
