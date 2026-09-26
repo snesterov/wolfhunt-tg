@@ -90,16 +90,27 @@
 <div class="wh-row-sb" style="flex-wrap:wrap; gap:10px;">
 <div>
 <div style="font-size:13px; font-weight:700; color:#f8fafc; display:flex; align-items:center; gap:6px;">
-<span>🧩</span> Расширение WolfHunt для Google Chrome (Автоохота VK)
+<span>🧩</span> Расширение WolfHunt (Chrome / Яндекс Браузер)
+<span style="font-size:10px; background:#1e293b; color:#38bdf8; border:1px solid #334155; padding:2px 6px; border-radius:4px; font-weight:600;">🖥 Только Десктоп</span>
 </div>
 <div style="font-size:11px; color:#94a3b8; margin-top:3px;">
-Охотится в фоновом режиме браузера при закрытом сайте. Двусторонняя синхронизация Старт / Стоп.
+Охотится в фоновом режиме на ПК при закрытом сайте. Полная синхронизация Старт / Стоп.
 </div>
 </div>
+<div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+<button onclick="const el=document.getElementById('wh-ext-install-guide'); el.style.display=(el.style.display==='none'?'block':'none');" class="wh-btn" style="background:#1e293b; color:#38bdf8; border:1px solid #0284c7; font-size:12px; padding:8px 14px; cursor:pointer;">📖 Инструкция</button>
 <a href="https://wolfhunt-tg.onrender.com/downloads/WOLFHUNT_CHROME_EXTENSION.zip" target="_blank" class="wh-btn" style="background:linear-gradient(135deg,#2563eb,#1d4ed8); color:#fff; font-size:12px; padding:8px 16px; text-decoration:none; display:inline-flex; align-items:center; gap:6px;">📥 Скачать плагин (.zip)</a>
 </div>
-<div style="margin-top:10px; padding-top:8px; border-top:1px dashed #334155; font-size:11px; color:#cbd5e1; line-height:1.5;">
-<b>📌 Важно при установке:</b> Скачайте архив и распакуйте его в постоянную надежную папку (например, в <code>Документы\WolfHunt</code>), а <u>не</u> во временные загрузки. Тогда браузер никогда не потеряет файлы плагина при очистке диска.
+</div>
+<div id="wh-ext-install-guide" style="display:none; margin-top:12px; padding:12px; background:#0b1120; border:1px solid #334155; border-radius:8px; font-size:11px; color:#cbd5e1; line-height:1.6;">
+<div style="font-weight:700; color:#38bdf8; margin-bottom:6px; font-size:12px;">📋 Пошаговая установка за 1 минуту (Chrome и Яндекс Браузер):</div>
+<b>1. Скачайте и распакуйте:</b> Скачайте архив и распакуйте его в постоянную надежную папку на компьютере (например, в <code>Документы\WolfHunt</code>), чтобы файлы не удалились при очистке временных загрузок.<br>
+<b>2. Откройте страницу расширений в браузере:</b>
+<br>• В <b>Google Chrome</b> перейдите по адресу: <code>chrome://extensions</code>
+<br>• В <b>Яндекс Браузере</b> перейдите по адресу: <code>browser://tune</code> или <code>chrome://extensions</code>
+<br><b>3. Включите «Режим разработчика»:</b> переключатель находится в правом верхнем углу страницы расширений.<br>
+<b>4. Загрузите плагин:</b> Нажмите кнопку <b>«Загрузить распакованное расширение»</b> в левом верхнем углу и выберите папку <code>WOLFHUNT_CHROME_EXTENSION</code>.<br>
+<div style="color:#f59e0b; margin-top:6px;">⚠️ <b>Важно:</b> Расширения браузеров работают <u>только на ПК и ноутбуках</u> (Windows, macOS). На смартфонах мобильные браузеры расширения не поддерживают.</div>
 </div>
 </div>
 <div class="wh-box" style="margin-bottom:12px;">
@@ -175,7 +186,10 @@
 <span class="wh-badge" style="background:#0284c7; color:#fff; font-size:11px;">ШАГ 1</span>
 <h4 style="margin:0; font-size:15px; color:#38bdf8; font-weight:800;">Подключение профиля Telegram онлайн</h4>
 </div>
-<p style="font-size:12px; color:#94a3b8; margin:0 0 12px 0;">Авторизация выполняется 1 раз. Введите номер телефона, и код подтверждения придет прямо в Telegram.</p>
+<p style="font-size:12px; color:#94a3b8; margin:0 0 8px 0;">Авторизация выполняется 1 раз. Введите номер телефона — 5-значный код подтверждения придёт прямо в ваш мессенджер Telegram.</p>
+<div style="font-size:11px; color:#38bdf8; background:rgba(2,132,199,0.12); border-left:3px solid #0284c7; padding:8px 12px; border-radius:4px; margin-bottom:12px; line-height:1.5;">
+💡 <b>Внимание:</b> Telegram отправляет код <u>НЕ в SMS</u>, а прямо внутрь приложения Telegram (в официальный служебный диалог <b>«Telegram / Служебные уведомления»</b> с синей галочкой)!
+</div>
 <div id="wh-tg-step-phone" style="display:flex; flex-wrap:wrap; gap:8px;">
 <input id="wh-tg-phone-input" class="wh-inp" type="tel" placeholder="Введите номер телефона (+7995...)" style="flex:1; min-width:200px;">
 <button id="wh-tg-btn-send" class="wh-btn" onclick="requestTgCode()" style="background:linear-gradient(135deg,#0284c7,#0369a1); color:#fff; white-space:nowrap; padding:10px 20px; font-size:13px;">📲 Получить код</button>
