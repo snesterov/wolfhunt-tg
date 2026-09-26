@@ -61,7 +61,7 @@
 </div>
 </div>
 <div class="wh-row">
-<button id="wh-toggle-btn" class="wh-btn" onclick="toggleWolfState()" style="background:linear-gradient(135deg,#10b981,#059669); color:#fff; padding:11px 24px; font-size:13px; box-shadow:0 4px 16px rgba(16,185,129,0.4);">▶ Запустить ВК Хантер</button>
+<button id="wh-toggle-btn" class="wh-btn" onclick="toggleWolfState()" style="background:#475569; color:#cbd5e1; padding:11px 24px; font-size:13px; box-shadow:none; cursor:pointer;">🔒 Требуется авторизация в ВК</button>
 <button id="wh-reset-btn" class="wh-btn" onclick="resetAuth()" style="display:none; background:#1e293b; color:#cbd5e1; border:1px solid #475569; font-size:12px; padding:10px 14px;" title="Сменить профиль ВК">🔄 Сменить аккаунт</button>
 </div>
 </div>
@@ -177,19 +177,25 @@
 </div>
 </div>
 <div class="wh-row">
-<button id="wh-tg-toggle-btn" class="wh-btn" onclick="toggleTgHunterState()" disabled style="background:#475569; color:#94a3b8; padding:11px 24px; font-size:13px; box-shadow:none; cursor:not-allowed;">▶ Запустить TG Хантер</button>
+<button id="wh-tg-toggle-btn" class="wh-btn" onclick="toggleTgHunterState()" style="background:#475569; color:#cbd5e1; padding:11px 24px; font-size:13px; box-shadow:none; cursor:pointer;">🔒 Требуется авторизация в Telegram</button>
 <button id="wh-tg-reset-btn" class="wh-btn" onclick="resetTgAuth()" style="display:none; background:#1e293b; color:#cbd5e1; border:1px solid #475569; font-size:12px; padding:10px 14px;" title="Сменить аккаунт Telegram">🔄 Сменить аккаунт</button>
 </div>
 </div>
-<div id="wh-tg-auth-card" class="wh-box" style="background:linear-gradient(145deg,#0c1a30,#0f172a); border:2px dashed #0284c7; margin-bottom:14px;">
+<div id="wh-tg-auth-card" class="wh-box" style="background:linear-gradient(145deg,#0c1a30,#0f172a); border:2px dashed #0284c7; margin-bottom:14px; transition:box-shadow 0.3s ease, border-color 0.3s ease;">
 <div class="wh-row" style="margin-bottom:6px;">
 <span class="wh-badge" style="background:#0284c7; color:#fff; font-size:11px;">ШАГ 1</span>
 <h4 style="margin:0; font-size:15px; color:#38bdf8; font-weight:800;">Подключение профиля Telegram онлайн</h4>
 </div>
-<p style="font-size:12px; color:#94a3b8; margin:0 0 8px 0;">Авторизация выполняется 1 раз. Введите номер телефона — 5-значный код подтверждения придёт прямо в ваш мессенджер Telegram.</p>
-<div style="font-size:11px; color:#38bdf8; background:rgba(2,132,199,0.12); border-left:3px solid #0284c7; padding:8px 12px; border-radius:4px; margin-bottom:12px; line-height:1.5;">
-💡 <b>Внимание:</b> Telegram отправляет код <u>НЕ в SMS</u>, а прямо внутрь приложения Telegram (в официальный служебный диалог <b>«Telegram / Служебные уведомления»</b> с синей галочкой)!
+<p style="font-size:12px; color:#94a3b8; margin:0 0 10px 0;">Авторизация выполняется 1 раз. Введите номер телефона — 5-значный проверочный код придёт в ваш мессенджер Telegram.</p>
+
+<div style="background:rgba(2,132,199,0.1); border-left:4px solid #0284c7; border-radius:6px; padding:10px 14px; margin-bottom:14px; font-size:11px; line-height:1.6; color:#e2e8f0;">
+<div style="font-weight:700; color:#38bdf8; margin-bottom:4px; font-size:12px;">📌 Важные правила для успешного подключения:</div>
+<div>• <b>Куда приходит код:</b> Telegram отправляет проверочный код <u>НЕ в SMS</u> на телефон, а сообщением прямо в приложение Telegram (в официальный служебный диалог <b>«Telegram / Служебные уведомления»</b> с синей галочкой).</div>
+<div>• <b>Защита от частых кликов (Flood Wait):</b> <u>Не нажимайте кнопку повторно!</u> Если нажимать «Получить код» несколько раз подряд или ввести неверный номер, Telegram активирует защитную блокировку от 40 минут до 24 часов и код не будет отправляться. Нажмите один раз и проверьте чат в приложении Telegram.</div>
+<div>• <b>Формат номера:</b> Вводите номер строго в международном формате с кодом страны (например: <code>+79951234567</code>). На этом номере должен быть активен Telegram на вашем телефоне или ПК.</div>
+<div>• <b>Облачный пароль 2FA:</b> Если в вашем аккаунте Telegram включен двухэтапный облачный пароль, после ввода 5-значного кода откроется поле для его ввода.</div>
 </div>
+
 <div id="wh-tg-step-phone" style="display:flex; flex-wrap:wrap; gap:8px;">
 <input id="wh-tg-phone-input" class="wh-inp" type="tel" placeholder="Введите номер телефона (+7995...)" style="flex:1; min-width:200px;">
 <button id="wh-tg-btn-send" class="wh-btn" onclick="requestTgCode()" style="background:linear-gradient(135deg,#0284c7,#0369a1); color:#fff; white-space:nowrap; padding:10px 20px; font-size:13px;">📲 Получить код</button>
@@ -197,11 +203,11 @@
 <div id="wh-tg-step-code" style="display:none; margin-top:10px;">
 <div style="font-size:11px; color:#34d399; font-weight:600; margin-bottom:6px;">✔ Код отправлен в Telegram! Введите его ниже:</div>
 <div style="display:flex; gap:8px;">
-<input id="wh-tg-code-input" class="wh-inp" type="text" placeholder="5-значный код из Telegram" style="flex:1; min-width:180px;">
+<input id="wh-tg-code-input" class="wh-inp" type="text" placeholder="5-значный код из чата Telegram" style="flex:1; min-width:180px;">
 <button id="wh-tg-btn-verify" class="wh-btn" onclick="verifyTgCode()" style="background:linear-gradient(135deg,#10b981,#059669); color:#fff; white-space:nowrap; padding:10px 20px; font-size:13px;">⚡ Подключить</button>
 </div>
 <div id="wh-tg-step-pwd" style="display:none; margin-top:8px;">
-<input id="wh-tg-pwd-input" class="wh-inp" type="password" placeholder="Облачный пароль 2FA (если включен)">
+<input id="wh-tg-pwd-input" class="wh-inp" type="password" placeholder="Облачный пароль 2FA (если включен в Telegram)">
 </div>
 </div>
 <div id="wh-tg-auth-msg" style="font-size:11px; margin-top:8px; font-weight:600;"></div>
@@ -212,7 +218,7 @@
 <div class="wh-card"><span class="wh-title" style="color:#34d399;">⚡ Суточный лимит</span><div id="wh-tg-stat-limit" class="wh-val" style="color:#34d399;">0 / 150</div><span class="wh-sub">Безопасный порог TG</span></div>
 <div class="wh-card"><span class="wh-title" style="color:#f59e0b;">🛡 Защита от спама</span><div class="wh-val" style="color:#f59e0b; font-size:19px; margin-top:6px;">25–45 сек</div><span class="wh-sub">Плавающая пауза</span></div>
 </div>
-<div class="wh-box">
+<div class="wh-box" style="margin-bottom:12px;">
 <h4 style="margin:0 0 10px 0; font-size:13px; color:#f8fafc; font-weight:700;">❤️ Эмодзи реакций на истории Telegram</h4>
 <div style="display:flex; gap:8px; flex-wrap:wrap;">
 <label class="wh-chk"><input type="checkbox" id="wh-tg-re-heart" checked onchange="saveTgReactions()"> ❤️ Сердце</label>
@@ -220,6 +226,18 @@
 <label class="wh-chk"><input type="checkbox" id="wh-tg-re-like" checked onchange="saveTgReactions()"> 👍 Класс</label>
 <label class="wh-chk"><input type="checkbox" id="wh-tg-re-clap" checked onchange="saveTgReactions()"> 👏 Аплодисменты</label>
 <label class="wh-chk"><input type="checkbox" id="wh-tg-re-love" checked onchange="saveTgReactions()"> 😍 Влюблен</label>
+</div>
+</div>
+<div class="wh-box" style="margin-bottom:12px;">
+<div class="wh-row-sb" style="cursor:pointer;" onclick="const el=document.getElementById('wh-tg-faq-content'); el.style.display=(el.style.display==='none'?'block':'none');">
+<div class="wh-row"><span>💡</span><h4 style="margin:0; font-size:13px; color:#f8fafc; font-weight:700;">Как устроена облачная автоохота Telegram 24/7</h4></div>
+<span style="font-size:11px; color:#38bdf8; font-weight:600;">Развернуть / Свернуть ▾</span>
+</div>
+<div id="wh-tg-faq-content" style="display:none; margin-top:12px; font-size:12px; color:#cbd5e1; line-height:1.6; border-top:1px solid #334155; padding-top:12px;">
+<div style="margin-bottom:8px;"><b>🎯 Реакции на истории контактов:</b> Сервер в облаке непрерывно сканирует свежие истории ваших контактов и проставляет выбранные вами эмодзи.</div>
+<div style="margin-bottom:8px;"><b>🔔 Push-уведомление автору:</b> В отличие от групп и каналов, когда вы ставите реакцию на историю, контакт получает личное уведомление прямо на экран блокировки смартфона с вашей аватаркой!</div>
+<div style="margin-bottom:8px;"><b>🛡 Безопасность и лимиты:</b> До 150 реакций в сутки, плавающая пауза 25–45 секунд между действиями для 100% защиты от спам-фильтров.</div>
+<div><b>☁ Полная автономность 24/7:</b> Охота идет на защищенном сервере круглосуточно. Компьютер и сайт можно закрыть сразу после включения.</div>
 </div>
 </div>
 <div class="wh-term">
@@ -438,6 +456,9 @@ startHuntingLoop(false);
 } else {
 stopHuntingLoop();
 }
+} else {
+stopHuntingLoop();
+renderRunningState(false);
 }
 setInterval(syncVkStateWithServer, 7000);
 }
@@ -466,8 +487,8 @@ const hasToken = !!ls.getItem('wh_token');
 if (!btn) return;
 const authCardVisible = $('wh-auth-card') && $('wh-auth-card').style.display !== 'none';
 if (!hasToken || authCardVisible) {
-btn.disabled = true; btn.style.background = '#475569'; btn.style.color = '#94a3b8'; btn.style.boxShadow = 'none';
-btn.style.cursor = 'not-allowed';
+btn.disabled = false; btn.style.background = '#475569'; btn.style.color = '#cbd5e1'; btn.style.boxShadow = 'none';
+btn.style.cursor = 'pointer';
 btn.innerText = '🔒 Требуется авторизация в ВК';
 if (dot) dot.style.background = '#64748b';
 if (sub) { sub.innerText = '⚠️ Сначала подключите профиль ВК в карточке ниже!'; sub.style.color = '#f59e0b'; }
@@ -494,7 +515,16 @@ const authCardVisible = $('wh-auth-card') && $('wh-auth-card').style.display !==
 if (!hasToken || authCardVisible) {
 alert('⚠️ Для запуска охоты сначала необходимо обязательно авторизоваться в блоке «Подключение профиля ВКонтакте» ниже!');
 const el = $('wh-auth-card') || $('wh-token-raw');
-if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+if (el) {
+el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+el.style.transition = 'box-shadow 0.3s ease, border-color 0.3s ease';
+el.style.boxShadow = '0 0 25px rgba(37,99,235,0.9)';
+el.style.borderColor = '#60a5fa';
+setTimeout(() => {
+el.style.boxShadow = '';
+el.style.borderColor = '#3b82f6';
+}, 2500);
+}
 return;
 }
 const cur = (ls.getItem('wh_running') === 'true');
@@ -1039,7 +1069,21 @@ if (btn) btn.disabled = false;
 }
 async function toggleTgHunterState() {
 const isAuth = ls.getItem('wh_tg_authorized') === 'true';
-if (!isAuth) return alert('Сначала авторизуйте Telegram профиль выше!');
+if (!isAuth) {
+alert('⚠️ Для запуска Telegram Хантера сначала необходимо обязательно авторизоваться в блоке «Подключение профиля Telegram онлайн» ниже!');
+const el = $('wh-tg-auth-card') || $('wh-tg-phone-input');
+if (el) {
+el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+el.style.transition = 'box-shadow 0.3s ease, border-color 0.3s ease';
+el.style.boxShadow = '0 0 25px rgba(2,132,199,0.9)';
+el.style.borderColor = '#38bdf8';
+setTimeout(() => {
+el.style.boxShadow = '';
+el.style.borderColor = '#0284c7';
+}, 2500);
+}
+return;
+}
 const cur = ls.getItem('wh_tg_running') === 'true';
 const action = cur ? 'stop' : 'start';
 if (action === 'stop') {
@@ -1147,10 +1191,11 @@ const btn = $('wh-tg-toggle-btn'), dot = $('wh-tg-dot'), sub = $('wh-tg-sub');
 const isAuth = ls.getItem('wh_tg_authorized') === 'true';
 if (!btn) return;
 if (!isAuth) {
-btn.disabled = true; btn.style.background = '#475569'; btn.style.color = '#94a3b8'; btn.style.boxShadow = 'none';
-btn.innerText = '▶ Запустить TG Хантер';
+btn.disabled = false; btn.style.background = '#475569'; btn.style.color = '#cbd5e1'; btn.style.boxShadow = 'none';
+btn.style.cursor = 'pointer';
+btn.innerText = '🔒 Требуется авторизация в Telegram';
 if (dot) dot.style.background = '#64748b';
-if (sub) { sub.innerText = '⚠️ Требуется авторизация в Telegram'; sub.style.color = '#f59e0b'; }
+if (sub) { sub.innerText = '⚠️ Сначала авторизуйте профиль в карточке ниже!'; sub.style.color = '#f59e0b'; }
 return;
 }
 btn.disabled = false; btn.style.color = '#fff'; btn.style.cursor = 'pointer';
@@ -1166,23 +1211,6 @@ btn.style.background = 'linear-gradient(135deg, #0284c7, #0369a1)';
 btn.style.boxShadow = '0 4px 16px rgba(2,132,199,0.45)';
 if (dot) dot.style.background = '#10b981';
 if (sub) { sub.innerText = '⏸ На паузе (готов к охоте)'; sub.style.color = '#94a3b8'; }
-}
-}
-function switchTab(tab) {
-const vkC = $('wh-view-vk'), tgC = $('wh-view-tg'), vkB = $('wh-tab-vk'), tgB = $('wh-tab-tg');
-if (tab === 'tg') {
-if (vkC) vkC.style.display = 'none';
-if (tgC) tgC.style.display = 'block';
-if (vkB) { vkB.style.background = 'transparent'; vkB.style.color = '#94a3b8'; vkB.style.boxShadow = 'none'; }
-if (tgB) { tgB.style.background = 'linear-gradient(135deg, #0284c7, #0369a1)'; tgB.style.color = '#fff'; tgB.style.boxShadow = '0 4px 14px rgba(2,132,199,0.4)'; }
-ls.setItem('wh_active_tab', 'tg');
-updateTgBackendStatus();
-} else {
-if (vkC) vkC.style.display = 'block';
-if (tgC) tgC.style.display = 'none';
-if (vkB) { vkB.style.background = 'linear-gradient(135deg, #2563eb, #1d4ed8)'; vkB.style.color = '#fff'; vkB.style.boxShadow = '0 4px 14px rgba(37,99,235,0.4)'; }
-if (tgB) { tgB.style.background = 'transparent'; tgB.style.color = '#94a3b8'; tgB.style.boxShadow = 'none'; }
-ls.setItem('wh_active_tab', 'vk');
 }
 }
 async function runTgCycleNow() {

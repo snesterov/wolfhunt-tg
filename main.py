@@ -200,8 +200,18 @@ async def handle_send_code(request):
         add_log(f"Код подтверждения запрошен для {phone}", "info")
         return web.json_response({"status": "ok", "message": "Код отправлен в Telegram"})
     except Exception as e:
-        add_log(f"Ошибка запроса кода: {e}", "warn")
-        return web.json_response({"status": "error", "message": str(e)}, status=400)
+        err_str = str(e)
+        add_log(f"Ошибка запроса кода: {err_str}", "warn")
+        user_msg = err_str
+        if "wait of" in err_str.lower() or "flood" in err_str.lower():
+            sec_match = re.search(r'(\d+)\s+seconds', err_str)
+            sec_txt = f" (примерно {round(int(sec_match.group(1))/60)} мин.)" if sec_match else ""
+            user_msg = f"⚠️ Telegram временно заблокировал частые запросы кодов (Flood Wait){sec_txt}. Подождите и не нажимайте кнопку!"
+        elif "phone_number_invalid" in err_str.lower():
+            user_msg = "⚠️ Неверный формат номера. Введите номер в международном формате (например, +79951234567)"
+        elif "phone_number_banned" in err_str.lower():
+            user_msg = "⚠️ Данный номер телефона заблокирован в Telegram."
+        return web.json_response({"status": "error", "message": user_msg}, status=400)
 
 async def handle_verify_code(request):
     data = await request.json()
@@ -243,9 +253,15 @@ async def handle_verify_code(request):
         add_log(f"✔ Профиль авторизован: {me.first_name} (@{me.username or me.id}) ✅", "success")
         return web.json_response({"status": "ok", "user": state["user"], "session_string": session_str})
     except PhoneCodeInvalidError:
-        return web.json_response({"status": "error", "message": "Неверный код подтверждения"}, status=400)
+        return web.json_response({"status": "error", "message": "⚠️ Неверный код подтверждения. Проверьте 5 цифр в чате Telegram."}, status=400)
     except Exception as e:
-        return web.json_response({"status": "error", "message": str(e)}, status=400)
+        err_str = str(e)
+        user_msg = err_str
+        if "phone_code_expired" in err_str.lower():
+            user_msg = "⚠️ Срок действия кода истек. Нажмите «Получить код» повторно."
+        elif "password_hash_invalid" in err_str.lower():
+            user_msg = "⚠️ Неверный облачный пароль 2FA."
+        return web.json_response({"status": "error", "message": user_msg}, status=400)
 
 async def handle_restore_session(request):
     """Мгновенное бесшовное восстановление авторизации после перезагрузки Render"""
