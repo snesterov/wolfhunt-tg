@@ -107,11 +107,11 @@
 <div style="display:flex; gap:16px; margin-bottom:10px; font-size:12px; flex-wrap:wrap;">
 <label style="cursor:pointer; display:flex; align-items:center; gap:6px;">
 <input type="radio" name="wh_vk_proxy_type" value="direct" id="wh-vk-proxy-direct" checked>
-<span style="color:#f8fafc; font-weight:600;">● Стандартный IP (сервера или браузера)</span>
+<span style="color:#f8fafc; font-weight:600;">Стандартный IP (сервера или браузера)</span>
 </label>
 <label style="cursor:pointer; display:flex; align-items:center; gap:6px;">
 <input type="radio" name="wh_vk_proxy_type" value="socks5" id="wh-vk-proxy-socks">
-<span style="color:#38bdf8; font-weight:600;">○ Персональный SOCKS5 прокси</span>
+<span style="color:#38bdf8; font-weight:600;">Персональный SOCKS5 прокси</span>
 </label>
 </div>
 <div id="wh-vk-proxy-fields" style="display:none; background:#0b1120; padding:10px; border-radius:8px; border:1px solid #334155; margin-bottom:8px;">
@@ -130,7 +130,7 @@
 </div>
 </div>
 <div style="margin-top:8px; padding:9px 12px; background:rgba(245,158,11,0.12); border:1px solid rgba(245,158,11,0.35); border-radius:8px; font-size:11px; color:#fcd34d; line-height:1.5;">
-  ⚠️ <b>Защита от Flood Control:</b> При выборе «24/7 Облако» со стандартным IP запросы идут с сервера Render. Для масштабирования без лимитов подключите <b>«○ Персональный SOCKS5»</b>, либо переключитесь в <b>«💻 Браузерный режим (Домашний IP)»</b>!
+  ⚠️ <b>Защита от Flood Control:</b> При выборе «24/7 Облако» со стандартным IP запросы идут с сервера Render. Для масштабирования без лимитов подключите <b>«Персональный SOCKS5»</b>, либо переключитесь в <b>«💻 Браузерный режим (Домашний IP)»</b>!
 </div>
 <div style="margin-top:6px; font-size:11px; color:#94a3b8; line-height:1.4;">
   🛡 <b>Совет по VPN:</b> Для Браузерного режима отключайте сторонний VPN на компьютере, чтобы сервис работал с вашего чистого домашнего IP (без капчи и проверок безопасности ВК).
@@ -281,11 +281,11 @@
 <div style="display:flex; gap:16px; margin-bottom:10px; font-size:12px;">
 <label style="cursor:pointer; display:flex; align-items:center; gap:6px;">
 <input type="radio" name="wh_tg_proxy_type" value="direct" id="wh-tg-proxy-direct" checked>
-<span style="color:#f8fafc; font-weight:600;">● Стандартный IP</span>
+<span style="color:#f8fafc; font-weight:600;">Стандартный IP</span>
 </label>
 <label style="cursor:pointer; display:flex; align-items:center; gap:6px;">
 <input type="radio" name="wh_tg_proxy_type" value="socks5" id="wh-tg-proxy-socks">
-<span style="color:#38bdf8; font-weight:600;">○ Персональный SOCKS5 прокси</span>
+<span style="color:#38bdf8; font-weight:600;">Персональный SOCKS5 прокси</span>
 </label>
 </div>
 <div id="wh-tg-proxy-fields" style="display:none; background:#0b1120; padding:10px; border-radius:8px; border:1px solid #334155; margin-bottom:8px;">
@@ -304,7 +304,7 @@
 </div>
 </div>
 <div style="margin-top:8px; padding:9px 12px; background:rgba(245,158,11,0.12); border:1px solid rgba(245,158,11,0.35); border-radius:8px; font-size:11px; color:#fcd34d; line-height:1.5;">
-  ⚠️ <b>Защита от Flood Wait:</b> При выборе «24/7 Облако» со стандартным IP запросы идут с сервера Render. Для масштабирования без риска блокировок IP подключите <b>«○ Персональный SOCKS5»</b>, либо переключитесь в <b>«💻 Браузерный режим (Домашний IP)»</b>!
+  ⚠️ <b>Защита от Flood Wait:</b> При выборе «24/7 Облако» со стандартным IP запросы идут с сервера Render. Для масштабирования без риска блокировок IP подключите <b>«Персональный SOCKS5»</b>, либо переключитесь в <b>«💻 Браузерный режим (Домашний IP)»</b>!
 </div>
 <div style="margin-top:6px; font-size:11px; color:#94a3b8; line-height:1.4;">
   🛡 <b>Совет по VPN:</b> Для Браузерного режима отключайте сторонний VPN на компьютере, чтобы сервис работал с вашего чистого домашнего IP (без сброса сессий и задержек Telegram).
@@ -479,7 +479,7 @@ logMsg("👉 2. После успешного входа вернитесь сю
 }
 function callVkApi(method, params = {}) {
 return new Promise((resolve, reject) => {
-if (method !== 'users.get' && vkFloodRemain > 0) return resolve(null);
+if (vkFloodRemain > 0) return resolve(null);
 const token = params.access_token || ls.getItem('wh_token');
 if (!token) return reject(new Error('VK not authorized'));
 const cb = 'vk_cb_' + Math.floor(Math.random() * 10000000);
@@ -633,8 +633,14 @@ const savedBdayText = ls.getItem('wh_bday_text');
 if (savedBdayText && $('wh-bday-text')) $('wh-bday-text').value = savedBdayText;
 const savedBdayEn = ls.getItem('wh_bday_enable');
 if (savedBdayEn !== null && $('wh-bday-enable')) $('wh-bday-enable').checked = (savedBdayEn === '1');
-ls.removeItem('wh_vk_flood_until');
-vkFloodRemain = 0;
+const savedFloodUntil = parseInt(ls.getItem('wh_vk_flood_until') || '0', 10);
+const nowMs = Date.now();
+if (savedFloodUntil > nowMs) {
+const remSec = Math.ceil((savedFloodUntil - nowMs) / 1000);
+triggerVkFloodCooldown(remSec);
+} else {
+resetVkFloodCooldown();
+}
 if (savedToken) {
 if (savedName && $('wh-name')) $('wh-name').innerText = savedName;
 if (savedPhoto && $('wh-avatar')) {
@@ -649,7 +655,9 @@ $('wh-vk-profile-link').style.display = 'inline-block';
 if ($('wh-dot')) $('wh-dot').style.background = "#10b981";
 if ($('wh-auth-card')) $('wh-auth-card').style.display = "none";
 if ($('wh-reset-btn')) $('wh-reset-btn').style.display = "inline-flex";
+if (!savedName && vkFloodRemain <= 0) {
 fetchAndRenderVkProfile(savedToken);
+}
 const totalToday = getTodayLikesCount();
 ls.setItem('wh_running', 'false');
 renderRunningState(false);
