@@ -129,16 +129,16 @@
 <div class="wh-hdr">
 <div class="wh-row" style="gap:12px;">
 <div style="position:relative; width:56px; height:56px; flex-shrink:0;">
-<img id="wh-tg-avatar" class="wh-avatar" src="https://wolfhunt-tg.onrender.com/api/tg/avatar" onerror="this.onerror=null; this.src=TG_SVG;" style="border:3px solid #229ed9; background:#0c1a30;">
+<img id="wh-tg-avatar" class="wh-avatar" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'><circle cx='24' cy='24' r='24' fill='%23229ED9'/><path fill='%23FFF' d='M10 23.5l25-9.6c1.2-.4 2.2.3 1.8 2.2l-4.3 20.1c-.3 1.4-1.1 1.7-2.3 1.1l-6.5-4.8-3.1 3c-.4.4-.7.7-1.4.7l.5-6.5 11.9-10.7c.5-.5-.1-.7-.8-.3L16.2 28.1 10 26.2c-1.3-.4-1.3-1.3.2-1.9z'/></svg>" style="border:3px solid #229ed9; background:#0c1a30;">
 <span id="wh-tg-dot" style="position:absolute; bottom:2px; right:2px; width:12px; height:12px; border-radius:50%; background:#64748b; border:2px solid #0f172a;"></span>
 </div>
 <div>
 <div class="wh-row" style="flex-wrap:wrap; gap:6px;">
-<h3 id="wh-tg-name" style="margin:0; font-size:17px; font-weight:800; color:#fff;">Сергей Нестеров</h3>
-<span id="wh-tg-badge" class="wh-badge" style="background:rgba(34,158,217,0.2); color:#38bdf8; border:1px solid rgba(34,158,217,0.4);">✈️ TG CONNECTED</span>
+<h3 id="wh-tg-name" style="margin:0; font-size:17px; font-weight:800; color:#fff;">Telegram Хантер</h3>
+<span id="wh-tg-badge" class="wh-badge" style="display:none; background:rgba(34,158,217,0.2); color:#38bdf8; border:1px solid rgba(34,158,217,0.4);">✈️ TG CONNECTED</span>
 </div>
-<div id="wh-tg-nick" style="font-size:11px; color:#94a3b8; margin-top:2px;">@GREYzzzzWOLF · id324874531</div>
-<p id="wh-tg-sub" style="margin:2px 0 0 0; font-size:12px; color:#10b981; font-weight:600;">🟢 Аккаунт подключен</p>
+<div id="wh-tg-nick" style="font-size:11px; color:#94a3b8; margin-top:2px;">Облачная автоохота 24/7</div>
+<p id="wh-tg-sub" style="margin:2px 0 0 0; font-size:12px; color:#f59e0b; font-weight:600;">⚠️ Требуется авторизация в Telegram</p>
 </div>
 </div>
 <div class="wh-row">
@@ -146,20 +146,26 @@
 <button id="wh-tg-reset-btn" class="wh-btn" onclick="resetTgAuth()" style="display:none; background:#1e293b; color:#cbd5e1; border:1px solid #475569; font-size:12px; padding:10px 14px;" title="Сменить аккаунт Telegram">🔄 Сменить аккаунт</button>
 </div>
 </div>
+<div class="wh-grid">
+<div class="wh-card"><span class="wh-title" style="color:#38bdf8;">🔥 Реакций на истории</span><div id="wh-tg-stat-reactions" class="wh-val" style="color:#38bdf8;">0</div><span class="wh-sub">Push авторам на экран</span></div>
+<div class="wh-card"><span class="wh-title" style="color:#c084fc;">👁 Просмотрено историй</span><div id="wh-tg-stat-views" class="wh-val" style="color:#c084fc;">0</div><span class="wh-sub">Только живые контакты</span></div>
+<div class="wh-card"><span class="wh-title" style="color:#34d399;">⚡ Суточный лимит</span><div id="wh-tg-stat-limit" class="wh-val" style="color:#34d399;">0 / 150</div><span class="wh-sub">Безопасный порог TG</span></div>
+<div class="wh-card"><span class="wh-title" style="color:#f59e0b;">🛡 Защита от спама</span><div class="wh-val" style="color:#f59e0b;">25–45с</div><span class="wh-sub">Плавающая пауза</span></div>
+</div>
 <div id="wh-tg-auth-card" class="wh-box" style="background:linear-gradient(145deg,#0c1a30,#0f172a); border:2px dashed #0284c7; margin-bottom:14px;">
 <div class="wh-row" style="margin-bottom:6px;">
 <span class="wh-badge" style="background:#0284c7; color:#fff; font-size:11px;">ШАГ 1</span>
 <h4 style="margin:0; font-size:15px; color:#38bdf8; font-weight:800;">Подключение профиля Telegram онлайн</h4>
 </div>
 <p style="font-size:12px; color:#94a3b8; margin:0 0 12px 0;">Авторизация выполняется 1 раз. Введите номер телефона, и код подтверждения придет прямо в Telegram.</p>
-<div id="wh-tg-step-phone" style="display:flex; gap:8px;">
-<input id="wh-tg-phone-input" class="wh-inp" type="tel" placeholder="Введите номер телефона (+7995...)">
+<div id="wh-tg-step-phone" style="display:flex; flex-wrap:wrap; gap:8px;">
+<input id="wh-tg-phone-input" class="wh-inp" type="tel" placeholder="Введите номер телефона (+7995...)" style="flex:1; min-width:200px;">
 <button id="wh-tg-btn-send" class="wh-btn" onclick="requestTgCode()" style="background:linear-gradient(135deg,#0284c7,#0369a1); color:#fff; white-space:nowrap; padding:10px 20px; font-size:13px;">📲 Получить код</button>
 </div>
 <div id="wh-tg-step-code" style="display:none; margin-top:10px;">
 <div style="font-size:11px; color:#34d399; font-weight:600; margin-bottom:6px;">✔ Код отправлен в Telegram! Введите его ниже:</div>
-<div style="display:flex; gap:8px;">
-<input id="wh-tg-code-input" class="wh-inp" type="text" placeholder="5-значный код из Telegram">
+<div style="display:flex; flex-wrap:wrap; gap:8px;">
+<input id="wh-tg-code-input" class="wh-inp" type="text" placeholder="5-значный код из Telegram" style="flex:1; min-width:180px;">
 <button id="wh-tg-btn-verify" class="wh-btn" onclick="verifyTgCode()" style="background:linear-gradient(135deg,#10b981,#059669); color:#fff; white-space:nowrap; padding:10px 20px; font-size:13px;">⚡ Подключить</button>
 </div>
 <div id="wh-tg-step-pwd" style="display:none; margin-top:8px;">
@@ -177,14 +183,8 @@
 <div class="wh-mb8"><b>🚀 Облачная автоохота 24/7:</b> Сервер отслеживает новые истории контактов Telegram непрерывно в фоне, даже при выключенном телефоне и ПК.</div>
 <div class="wh-mb8"><b>🎯 Приоритет реакций:</b> Автор истории получает мгновенное push-уведомление с вашей реакцией на заблокированном экране телефона.</div>
 <div class="wh-mb8"><b>🛡 Безопасность и лимит 150:</b> Пауза 25–45 сек между реакциями защищает профиль. Суточный порог — строго 150 реакций (сброс в 00:00 МСК).</div>
-<div style="font-size:11px; color:#94a3b8; border-top:1px dashed #334155; padding-top:8px;">⚡ <b>Разовый лайк:</b> Кнопка «⚡ Лайкнуть историю сейчас» позволяет протестировать охоту в 1 клик.</div>
+<div style="font-size:11px; color:#94a3b8; border-top:1px dashed #334155; padding-top:8px;">⚡ <b>Разовый лайк:</b> Кнопка «⚡ Лайкнуть сейчас» позволяет протестировать охоту в 1 клик.</div>
 </div>
-</div>
-<div class="wh-grid">
-<div class="wh-card"><span class="wh-title" style="color:#38bdf8;">🔥 Реакций на истории</span><div id="wh-tg-stat-reactions" class="wh-val" style="color:#38bdf8;">0</div><span class="wh-sub">Push авторам на экран</span></div>
-<div class="wh-card"><span class="wh-title" style="color:#c084fc;">👁 Просмотрено историй</span><div id="wh-tg-stat-views" class="wh-val" style="color:#c084fc;">0</div><span class="wh-sub">Только живые контакты</span></div>
-<div class="wh-card"><span class="wh-title" style="color:#34d399;">⚡ Суточный лимит</span><div id="wh-tg-stat-limit" class="wh-val" style="color:#34d399;">0 / 150</div><span class="wh-sub">Безопасный порог TG</span></div>
-<div class="wh-card"><span class="wh-title" style="color:#f59e0b;">🛡 Защита от спама</span><div class="wh-val" style="color:#f59e0b; font-size:19px; margin-top:6px;">25–45 сек</div><span class="wh-sub">Плавающая пауза</span></div>
 </div>
 <div class="wh-box">
 <h4 style="margin:0 0 10px 0; font-size:13px; color:#f8fafc; font-weight:700;">❤️ Эмодзи реакций на истории Telegram</h4>
@@ -433,8 +433,10 @@ const user = data.user;
 if (isAuth && user) {
 ls.setItem('wh_tg_authorized', 'true');
 if (authCard) authCard.style.display = 'none';
-const fn = (user.first_name || '') + ' ' + (user.last_name || '') + (user.username ? '(@' + user.username + ')' : '');
-if ($('wh-tg-name')) $('wh-tg-name').innerText = fn.trim() || 'Telegram Профиль';
+const fn = ((user.first_name || '') + ' ' + (user.last_name || '')).trim();
+if ($('wh-tg-name')) $('wh-tg-name').innerText = fn || 'Telegram Профиль';
+if ($('wh-tg-nick')) $('wh-tg-nick').innerText = (user.username ? '@' + user.username + ' · ' : '') + 'id' + (user.id || '');
+if ($('wh-tg-badge')) $('wh-tg-badge').style.display = 'inline-block';
 if ($('wh-tg-dot')) $('wh-tg-dot').style.background = '#10b981';
 if ($('wh-tg-reset-btn')) $('wh-tg-reset-btn').style.display = 'inline-flex';
 const todayReactions = (data.reactions_today !== undefined) ? parseInt(data.reactions_today) : 0;
@@ -461,6 +463,8 @@ ls.setItem('wh_tg_authorized', 'false');
 ls.setItem('wh_tg_running', 'false');
 if (authCard) authCard.style.display = 'block';
 if ($('wh-tg-name')) $('wh-tg-name').innerText = 'Telegram Хантер';
+if ($('wh-tg-nick')) $('wh-tg-nick').innerText = 'Облачная автоохота 24/7';
+if ($('wh-tg-badge')) $('wh-tg-badge').style.display = 'none';
 if ($('wh-tg-dot')) $('wh-tg-dot').style.background = '#64748b';
 if ($('wh-tg-reset-btn')) $('wh-tg-reset-btn').style.display = 'none';
 renderTgRunningState(false);
