@@ -503,9 +503,9 @@ renderRunningState(false);
 triggerVkFloodCooldown(1800);
 const sub = $('wh-sub');
 if (sub) { sub.innerText = '⏸ Пауза: Flood control ВК (требуется 20-30 мин покоя)'; sub.style.color = '#f59e0b'; }
-logMsg("🛑 [VK Flood Control] ВКонтакте временно ограничил этот токен за превышение частоты запросов.", "error", "vk");
+logMsg("🛑 [VK Flood Control] ВКонтакте временно ограничил этот аккаунт за превышение частоты запросов.", "error", "vk");
 logMsg("👉 Сервис полностью остановлен. Дайте аккаунту отдохнуть 20–30 минут покоя.", "warn", "vk");
-logMsg("👉 Либо нажмите «Сменить аккаунт» и подключите свежий токен с чистым лимитом.", "info", "vk");
+logMsg("👉 Либо нажмите «Сменить аккаунт» (если хотите переключиться на другой профиль ВК).", "info", "vk");
 try {
 const t = ls.getItem('wh_token');
 if (t) {
