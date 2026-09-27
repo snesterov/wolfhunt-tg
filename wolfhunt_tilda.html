@@ -146,9 +146,9 @@
 </div>
 <div id="wh-auth-card" class="wh-box" style="background:linear-gradient(145deg,#1e293b,#0f172a); border:2px dashed #3b82f6;">
 <h4 style="margin:0 0 6px 0; font-size:14px; color:#60a5fa; font-weight:700;">⚡ Подключение профиля ВКонтакте</h4>
-<p style="font-size:12px; color:#94a3b8; margin:0 0 10px 0;">1. Нажмите кнопку и подтвердите доступ (истории, стена, друзья).<br>2. Скопируйте ссылку из адресной строки и вставьте в поле.</p>
+<p style="font-size:12px; color:#94a3b8; margin:0 0 10px 0;">1. Нажмите кнопку и подтвердите доступ (включен бессрочный доступ offline — токен никогда не истечет).<br>2. Скопируйте ссылку из адресной строки и вставьте в поле.</p>
 <div style="margin-bottom:10px;">
-<a href="https://oauth.vk.com/authorize?client_id=4083558&scope=friends,wall,stories&redirect_uri=https://oauth.vk.com/blank.html&response_type=token" target="_blank" class="wh-btn" style="background:linear-gradient(135deg,#2563eb,#1d4ed8); color:#fff; font-weight:700; padding:10px 20px; font-size:13px; box-shadow:0 4px 14px rgba(37,99,235,0.35);">🚀 1. Авторизоваться ↗</a>
+<a href="https://oauth.vk.com/authorize?client_id=4083558&scope=friends,wall,stories,offline&redirect_uri=https://oauth.vk.com/blank.html&response_type=token" target="_blank" class="wh-btn" style="background:linear-gradient(135deg,#2563eb,#1d4ed8); color:#fff; font-weight:700; padding:10px 20px; font-size:13px; box-shadow:0 4px 14px rgba(37,99,235,0.35);">🚀 1. Авторизоваться (бессрочный доступ) ↗</a>
 </div>
 <div style="display:flex; gap:8px;">
 <input id="wh-token-raw" class="wh-inp" type="text" placeholder="2. Вставьте скопированную ссылку или токен...">
@@ -479,6 +479,22 @@ logMsg("🛑 [ВК Хантер полностью остановлен: " + (re
 logMsg("👉 ВКонтакте запросил подтверждение (разморозку / SMS / капчу).", "warn", "vk");
 logMsg("👉 1. Зайдите в профиль на vk.com (или в приложение на телефоне) и подтвердите аккаунт.", "info", "vk");
 logMsg("👉 2. После успешного входа вернитесь сюда и нажмите зелёную кнопку «🚀 Запустить охоту».", "success", "vk");
+function handleVkExpiredStop() {
+stopHuntingLoop();
+ls.setItem('wh_running', 'false');
+renderRunningState(false);
+const sub = $('wh-sub');
+if (sub) {
+sub.innerText = '🛑 Токен ВК истек (требуется переподключение)';
+sub.style.color = '#ef4444';
+}
+if ($('wh-auth-card')) {
+$('wh-auth-card').style.display = 'block';
+try { $('wh-auth-card').scrollIntoView({ behavior: 'smooth', block: 'center' }); } catch(e) {}
+}
+logMsg("🛑 [Токен ВК истек] Срок действия 24-часового токена завершился.", "error", "vk");
+logMsg("👉 В кнопку авторизации добавлен бессрочный доступ (offline).", "warn", "vk");
+logMsg("👉 Нажмите «1. Авторизоваться (бессрочный доступ) ↗» ниже, скопируйте ссылку и нажмите «Подключить» — токен станет вечным!", "info", "vk");
 }
 function callVkApi(method, params = {}) {
 return new Promise((resolve, reject) => {
@@ -518,8 +534,15 @@ body: JSON.stringify({ action: 'stop', access_token: t })
 } catch(e) {}
 return resolve(null);
 }
-if (errCode === 5 && (errLower.includes('blocked') || errLower.includes('banned') || errLower.includes('deactivated'))) {
+if (errCode === 5) {
+if (errLower.includes('expired') || errLower.includes('authorization failed')) {
+handleVkExpiredStop();
+return reject(new Error(errMsg));
+}
+if (errLower.includes('blocked') || errLower.includes('banned') || errLower.includes('deactivated')) {
 handleVkSecurityStop('Страница временно заморожена');
+return reject(new Error(errMsg));
+}
 }
 reject(new Error(errMsg));
 } else resolve(res ? res.response : null);
@@ -879,7 +902,12 @@ if (!data) {
 try {
 data = await callVkApi('execute', { code: 'return API.stories.get({"extended": 1, "fields": "first_name,last_name"});' });
 } catch(stErr) {
-logMsg("Ошибка чтения историй: " + stErr.message, "warn", "vk");
+const stMsg = stErr.message || '';
+if (stMsg.toLowerCase().includes('expired') || stMsg.toLowerCase().includes('authorization failed')) {
+handleVkExpiredStop();
+return false;
+}
+logMsg("Ошибка чтения историй: " + stMsg, "warn", "vk");
 }
 }
 if (data) {
