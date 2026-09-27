@@ -1,0 +1,822 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GREYzzzzWOLF — Комплексный маркетинг</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800;900&family=Rajdhani:wght@600;700&family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-base: #080a0e;
+      --bg-panel: rgba(16, 20, 28, 0.95);
+      --bg-card: rgba(22, 28, 38, 0.85);
+      --border-outer: #2d3848;
+      --border-accent: #e2b15b;
+      --gold: #e2b15b;
+      --gold-glow: rgba(226, 177, 91, 0.35);
+      --ember-red: #c0392b;
+      --text-main: #e2e8f0;
+      --text-muted: #94a3b8;
+      --text-dim: #64748b;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background-color: var(--bg-base);
+      background-image: 
+        radial-gradient(circle at 50% 10%, rgba(226, 177, 91, 0.08) 0%, transparent 50%),
+        radial-gradient(circle at 90% 80%, rgba(192, 57, 43, 0.08) 0%, transparent 40%),
+        linear-gradient(180deg, #06080b 0%, #0d1218 50%, #05070a 100%);
+      color: var(--text-main);
+      font-family: 'Montserrat', sans-serif;
+      min-height: 100vh;
+      overflow-x: hidden;
+      line-height: 1.5;
+    }
+
+    .font-title { font-family: 'Cinzel', serif; }
+    .font-hud { font-family: 'Rajdhani', sans-serif; }
+
+    /* Верхняя панель */
+    .gzw-header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(11, 14, 20, 0.96);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border-outer);
+      padding: 10px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.8);
+    }
+
+    .gzw-header-left {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+    }
+
+    .gzw-logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+      cursor: pointer;
+    }
+
+    .gzw-crest {
+      width: 38px;
+      height: 38px;
+      background: linear-gradient(135deg, #1f2735 0%, #0e1218 100%);
+      border: 1.5px solid var(--gold);
+      clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      box-shadow: 0 0 10px var(--gold-glow);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .gzw-logo:hover .gzw-crest {
+      transform: scale(1.08);
+      box-shadow: 0 0 16px var(--gold);
+    }
+
+    .gzw-brand {
+      font-family: 'Cinzel', serif;
+      font-size: 18px;
+      font-weight: 800;
+      letter-spacing: 2px;
+      color: #ffffff;
+      text-transform: uppercase;
+    }
+
+    .gzw-brand span { color: var(--gold); }
+
+    /* Навигационное меню в стиле HUD */
+    .gzw-nav-menu {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      overflow-x: auto;
+    }
+
+    .gzw-menu-btn {
+      background: rgba(18, 23, 33, 0.6);
+      border: 1px solid #283344;
+      color: #94a3b8;
+      font-family: 'Cinzel', serif;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      padding: 6px 12px;
+      border-radius: 3px;
+      cursor: pointer;
+      position: relative;
+      transition: all 0.2s ease;
+      white-space: nowrap;
+    }
+
+    .gzw-menu-btn:hover {
+      color: #ffffff;
+      border-color: var(--gold);
+      background: rgba(226, 177, 91, 0.12);
+      box-shadow: 0 0 10px var(--gold-glow);
+    }
+
+    .gzw-menu-btn.active {
+      color: #ffd875;
+      border-color: var(--gold);
+      background: rgba(226, 177, 91, 0.18);
+      box-shadow: 0 0 12px var(--gold-glow);
+    }
+    .gzw-menu-btn.active::after {
+      content: '';
+      position: absolute;
+      bottom: -1px;
+      left: 15%;
+      width: 70%;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--gold), transparent);
+    }
+
+    .gzw-badges {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .gzw-badge {
+      background: rgba(18, 23, 33, 0.8);
+      border: 1px solid #283344;
+      padding: 5px 12px;
+      border-radius: 4px;
+      font-family: 'Rajdhani', sans-serif;
+      font-weight: 700;
+      font-size: 13px;
+      letter-spacing: 1px;
+      color: var(--gold);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      white-space: nowrap;
+      cursor: pointer;
+      transition: border-color 0.2s;
+    }
+    .gzw-badge:hover {
+      border-color: var(--gold);
+    }
+
+    .gzw-badge-exp {
+      border-color: rgba(192, 57, 43, 0.6);
+      color: #fca5a5;
+      background: rgba(192, 57, 43, 0.15);
+    }
+
+    /* Главный контейнер */
+    .gzw-main {
+      max-width: 1080px;
+      margin: 0 auto;
+      padding: 30px 20px 80px;
+    }
+
+    /* Заголовок страницы */
+    .hero-banner {
+      background: linear-gradient(180deg, rgba(20, 26, 38, 0.9) 0%, rgba(10, 13, 19, 0.95) 100%);
+      border: 1px solid var(--border-outer);
+      border-top: 2px solid var(--gold);
+      box-shadow: 0 12px 35px rgba(0, 0, 0, 0.7);
+      padding: 30px;
+      border-radius: 6px;
+      margin-bottom: 35px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero-banner::after {
+      content: '';
+      position: absolute;
+      top: 0; right: 0;
+      width: 280px; height: 100%;
+      background: radial-gradient(circle at 100% 50%, rgba(226, 177, 91, 0.08) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .hero-tag {
+      font-family: 'Rajdhani', sans-serif;
+      font-weight: 700;
+      font-size: 13px;
+      letter-spacing: 2px;
+      color: var(--gold);
+      text-transform: uppercase;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .hero-tag::before {
+      content: '';
+      display: inline-block;
+      width: 8px; height: 8px;
+      background: var(--gold);
+      transform: rotate(45deg);
+    }
+
+    .hero-title {
+      font-family: 'Cinzel', serif;
+      font-size: 28px;
+      font-weight: 800;
+      line-height: 1.3;
+      color: #ffffff;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .hero-desc {
+      color: #cbd5e1;
+      font-size: 15px;
+      max-width: 860px;
+      line-height: 1.6;
+    }
+
+    .hero-stats-row {
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+      margin-top: 10px;
+      padding-top: 16px;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .hero-stat-item {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .hero-stat-num {
+      font-family: 'Rajdhani', sans-serif;
+      font-weight: 700;
+      font-size: 20px;
+      color: var(--gold);
+    }
+
+    .hero-stat-label {
+      font-size: 12px;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    /* Карточки 5 блоков */
+    .blocks-container {
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    .gzw-card {
+      background: linear-gradient(180deg, rgba(18, 23, 33, 0.95) 0%, rgba(10, 13, 19, 0.98) 100%);
+      border: 1px solid #283344;
+      border-radius: 6px;
+      padding: 26px 28px;
+      display: grid;
+      grid-template-columns: 1fr 310px;
+      gap: 26px;
+      position: relative;
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.6);
+      transition: border-color 0.25s, box-shadow 0.25s, transform 0.2s;
+    }
+
+    .gzw-card:hover {
+      border-color: var(--gold);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8), 0 0 15px rgba(226, 177, 91, 0.2);
+      transform: translateY(-2px);
+    }
+
+    .card-num-tag {
+      font-family: 'Rajdhani', sans-serif;
+      font-weight: 700;
+      font-size: 12px;
+      letter-spacing: 2px;
+      color: var(--gold);
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .card-title {
+      font-family: 'Cinzel', serif;
+      font-size: 21px;
+      font-weight: 800;
+      color: #ffffff;
+      margin-bottom: 12px;
+      letter-spacing: 0.5px;
+    }
+
+    .card-pain {
+      color: #fca5a5;
+      font-size: 14px;
+      margin-bottom: 10px;
+      line-height: 1.5;
+      font-weight: 500;
+    }
+
+    .card-proof {
+      color: #cbd5e1;
+      font-size: 14px;
+      line-height: 1.55;
+    }
+
+    .card-proof strong {
+      color: #ffffff;
+    }
+
+    .card-action-box {
+      background: rgba(8, 11, 16, 0.85);
+      border: 1px solid #232d3d;
+      border-radius: 5px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 14px;
+      align-items: stretch;
+      text-align: center;
+    }
+
+    .card-price-label {
+      font-size: 11px;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      font-weight: 600;
+    }
+
+    .card-price-val {
+      font-family: 'Rajdhani', sans-serif;
+      font-weight: 700;
+      font-size: 22px;
+      color: #ffffff;
+      line-height: 1.2;
+    }
+
+    .card-price-sub {
+      font-size: 12px;
+      color: var(--gold);
+      font-weight: 600;
+    }
+
+    /* Боевая кнопка в стиле скошенных углов */
+    .btn-action {
+      background: linear-gradient(135deg, #1b7a42 0%, #27ae60 50%, #1e824c 100%);
+      color: #ffffff;
+      font-family: 'Cinzel', serif;
+      font-weight: 800;
+      font-size: 13px;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      padding: 13px 20px;
+      border: 1px solid #2ecc71;
+      clip-path: polygon(10px 0%, 100% 0%, calc(100% - 10px) 100%, 0% 100%);
+      cursor: pointer;
+      transition: all 0.2s ease;
+      box-shadow: 0 4px 15px rgba(39, 174, 96, 0.35);
+      text-decoration: none;
+      display: inline-block;
+    }
+
+    .btn-action:hover {
+      background: linear-gradient(135deg, #229954 0%, #2ecc71 50%, #27ae60 100%);
+      box-shadow: 0 0 20px rgba(46, 204, 113, 0.6);
+      transform: translateY(-1px);
+    }
+
+    .btn-action:active {
+      transform: translateY(1px);
+    }
+
+    /* Модальное окно заявки */
+    .gzw-modal-backdrop {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(4, 6, 9, 0.88);
+      backdrop-filter: blur(8px);
+      z-index: 999;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+
+    .gzw-modal-backdrop.open {
+      display: flex;
+    }
+
+    .gzw-modal {
+      background: linear-gradient(180deg, #151b26 0%, #0d1219 100%);
+      border: 1px solid var(--gold);
+      box-shadow: 0 0 35px var(--gold-glow);
+      border-radius: 6px;
+      max-width: 480px;
+      width: 100%;
+      padding: 28px 24px;
+      text-align: center;
+      animation: modalFadeIn 0.25s ease-out;
+    }
+
+    @keyframes modalFadeIn {
+      from { opacity: 0; transform: scale(0.94); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    .modal-title {
+      font-family: 'Cinzel', serif;
+      font-size: 20px;
+      font-weight: 800;
+      color: #ffffff;
+      margin-bottom: 8px;
+      text-transform: uppercase;
+    }
+
+    .modal-sub {
+      color: var(--text-muted);
+      font-size: 13px;
+      margin-bottom: 22px;
+      line-height: 1.5;
+    }
+
+    .modal-channel-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+
+    .modal-btn-channel {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 12px 14px;
+      border-radius: 4px;
+      font-family: 'Cinzel', serif;
+      font-size: 12px;
+      font-weight: 700;
+      text-decoration: none;
+      color: #ffffff;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      transition: all 0.2s;
+    }
+
+    .btn-channel-tg {
+      background: #24a1de;
+      border: 1px solid #38bdf8;
+    }
+    .btn-channel-tg:hover {
+      background: #0284c7;
+      box-shadow: 0 0 15px rgba(56, 189, 248, 0.5);
+    }
+
+    .btn-channel-max {
+      background: linear-gradient(135deg, #00EAFF 0%, #4F46E5 50%, #7732FF 100%);
+      border: 1px solid #818cf8;
+    }
+    .btn-channel-max:hover {
+      filter: brightness(1.15);
+      box-shadow: 0 0 15px rgba(129, 140, 248, 0.6);
+    }
+
+    .modal-btn-close {
+      background: transparent;
+      border: 1px solid #334155;
+      color: #94a3b8;
+      font-family: 'Cinzel', serif;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 7px 18px;
+      border-radius: 3px;
+      cursor: pointer;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      transition: all 0.2s;
+    }
+    .modal-btn-close:hover {
+      border-color: #cbd5e1;
+      color: #ffffff;
+    }
+
+    /* Подвал */
+    .gzw-footer {
+      border-top: 1px solid #1f2735;
+      margin-top: 50px;
+      padding: 24px;
+      text-align: center;
+      color: var(--text-dim);
+      font-size: 12px;
+      background: rgba(8, 10, 14, 0.9);
+    }
+
+    @media (max-width: 860px) {
+      .gzw-header {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      .gzw-header-left {
+        justify-content: space-between;
+      }
+      .gzw-card {
+        grid-template-columns: 1fr;
+      }
+      .hero-title {
+        font-size: 22px;
+      }
+      .modal-channel-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ВЕРХНЯЯ ПАНЕЛЬ С МЕНЮ В СТИЛЕ DOTA 2 HUD -->
+  <header class="gzw-header">
+    <div class="gzw-header-left">
+      <div class="gzw-logo" onclick="playUiSound('click')">
+        <div class="gzw-crest">🐺</div>
+        <div class="gzw-brand">GREY<span>WOLF</span></div>
+      </div>
+
+      <!-- ВЕРХНЕЕ МЕНЮ -->
+      <nav class="gzw-nav-menu">
+        <button class="gzw-menu-btn active" onclick="navTo('hero-all', this)">ВСЕ УСЛУГИ</button>
+        <button class="gzw-menu-btn" onclick="navTo('b1', this)">РЕКЛАМА РФ</button>
+        <button class="gzw-menu-btn" onclick="navTo('b2', this)">РЕКЛАМА МИР</button>
+        <button class="gzw-menu-btn" onclick="navTo('b3', this)">ИНВАЙТИНГ 2000</button>
+        <button class="gzw-menu-btn" onclick="navTo('b4', this)">AI-СИСТЕМЫ</button>
+        <button class="gzw-menu-btn" onclick="navTo('b5', this)">ОБУЧЕНИЕ</button>
+      </nav>
+    </div>
+
+    <div class="gzw-badges">
+      <div class="gzw-badge" onclick="playUiSound('click')">
+        <span>🪙</span> $3.5M+ / 300М ₽
+      </div>
+      <div class="gzw-badge gzw-badge-exp" onclick="playUiSound('click')">
+        <span>⚔️</span> 15+ ЛЕТ В ДЕЛЕ
+      </div>
+    </div>
+  </header>
+
+  <main class="gzw-main">
+
+    <!-- ГЛАВНЫЙ БАННЕР -->
+    <div id="hero-all" class="hero-banner">
+      <div class="hero-tag">Услуги и сопровождение • Сергей Нестеров</div>
+      <h1 class="hero-title">Маркетинг без иллюзий и отчётов ради отчётов</h1>
+      <p class="hero-desc">
+        Точечная настройка рекламы, привлечение живой аудитории через парсинг и приглашения, проектирование AI-систем и персональное ведение рекламных кампаний.
+      </p>
+      <div class="hero-stats-row">
+        <div class="hero-stat-item">
+          <div class="hero-stat-num">200+</div>
+          <div class="hero-stat-label">Проектов в РФ</div>
+        </div>
+        <div class="hero-stat-item">
+          <div class="hero-stat-num">217</div>
+          <div class="hero-stat-label">Клиентов в Google</div>
+        </div>
+        <div class="hero-stat-item">
+          <div class="hero-stat-num">300 МЛН ₽</div>
+          <div class="hero-stat-label">Освоено бюджетов</div>
+        </div>
+        <div class="hero-stat-item">
+          <div class="hero-stat-num">2–3 ДНЯ</div>
+          <div class="hero-stat-label">Запуск за рубеж</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 5 БЛОКОВ -->
+    <div class="blocks-container">
+
+      <!-- БЛОК 1 -->
+      <div id="b1" class="gzw-card" onclick="playUiSound('msg')">
+        <div>
+          <div class="card-num-tag">БЛОК 01 • КОНТЕКСТ И СЕТИ</div>
+          <h2 class="card-title">Реклама по России</h2>
+          <p class="card-pain">
+            Слил бюджет на охваты, а заявок нет? Яндекс даёт клиентов, а не клики.
+          </p>
+          <div class="card-proof">
+            Ты не понимаешь, куда ушли деньги, потому что подрядчик прячется за отчётами.<br>
+            <strong>200+ клиентов, 300 млн рублей бюджета.</strong> Настраиваю и веду сам. Ты видишь каждую заявку.
+          </div>
+        </div>
+        <div class="card-action-box" onclick="event.stopPropagation()">
+          <div class="card-price-label">Тариф ведения</div>
+          <div class="card-price-val">от 35 000 ₽/мес</div>
+          <div class="card-price-sub">+ рекламный бюджет</div>
+          <button class="btn-action" onclick="openLeadModal('Реклама по России (от 35 000 ₽/мес)')">Оставить заявку</button>
+        </div>
+      </div>
+
+      <!-- БЛОК 2 -->
+      <div id="b2" class="gzw-card" onclick="playUiSound('msg')">
+        <div>
+          <div class="card-num-tag">БЛОК 02 • МЕЖДУНАРОДНЫЙ ТРАФИК</div>
+          <h2 class="card-title">Реклама на мир</h2>
+          <p class="card-pain">
+            Работаешь только на РФ, пока конкуренты берут заказы из США и Европы?
+          </p>
+          <div class="card-proof">
+            Ты теряешь рынок, который уже покупает — просто не у тебя.<br>
+            <strong>Google, Instagram, TikTok, YouTube.</strong> 217 клиентов в Google, $3.5M+. Выходишь на зарубежную аудиторию за 2-3 дня.
+          </div>
+        </div>
+        <div class="card-action-box" onclick="event.stopPropagation()">
+          <div class="card-price-label">Тариф ведения</div>
+          <div class="card-price-val">от 50 000 ₽/мес</div>
+          <div class="card-price-sub">+ рекламный бюджет</div>
+          <button class="btn-action" onclick="openLeadModal('Реклама на мир (от 50 000 ₽/мес)')">Оставить заявку</button>
+        </div>
+      </div>
+
+      <!-- БЛОК 3 -->
+      <div id="b3" class="gzw-card" onclick="playUiSound('msg')">
+        <div>
+          <div class="card-num-tag">БЛОК 03 • ИНВАЙТИНГ TELEGRAM & MAX</div>
+          <h2 class="card-title">Приглашения в Telegram / MAX</h2>
+          <p class="card-pain">
+            Группа есть, а людей нет? Боты и накрутка не покупают.
+          </p>
+          <div class="card-proof">
+            Приведу целевых подписчиков из твоей ниши. Парсинг + приглашения.<br>
+            <strong>От 2 000 человек за разовый цикл.</strong> Работа без ботов: только живая целевая база.
+          </div>
+        </div>
+        <div class="card-action-box" onclick="event.stopPropagation()">
+          <div class="card-price-label">Условия запуска</div>
+          <div class="card-price-val">от 2 000 человек</div>
+          <div class="card-price-sub">35 000 ₽ за 1 000 (до 31 декабря)</div>
+          <button class="btn-action" onclick="openLeadModal('Инвайтинг от 2 000 человек (Telegram / MAX)')">Оставить заявку</button>
+        </div>
+      </div>
+
+      <!-- БЛОК 4 -->
+      <div id="b4" class="gzw-card" onclick="playUiSound('msg')">
+        <div>
+          <div class="card-num-tag">БЛОК 04 • АВТОМАТИЗАЦИЯ И ИИ</div>
+          <h2 class="card-title">AI-разработка и интеграции</h2>
+          <p class="card-pain">
+            Рутина съедает часы, а сервисы не связаны между собой?
+          </p>
+          <div class="card-proof">
+            Соединяю CRM, мессенджеры, таблицы и AI в единую систему.<br>
+            <strong>Автоматизирую то, что ты делаешь руками.</strong> 15 лет в маркетинге + передовые AI-инструменты.
+          </div>
+        </div>
+        <div class="card-action-box" onclick="event.stopPropagation()">
+          <div class="card-price-label">Условия</div>
+          <div class="card-price-val">Цена индивидуально</div>
+          <div class="card-price-sub">Под архитектуру бизнеса</div>
+          <button class="btn-action" onclick="openLeadModal('AI-разработка и интеграции')">Оставить заявку</button>
+        </div>
+      </div>
+
+      <!-- БЛОК 5 -->
+      <div id="b5" class="gzw-card" onclick="playUiSound('msg')">
+        <div>
+          <div class="card-num-tag">БЛОК 05 • НАСТРОЙКА + ОБУЧЕНИЕ</div>
+          <h2 class="card-title">Индивидуальное обучение на вашей РК</h2>
+          <p class="card-pain">
+            Купил курсы, а настроить всё равно не можешь? Обучу на твоей рекламной кампании — не на чужих примерах.
+          </p>
+          <div class="card-proof">
+            <strong>Запускаем твою рекламу вместе.</strong> Ты смотришь, как я настраиваю, и сразу повторяешь. Два месяца я на связи и наблюдаю за результатом. 15 лет в маркетинге. Доступ к экспресс-курсам в подарок.
+          </div>
+        </div>
+        <div class="card-action-box" onclick="event.stopPropagation()">
+          <div class="card-price-label">Стоимость под ключ</div>
+          <div class="card-price-val">от 150 000 ₽</div>
+          <div class="card-price-sub">Курс в подарок + 2 мес. связи</div>
+          <button class="btn-action" onclick="openLeadModal('Индивидуальное обучение на вашей РК (от 150 000 ₽)')">Оставить заявку</button>
+        </div>
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- МОДАЛЬНОЕ ОКНО СВЯЗИ -->
+  <div id="lead-modal" class="gzw-modal-backdrop">
+    <div class="gzw-modal" onclick="event.stopPropagation()">
+      <div style="font-size: 32px; margin-bottom: 6px;">🐺</div>
+      <h3 class="modal-title">Оставить заявку</h3>
+      <p class="modal-sub">
+        Направление: <strong id="modal-service-name" style="color: var(--gold);">Реклама по России</strong>.<br>
+        Напишите Сергею Нестерову напрямую для согласования условий и запуска:
+      </p>
+
+      <div class="modal-channel-grid">
+        <a href="https://t.me/GREYzzzzWOLF" target="_blank" class="modal-btn-channel btn-channel-tg" onclick="playUiSound('click')">
+          <span>✈️</span> Telegram Личка
+        </a>
+        <a href="https://max.ru/u/f9LHodD0cOKsBJ14vYojrNwz1iwPorWyB8irF8bUMFLuLV3NLt5eQK8Rx2Q" target="_blank" class="modal-btn-channel btn-channel-max" onclick="playUiSound('click')">
+          <span>⚡</span> Мессенджер MAX
+        </a>
+      </div>
+
+      <button class="modal-btn-close" onclick="closeLeadModal()">Закрыть</button>
+    </div>
+  </div>
+
+  <footer class="gzw-footer">
+    © 2012–2026 GREYzzzzWOLF • Комплексный маркетинг Сергея Нестерова • greyzzzzwolf.ru • ssp-agency.ru
+  </footer>
+
+  <script>
+    // ЗВУКОВОЙ ДВИЖОК WEB AUDIO API (DOTA HUD CLICK + CYBER CHIME)
+    let audioCtx = null;
+
+    function playUiSound(type) {
+      try {
+        if (!audioCtx) {
+          audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+        if (audioCtx.state === 'suspended') {
+          audioCtx.resume();
+        }
+        const now = audioCtx.currentTime;
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+
+        if (type === 'msg') {
+          // Звук при нажатии на блок/сообщение: благородный кибер-звон
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(587.33, now); // D5
+          osc.frequency.exponentialRampToValueAtTime(880, now + 0.08); // A5
+          gain.gain.setValueAtTime(0.18, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.25);
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+          osc.start(now);
+          osc.stop(now + 0.25);
+        } else {
+          // Тактический щелчок нажатия кнопки HUD
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(750, now);
+          osc.frequency.exponentialRampToValueAtTime(150, now + 0.06);
+          gain.gain.setValueAtTime(0.2, now);
+          gain.gain.exponentialRampToValueAtTime(0.01, now + 0.06);
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+          osc.start(now);
+          osc.stop(now + 0.06);
+        }
+      } catch (err) {
+        console.warn('Audio click notice', err);
+      }
+    }
+
+    // НАВИГАЦИЯ ПО ВЕРХНЕМУ МЕНЮ
+    function navTo(elemId, btnElem) {
+      playUiSound('click');
+      document.querySelectorAll('.gzw-menu-btn').forEach(b => b.classList.remove('active'));
+      if (btnElem) btnElem.classList.add('active');
+
+      const target = document.getElementById(elemId);
+      if (target) {
+        target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    }
+
+    // МОДАЛЬНОЕ ОКНО
+    function openLeadModal(serviceName) {
+      playUiSound('msg');
+      document.getElementById('modal-service-name').innerText = serviceName;
+      document.getElementById('lead-modal').classList.add('open');
+    }
+
+    function closeLeadModal() {
+      playUiSound('click');
+      document.getElementById('lead-modal').classList.remove('open');
+    }
+
+    document.getElementById('lead-modal').addEventListener('click', function(e) {
+      if (e.target === this) closeLeadModal();
+    });
+  </script>
+</body>
+</html>
