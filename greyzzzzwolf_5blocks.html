@@ -1,13 +1,9 @@
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>GREYzzzzWOLF — Комплексный маркетинг</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800;900&family=Rajdhani:wght@600;700&family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <style>
+<!-- GREYzzzzWOLF 5 BLOCKS — ИЗОЛИРОВАННЫЙ БЛОК ДЛЯ TILDA (T123) -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800;900&family=Rajdhani:wght@600;700&family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+
     :root {
       --bg-base: #080a0e;
       --bg-panel: rgba(16, 20, 28, 0.95);
@@ -22,9 +18,10 @@
       --text-dim: #64748b;
     }
 
-    * { box-sizing: border-box; margin: 0; padding: 0; }
+    #greywolf-app, #greywolf-app * { box-sizing: border-box; }
+#greywolf-app h1, #greywolf-app h2, #greywolf-app h3, #greywolf-app p, #greywolf-app ul, #greywolf-app li, #greywolf-app button { margin: 0; padding: 0; }
 
-    body {
+    #greywolf-app { width: 100%; position: relative;
       background-color: var(--bg-base);
       background-image: 
         radial-gradient(circle at 50% 10%, rgba(226, 177, 91, 0.08) 0%, transparent 50%),
@@ -546,9 +543,10 @@
         grid-template-columns: 1fr;
       }
     }
-  </style>
-</head>
-<body>
+  
+</style>
+<div id="greywolf-app">
+
 
   <!-- ВЕРХНЯЯ ПАНЕЛЬ С МЕНЮ В СТИЛЕ DOTA 2 HUD -->
   <header class="gzw-header">
@@ -818,5 +816,5 @@
       if (e.target === this) closeLeadModal();
     });
   </script>
-</body>
-</html>
+
+</div>

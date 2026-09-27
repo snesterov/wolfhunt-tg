@@ -4,7 +4,8 @@
     if (!root) {
       root = document.createElement('div');
       root.id = 'greywolf-root';
-      const target = document.querySelector('.t123') || document.querySelector('.r') || document.body;
+      const cur = document.currentScript;
+      const target = (cur && cur.parentElement) || document.querySelector('.t123') || document.querySelector('.r') || document.body;
       target.appendChild(root);
     }
     const timestamp = Date.now();
