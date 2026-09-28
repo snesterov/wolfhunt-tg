@@ -487,6 +487,21 @@ async def handle_vk_proxy(request):
     except Exception as e:
         return web.json_response({"error": str(e)}, status=500)
 
+async def handle_vk_stories_proxy(request):
+    """Прокси для чтения историй VK — гарантирует получение историй без CORS/JSONP сбоев."""
+    try:
+        token = request.query.get("access_token", "")
+        if not token:
+            return web.json_response({"error": "access_token required"}, status=400)
+        async with aiohttp.ClientSession() as session:
+            url = "https://api.vk.com/method/stories.get"
+            params = {"access_token": token, "extended": "1", "fields": "first_name,last_name", "v": "5.131"}
+            async with session.post(url, data=params, timeout=aiohttp.ClientTimeout(total=10)) as resp:
+                data = await resp.json(content_type=None)
+                return web.json_response(data)
+    except Exception as e:
+        return web.json_response({"error": str(e)}, status=500)
+
 
 # ==============================================================================
 # VK MULTI-TENANT CLOUD HUNTER (24/7 AUTONOMOUS BACKGROUND ENGINE)
@@ -1106,6 +1121,7 @@ async def init_app():
     app.router.add_post("/api/tg/logout", handle_logout)
     app.router.add_post("/api/tg/save_proxy", handle_tg_save_proxy)
     app.router.add_post("/api/vk/proxy", handle_vk_proxy)
+    app.router.add_get("/api/vk/stories", handle_vk_stories_proxy)
     app.router.add_post("/api/vk/auth", handle_vk_auth)
     app.router.add_get("/api/vk/status", handle_vk_status)
     app.router.add_post("/api/vk/sync", handle_vk_sync)
