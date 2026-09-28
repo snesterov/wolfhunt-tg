@@ -855,6 +855,14 @@ async def handle_vk_sync(request: web.Request):
     except Exception as e:
         return web.json_response({"error": str(e)}, status=500)
 
+VK_SHARED_IP_SLOTS_MAX = 5
+
+def count_active_shared_ip_users():
+    return sum(
+        1 for u in VK_USERS_DB.values()
+        if u.get("vk_running", False) and u.get("exec_mode", "cloud") == "cloud" and not u.get("proxy_enabled", False)
+    )
+
 async def handle_vk_status(request: web.Request):
     u_id = request.query.get("user_id")
     token = request.query.get("access_token")
@@ -872,6 +880,8 @@ async def handle_vk_status(request: web.Request):
     default_bday = "{С днем рождения|С праздником|Поздравляю с днем рождения}, %first_name%! {Желаю крепкого здоровья, энергии и грандиозных успехов|Всего самого наилучшего и исполнения желаний}! {🎂|🎉|🎁|🥂}"
     ext_ver = u.get("extension_version", "")
     has_update = (ext_ver != "" and ext_ver != LATEST_EXTENSION_VERSION)
+
+    active_shared_slots = count_active_shared_ip_users()
 
     return web.json_response({
         "status": "ok",
@@ -901,6 +911,9 @@ async def handle_vk_status(request: web.Request):
         "update_url": EXTENSION_DOWNLOAD_URL,
         "update_title": EXTENSION_UPDATE_TITLE,
         "update_desc": EXTENSION_UPDATE_DESC,
+        "shared_slots_active": active_shared_slots,
+        "shared_slots_max": VK_SHARED_IP_SLOTS_MAX,
+        "shared_slots_available": (active_shared_slots < VK_SHARED_IP_SLOTS_MAX),
         "logs": logs
     })
 
@@ -914,6 +927,18 @@ async def handle_vk_toggle(request: web.Request):
         u_id = "default_user"
     u = VK_USERS_DB.setdefault(u_id, {"vk_user_id": u_id})
     if action == "start":
+        mode = data.get("exec_mode", u.get("exec_mode", "cloud"))
+        u["exec_mode"] = mode
+        proxy_on = bool(data.get("proxy_enabled", u.get("proxy_enabled", False)))
+        if mode == "cloud" and not proxy_on:
+            active_slots = count_active_shared_ip_users()
+            if not u.get("vk_running", False) and active_slots >= VK_SHARED_IP_SLOTS_MAX:
+                append_vk_user_log(u_id, "error", f"🛑 Все {VK_SHARED_IP_SLOTS_MAX} слотов общего IP сервера сейчас заняты. Подключите SOCKS5 или выберите Браузерный режим.")
+                return web.json_response({
+                    "status": "error",
+                    "error": "slots_full",
+                    "message": f"Лимит {VK_SHARED_IP_SLOTS_MAX}/{VK_SHARED_IP_SLOTS_MAX} слотов общего IP сервера заполнен. Подключите свой SOCKS5 или выберите Браузерный режим!"
+                }, status=400)
         u["vk_running"] = True
         append_vk_user_log(u_id, "success", "🚀 ВК Хантер запущен (сигнал синхронизации)! Охота активна ✅")
     elif action == "stop":

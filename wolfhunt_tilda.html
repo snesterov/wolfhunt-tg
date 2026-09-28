@@ -92,7 +92,7 @@
 <span id="wh-vk-proxy-arrow" style="font-size:11px; color:#38bdf8; font-weight:600; pointer-events:none;">Настроить ▾</span>
 </div>
 <div id="wh-vk-proxy-content" style="display:none; margin-top:12px; border-top:1px solid #334155; padding-top:12px;" onclick="event.stopPropagation();">
-<div style="font-size:12px; font-weight:700; color:#38bdf8; margin-bottom:8px;">1. Режим автоохоты:</div>
+<div style="font-size:12px; font-weight:700; color:#38bdf8; margin-bottom:8px;">1. Где крутится автоохота:</div>
 <div style="display:flex; gap:16px; margin-bottom:12px; font-size:12px; flex-wrap:wrap;">
 <label style="cursor:pointer; display:flex; align-items:center; gap:6px;">
 <input type="radio" name="wh_vk_exec_mode" value="cloud" id="wh-vk-mode-cloud" checked>
@@ -100,41 +100,60 @@
 </label>
 <label style="cursor:pointer; display:flex; align-items:center; gap:6px;">
 <input type="radio" name="wh_vk_exec_mode" value="browser" id="wh-vk-mode-browser">
-<span style="color:#34d399; font-weight:600;">💻 Браузерный режим (IP браузера / расширения)</span>
+<span style="color:#34d399; font-weight:600;">💻 Браузерный режим (на этом ПК / в плагине)</span>
 </label>
 </div>
-<div style="font-size:12px; font-weight:700; color:#38bdf8; margin-bottom:8px;">2. Выбор IP-адреса для автоохоты:</div>
-<div style="display:flex; gap:16px; margin-bottom:10px; font-size:12px; flex-wrap:wrap;">
-<label style="cursor:pointer; display:flex; align-items:center; gap:6px;">
-<input type="radio" name="wh_vk_proxy_type" value="direct" id="wh-vk-proxy-direct" checked>
-<span style="color:#f8fafc; font-weight:600;">Стандартный IP (сервера или браузера)</span>
-</label>
-<label style="cursor:pointer; display:flex; align-items:center; gap:6px;">
-<input type="radio" name="wh_vk_proxy_type" value="socks5" id="wh-vk-proxy-socks">
-<span style="color:#38bdf8; font-weight:600;">Персональный SOCKS5 прокси</span>
-</label>
+
+<!-- БЛОК ОБЛАКА: Выбор IP и Прокси со счетчиком слотов 5/5 -->
+<div id="wh-vk-cloud-ip-box">
+  <div style="font-size:12px; font-weight:700; color:#38bdf8; margin-bottom:8px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px;">
+    <span>2. Выбор IP-адреса для запросов из облака:</span>
+    <span id="wh-vk-slots-badge" style="font-size:11px; padding:2px 8px; border-radius:6px; font-weight:700; background:rgba(16,185,129,0.15); color:#34d399; border:1px solid rgba(16,185,129,0.3);">🟢 Общий IP: <span id="wh-vk-slots-count">0/5</span> слотов</span>
+  </div>
+  <div style="display:flex; gap:16px; margin-bottom:10px; font-size:12px; flex-wrap:wrap;">
+    <label id="wh-vk-lbl-direct" style="cursor:pointer; display:flex; align-items:center; gap:6px;">
+      <input type="radio" name="wh_vk_proxy_type" value="direct" id="wh-vk-proxy-direct" checked>
+      <span id="wh-vk-txt-direct" style="color:#f8fafc; font-weight:600;">Стандартный IP сервера Render</span>
+    </label>
+    <label style="cursor:pointer; display:flex; align-items:center; gap:6px;">
+      <input type="radio" name="wh_vk_proxy_type" value="socks5" id="wh-vk-proxy-socks">
+      <span style="color:#38bdf8; font-weight:600;">Персональный SOCKS5 прокси</span>
+    </label>
+  </div>
+  <div id="wh-vk-slots-alert" style="display:none; margin-bottom:10px; padding:8px 12px; background:rgba(239,68,68,0.15); border:1px solid rgba(239,68,68,0.4); border-radius:8px; font-size:11px; color:#fca5a5; line-height:1.4;">
+    🛑 <b>Лимит общего IP сервера заполнен (5/5)!</b> Чтобы не делить лимит ВКонтакте и избежать Flood Control, подключите <b>«Персональный SOCKS5»</b> либо переключитесь в <b>«💻 Браузерный режим (домашний IP)»</b>.
+  </div>
+  <div id="wh-vk-proxy-fields" style="display:none; background:#0b1120; padding:10px; border-radius:8px; border:1px solid #334155; margin-bottom:8px;">
+    <div style="font-size:11px; color:#94a3b8; margin-bottom:6px;">Параметры персонального SOCKS5 прокси для ВК:</div>
+    <div style="display:flex; gap:6px; margin-bottom:6px;">
+      <input id="wh-vk-proxy-host" class="wh-inp" type="text" placeholder="IP:Порт (например 185.220.101.5:1080)" style="font-size:12px;">
+      <input id="wh-vk-proxy-user" class="wh-inp" type="text" placeholder="Логин (если есть)" style="font-size:12px; max-width:110px;">
+      <input id="wh-vk-proxy-pass" class="wh-inp" type="password" placeholder="Пароль" style="font-size:12px; max-width:110px;">
+    </div>
+    <div style="display:flex; gap:8px; align-items:center; justify-content:space-between; margin-top:8px;">
+      <div style="display:flex; gap:6px;">
+        <button class="wh-btn" id="wh-vk-proxy-btn-check" style="background:#0284c7; color:#fff; font-size:11px; padding:6px 12px;">⚡ Проверить</button>
+        <button class="wh-btn" id="wh-vk-proxy-btn-save" style="background:#10b981; color:#fff; font-size:11px; padding:6px 12px;">💾 Привязать к облаку</button>
+      </div>
+      <div id="wh-vk-proxy-status" style="font-size:11px; font-weight:600; color:#94a3b8; flex:1; text-align:right;"></div>
+    </div>
+  </div>
+  <div style="margin-top:8px; padding:9px 12px; background:rgba(245,158,11,0.12); border:1px solid rgba(245,158,11,0.35); border-radius:8px; font-size:11px; color:#fcd34d; line-height:1.5;">
+    ⚠️ <b>Защита от Flood Control:</b> На общем IP сервера безопасно работает до 5 аккаунтов одновременно. Для гарантированной круглосуточной стабильности рекомендуется подключать <b>«Персональный SOCKS5»</b>.
+  </div>
 </div>
-<div id="wh-vk-proxy-fields" style="display:none; background:#0b1120; padding:10px; border-radius:8px; border:1px solid #334155; margin-bottom:8px;">
-<div style="font-size:11px; color:#94a3b8; margin-bottom:6px;">Параметры персонального SOCKS5 прокси для ВК:</div>
-<div style="display:flex; gap:6px; margin-bottom:6px;">
-<input id="wh-vk-proxy-host" class="wh-inp" type="text" placeholder="IP:Порт (например 185.220.101.5:1080)" style="font-size:12px;">
-<input id="wh-vk-proxy-user" class="wh-inp" type="text" placeholder="Логин (если есть)" style="font-size:12px; max-width:110px;">
-<input id="wh-vk-proxy-pass" class="wh-inp" type="password" placeholder="Пароль" style="font-size:12px; max-width:110px;">
+
+<!-- БЛОК БРАУЗЕРА: чистый домашний IP -->
+<div id="wh-vk-browser-ip-box" style="display:none; padding:12px 14px; background:rgba(16,185,129,0.1); border:1px solid rgba(16,185,129,0.3); border-radius:10px; font-size:12px; color:#e2e8f0; line-height:1.5;">
+  <div style="display:flex; align-items:center; gap:8px; font-weight:700; color:#34d399; margin-bottom:4px;">
+    <span>✔</span> <span>Прямой домашний IP вашего провайдера</span>
+  </div>
+  <div>Все запросы к ВК отправляются локально с вашего компьютера (пока открыта эта вкладка или работает расширение Chrome). Общий IP сервера не задействуется, сторонние прокси не требуются, риск лимитов минимален.</div>
+  <div style="margin-top:6px; font-size:11px; color:#94a3b8;">
+    🛡 <i>Рекомендация:</i> отключайте сторонний VPN на компьютере, чтобы сервис работал с вашего чистого домашнего IP.
+  </div>
 </div>
-<div style="display:flex; gap:8px; align-items:center; justify-content:space-between; margin-top:8px;">
-<div style="display:flex; gap:6px;">
-<button class="wh-btn" id="wh-vk-proxy-btn-check" style="background:#0284c7; color:#fff; font-size:11px; padding:6px 12px;">⚡ Проверить</button>
-<button class="wh-btn" id="wh-vk-proxy-btn-save" style="background:#10b981; color:#fff; font-size:11px; padding:6px 12px;">💾 Привязать к облаку</button>
-</div>
-<div id="wh-vk-proxy-status" style="font-size:11px; font-weight:600; color:#94a3b8; flex:1; text-align:right;"></div>
-</div>
-</div>
-<div style="margin-top:8px; padding:9px 12px; background:rgba(245,158,11,0.12); border:1px solid rgba(245,158,11,0.35); border-radius:8px; font-size:11px; color:#fcd34d; line-height:1.5;">
-  ⚠️ <b>Защита от Flood Control:</b> При выборе «24/7 Облако» со стандартным IP запросы идут с сервера Render. Для масштабирования без лимитов подключите <b>«Персональный SOCKS5»</b>, либо переключитесь в <b>«💻 Браузерный режим (Домашний IP)»</b>!
-</div>
-<div style="margin-top:6px; font-size:11px; color:#94a3b8; line-height:1.4;">
-  🛡 <b>Совет по VPN:</b> Для Браузерного режима отключайте сторонний VPN на компьютере, чтобы сервис работал с вашего чистого домашнего IP (без капчи и проверок безопасности ВК).
-</div>
+
 </div>
 </div>
 <div class="wh-grid">
@@ -779,6 +798,18 @@ return;
 }
 const cur = (ls.getItem('wh_running') === 'true');
 const next = !cur;
+
+if (next) {
+  const curMode = ls.getItem('wh_vk_exec_mode') || 'cloud';
+  const curType = ls.getItem('wh_vk_proxy_type') || 'direct';
+  if (curMode === 'cloud' && curType !== 'socks5') {
+    if (typeof window._wh_vk_slots_active === 'number' && window._wh_vk_slots_active >= (window._wh_vk_slots_max || 5)) {
+      alert('🛑 Все 5 слотов общего IP сервера Render сейчас заняты!\n\nЧтобы не делить лимит ВКонтакте и не ловить Flood Control, подключите свой персональный SOCKS5 прокси, либо переключитесь в «💻 Браузерный режим (домашний IP)».');
+      return;
+    }
+  }
+}
+
 ls.setItem('wh_running', next ? 'true' : 'false');
 renderRunningState(next);
 
@@ -845,6 +876,9 @@ async function syncVkStateWithServer() {
         }
         if (data.has_update && $('wh-tilda-update-banner')) {
           $('wh-tilda-update-banner').style.display = 'block';
+        }
+        if (typeof data.shared_slots_active !== 'undefined' && typeof window.updateVkSlotsDisplay === 'function') {
+          window.updateVkSlotsDisplay(data.shared_slots_active, data.shared_slots_max);
         }
       }
     }
@@ -1556,10 +1590,64 @@ function initWolfProxyControls() {
     tgBadge.style.background = (tgMode === 'cloud') ? '#0284c7' : '#10b981';
   }
 
+  // Helper display functions for VK mode & slots
+  window.updateVkModeDisplay = function(mode) {
+    if (mode === 'browser') {
+      if ($('wh-vk-cloud-ip-box')) $('wh-vk-cloud-ip-box').style.display = 'none';
+      if ($('wh-vk-browser-ip-box')) $('wh-vk-browser-ip-box').style.display = 'block';
+    } else {
+      if ($('wh-vk-cloud-ip-box')) $('wh-vk-cloud-ip-box').style.display = 'block';
+      if ($('wh-vk-browser-ip-box')) $('wh-vk-browser-ip-box').style.display = 'none';
+    }
+  };
+
+  window.updateVkSlotsDisplay = function(active, max) {
+    active = (typeof active === 'number') ? active : 0;
+    max = max || 5;
+    window._wh_vk_slots_active = active;
+    window._wh_vk_slots_max = max;
+    if ($('wh-vk-slots-count')) $('wh-vk-slots-count').innerText = active + '/' + max;
+    const badge = $('wh-vk-slots-badge');
+    const directRadio = $('wh-vk-proxy-direct');
+    const directTxt = $('wh-vk-txt-direct');
+    const slotsAlert = $('wh-vk-slots-alert');
+    if (active >= max) {
+      if (badge) {
+        badge.innerHTML = '🔴 🔒 Слоты: ' + active + '/' + max + ' (Заполнено)';
+        badge.style.background = 'rgba(239,68,68,0.2)';
+        badge.style.color = '#f87171';
+        badge.style.borderColor = 'rgba(239,68,68,0.4)';
+      }
+      if (directRadio) directRadio.disabled = true;
+      if (directTxt) directTxt.innerHTML = '<s>Стандартный IP сервера Render</s> <span style="color:#ef4444; font-size:11px;">(Занят 5/5)</span>';
+      if (slotsAlert) slotsAlert.style.display = 'block';
+      if (directRadio && directRadio.checked) {
+        if ($('wh-vk-proxy-socks')) {
+          $('wh-vk-proxy-socks').checked = true;
+          if ($('wh-vk-proxy-fields')) $('wh-vk-proxy-fields').style.display = 'block';
+          ls.setItem('wh_vk_proxy_type', 'socks5');
+        }
+      }
+    } else {
+      if (badge) {
+        badge.innerHTML = '🟢 Общий IP: ' + active + '/' + max + ' слотов';
+        badge.style.background = 'rgba(16,185,129,0.15)';
+        badge.style.color = '#34d399';
+        badge.style.borderColor = 'rgba(16,185,129,0.3)';
+      }
+      if (directRadio) directRadio.disabled = false;
+      if (directTxt) directTxt.innerText = 'Стандартный IP сервера Render';
+      if (slotsAlert) slotsAlert.style.display = 'none';
+    }
+  };
+
+  updateVkModeDisplay(vkMode);
+
   // VK listeners
   if ($('wh-vk-mode-cloud')) {
     $('wh-vk-mode-cloud').onchange = function() {
       ls.setItem('wh_vk_exec_mode', 'cloud');
+      updateVkModeDisplay('cloud');
       if ($('wh-vk-proxy-badge')) { $('wh-vk-proxy-badge').innerText = '24/7 Облако'; $('wh-vk-proxy-badge').style.background = '#0284c7'; }
       if ($('wh-vk-proxy-status')) $('wh-vk-proxy-status').innerText = '☁️ 24/7 Облачный режим активен';
       updateProxyHeaderBadges();
@@ -1568,6 +1656,7 @@ function initWolfProxyControls() {
   if ($('wh-vk-mode-browser')) {
     $('wh-vk-mode-browser').onchange = function() {
       ls.setItem('wh_vk_exec_mode', 'browser');
+      updateVkModeDisplay('browser');
       if ($('wh-vk-proxy-badge')) { $('wh-vk-proxy-badge').innerText = 'Браузер'; $('wh-vk-proxy-badge').style.background = '#10b981'; }
       if ($('wh-vk-proxy-status')) $('wh-vk-proxy-status').innerText = '💻 Браузерный режим активен';
       updateProxyHeaderBadges();
