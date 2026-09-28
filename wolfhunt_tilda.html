@@ -464,112 +464,129 @@ const box = $(target === 'vk' ? 'wh-log-stream' : 'wh-tg-log-stream');
 if (!box) return;
 navigator.clipboard.writeText(box.innerText).then(() => alert('Лог скопирован!')).catch(() => alert('Не удалось скопировать'));
 }
-let vkFloodRemain = 0, vkFloodTimer = null;
+let vkFloodRemain = 0, vkFloodTimer = null, lastVkCallTime = 0;
 function resetVkFloodCooldown() {
-vkFloodRemain = 0;
-if (vkFloodTimer) { clearInterval(vkFloodTimer); vkFloodTimer = null; }
-ls.removeItem('wh_vk_flood_until');
-const b = $('wh-btn-now'); if (b) { b.disabled = false; b.innerText = '⚡ Лайкнуть сейчас'; }
+  vkFloodRemain = 0;
+  if (vkFloodTimer) { clearInterval(vkFloodTimer); vkFloodTimer = null; }
+  ls.removeItem('wh_vk_flood_until');
+  const b = $('wh-btn-now'); if (b) { b.disabled = false; b.innerText = '⚡ Лайкнуть сейчас'; }
+  const sub = $('wh-sub');
+  if (sub && ls.getItem('wh_running') === 'true') {
+    sub.innerText = '🟢 Охота активна (Приоритет: Истории)';
+    sub.style.color = '#34d399';
+  }
+  if (isHunting && ls.getItem('wh_running') === 'true') {
+    logMsg("▶ [VK Защита] Пауза завершена. Автоматическое возобновление охоты...", "success", "vk");
+    scheduleNextCycle();
+  }
 }
 function resumeVkFloodCooldown(seconds) {
-vkFloodRemain = seconds;
-const b = $('wh-btn-now'); if (b) b.disabled = true;
-if (vkFloodTimer) clearInterval(vkFloodTimer);
-vkFloodTimer = setInterval(() => {
-vkFloodRemain--;
-if (b) b.innerText = `⏳ Пауза (${vkFloodRemain}с)`;
-if (vkFloodRemain <= 0) resetVkFloodCooldown();
-}, 1000);
+  vkFloodRemain = seconds;
+  const b = $('wh-btn-now'); if (b) b.disabled = true;
+  if (vkFloodTimer) clearInterval(vkFloodTimer);
+  vkFloodTimer = setInterval(() => {
+    vkFloodRemain--;
+    if (b) b.innerText = `⏳ Пауза (${vkFloodRemain}с)`;
+    if (vkFloodRemain <= 0) resetVkFloodCooldown();
+  }, 1000);
 }
-function triggerVkFloodCooldown(seconds = 180) {
-ls.setItem('wh_vk_flood_until', (Date.now() + seconds * 1000).toString());
-resumeVkFloodCooldown(seconds);
-logMsg(`⏳ Защитная пауза ВК: ${seconds}с`, "warn", "vk");
+function triggerVkFloodCooldown(seconds = 60) {
+  ls.setItem('wh_vk_flood_until', (Date.now() + seconds * 1000).toString());
+  resumeVkFloodCooldown(seconds);
+  const sub = $('wh-sub');
+  if (sub && ls.getItem('wh_running') === 'true') {
+    sub.innerText = `⏳ Мягкая пауза ВК (${seconds}с)`;
+    sub.style.color = '#f59e0b';
+  }
+  logMsg(`⏳ Защитная пауза ВК: ${seconds}с (авто-возобновление без остановки сервиса)`, "warn", "vk");
 }
 function handleVkSecurityStop(reasonText) {
-stopHuntingLoop();
-renderRunningState(false);
-const sub = $('wh-sub');
-if (sub) {
-sub.innerText = '🛑 Остановлен (требуется подтверждение в ВК)';
-sub.style.color = '#ef4444';
-}
-logMsg("🛑 [ВК Хантер полностью остановлен: " + (reasonText || "Защита безопасности ВК") + "]", "error", "vk");
-logMsg("👉 ВКонтакте запросил подтверждение (разморозку / SMS / капчу).", "warn", "vk");
-logMsg("👉 1. Зайдите в профиль на vk.com (или в приложение на телефоне) и подтвердите аккаунт.", "info", "vk");
-logMsg("👉 2. После успешного входа вернитесь сюда и нажмите зелёную кнопку «🚀 Запустить охоту».", "success", "vk");
+  stopHuntingLoop();
+  renderRunningState(false);
+  const sub = $('wh-sub');
+  if (sub) {
+    sub.innerText = '🛑 Остановлен (требуется подтверждение в ВК)';
+    sub.style.color = '#ef4444';
+  }
+  logMsg("🛑 [ВК Хантер полностью остановлен: " + (reasonText || "Защита безопасности ВК") + "]", "error", "vk");
+  logMsg("👉 ВКонтакте запросил подтверждение (разморозку / SMS / капчу).", "warn", "vk");
+  logMsg("👉 1. Зайдите в профиль на vk.com (или в приложение на телефоне) и подтвердите аккаунт.", "info", "vk");
+  logMsg("👉 2. После успешного входа вернитесь сюда и нажмите зелёную кнопку «🚀 Запустить охоту».", "success", "vk");
 }
 function handleVkExpiredStop() {
-stopHuntingLoop();
-ls.setItem('wh_running', 'false');
-renderRunningState(false);
-const sub = $('wh-sub');
-if (sub) {
-sub.innerText = '🛑 Токен ВК истек (требуется переподключение)';
-sub.style.color = '#ef4444';
+  stopHuntingLoop();
+  ls.setItem('wh_running', 'false');
+  renderRunningState(false);
+  const sub = $('wh-sub');
+  if (sub) {
+    sub.innerText = '🛑 Токен ВК истек (требуется переподключение)';
+    sub.style.color = '#ef4444';
+  }
+  if ($('wh-auth-card')) {
+    $('wh-auth-card').style.display = 'block';
+    try { $('wh-auth-card').scrollIntoView({ behavior: 'smooth', block: 'center' }); } catch(e) {}
+  }
+  logMsg("🛑 [Токен ВК истек] Срок действия 24-часового токена завершился.", "error", "vk");
+  logMsg("👉 В кнопку авторизации добавлен бессрочный доступ (offline).", "warn", "vk");
+  logMsg("👉 Нажмите «1. Авторизоваться (бессрочный доступ) ↗» ниже, скопируйте ссылку и нажмите «Подключить» — токен станет вечным!", "info", "vk");
 }
-if ($('wh-auth-card')) {
-$('wh-auth-card').style.display = 'block';
-try { $('wh-auth-card').scrollIntoView({ behavior: 'smooth', block: 'center' }); } catch(e) {}
-}
-logMsg("🛑 [Токен ВК истек] Срок действия 24-часового токена завершился.", "error", "vk");
-logMsg("👉 В кнопку авторизации добавлен бессрочный доступ (offline).", "warn", "vk");
-logMsg("👉 Нажмите «1. Авторизоваться (бессрочный доступ) ↗» ниже, скопируйте ссылку и нажмите «Подключить» — токен станет вечным!", "info", "vk");
-}
-function callVkApi(method, params = {}) {
-return new Promise((resolve, reject) => {
-if (vkFloodRemain > 0) return resolve(null);
-const token = params.access_token || ls.getItem('wh_token');
-if (!token) return reject(new Error('VK not authorized'));
-const cb = 'vk_cb_' + Math.floor(Math.random() * 10000000);
-params.access_token = token; params.v = '5.131'; params.callback = cb;
-const q = Object.keys(params).map(k => encodeURIComponent(k) + '=' + encodeURIComponent(params[k])).join('&');
-const sc = document.createElement('script');
-sc.src = 'https://api.vk.com/method/' + method + '?' + q;
-window[cb] = function(res) {
-delete window[cb]; if (sc.parentNode) sc.parentNode.removeChild(sc);
-if (res && res.error) {
-const errMsg = res.error.error_msg || '';
-const errCode = res.error.error_code;
-const errLower = errMsg.toLowerCase();
-if (errCode === 9 || errLower.includes('flood') || errLower.includes('too many')) {
-stopHuntingLoop();
-ls.setItem('wh_running', 'false');
-renderRunningState(false);
-triggerVkFloodCooldown(1800);
-const sub = $('wh-sub');
-if (sub) { sub.innerText = '⏸ Пауза: Flood control ВК (требуется 20-30 мин покоя)'; sub.style.color = '#f59e0b'; }
-logMsg("🛑 [VK Flood Control] ВКонтакте временно ограничил этот аккаунт за превышение частоты запросов.", "error", "vk");
-logMsg("👉 Сервис полностью остановлен. Дайте аккаунту отдохнуть 20–30 минут покоя.", "warn", "vk");
-logMsg("👉 Либо нажмите «Сменить аккаунт» (если хотите переключиться на другой профиль ВК).", "info", "vk");
-try {
-const t = ls.getItem('wh_token');
-if (t) {
-fetch(TG_API_URL + '/api/vk/toggle', {
-method: 'POST',
-headers: { 'Content-Type': 'application/json' },
-body: JSON.stringify({ action: 'stop', access_token: t })
-}).catch(()=>{});
-}
-} catch(e) {}
-return resolve(null);
-}
-if (errCode === 5) {
-if (errLower.includes('expired') || errLower.includes('authorization failed')) {
-handleVkExpiredStop();
-return reject(new Error(errMsg));
-}
-if (errLower.includes('blocked') || errLower.includes('banned') || errLower.includes('deactivated')) {
-handleVkSecurityStop('Страница временно заморожена');
-return reject(new Error(errMsg));
-}
-}
-reject(new Error(errMsg));
-} else resolve(res ? res.response : null);
-};
-sc.onerror = function() { delete window[cb]; if (sc.parentNode) sc.parentNode.removeChild(sc); reject(new Error('Network error')); };
-document.body.appendChild(sc);
-});
+async function callVkApi(method, params = {}) {
+  if (vkFloodRemain > 0) return null;
+  const token = params.access_token || ls.getItem('wh_token');
+  if (!token) throw new Error('VK not authorized');
+
+  // Human pacing: enforce minimum 400ms between any VK calls (VK max limit is 3 req/sec)
+  const now = Date.now();
+  const elapsed = now - lastVkCallTime;
+  if (elapsed < 400) {
+    await new Promise(r => setTimeout(r, 400 - elapsed));
+  }
+  lastVkCallTime = Date.now();
+
+  return new Promise((resolve, reject) => {
+    const cb = 'vk_cb_' + Math.floor(Math.random() * 10000000);
+    params.access_token = token; params.v = '5.131'; params.callback = cb;
+    const q = Object.keys(params).map(k => encodeURIComponent(k) + '=' + encodeURIComponent(params[k])).join('&');
+    const sc = document.createElement('script');
+    sc.src = 'https://api.vk.com/method/' + method + '?' + q;
+    window[cb] = async function(res) {
+      delete window[cb]; if (sc.parentNode) sc.parentNode.removeChild(sc);
+      if (res && res.error) {
+        const errMsg = res.error.error_msg || '';
+        const errCode = res.error.error_code;
+        const errLower = errMsg.toLowerCase();
+
+        // 1. Temporary burst rate-limit (3 calls per second exceeded) -> wait 2 seconds, do NOT stop hunter
+        if (errLower.includes('requests per second') || errCode === 6) {
+          logMsg("⏳ [VK Pacing] Защитная пауза 2с (лимит частоты запросов)...", "info", "vk");
+          await new Promise(r => setTimeout(r, 2000));
+          return resolve(null);
+        }
+
+        // 2. Flood Control / Action Limit -> Soft 60s pause without killing the hunting loop
+        if (errCode === 9 || errLower.includes('flood') || errLower.includes('too many')) {
+          triggerVkFloodCooldown(60);
+          logMsg("⏳ [VK Flood Control] Мягкая пауза 60с для снижения темпа. Охота не сбивается и возобновится автоматически.", "warn", "vk");
+          return resolve(null);
+        }
+
+        // 3. Auth expired or account banned
+        if (errCode === 5) {
+          if (errLower.includes('expired') || errLower.includes('authorization failed')) {
+            handleVkExpiredStop();
+            return reject(new Error(errMsg));
+          }
+          if (errLower.includes('blocked') || errLower.includes('banned') || errLower.includes('deactivated')) {
+            handleVkSecurityStop('Страница временно заморожена');
+            return reject(new Error(errMsg));
+          }
+        }
+        reject(new Error(errMsg));
+      } else resolve(res ? res.response : null);
+    };
+    sc.onerror = function() { delete window[cb]; if (sc.parentNode) sc.parentNode.removeChild(sc); reject(new Error('Network error')); };
+    document.body.appendChild(sc);
+  });
 }
 const getTodayLikesCount = () => parseInt(ls.getItem('wh_story_likes') || '0') + parseInt(ls.getItem('wh_post_likes') || '0');
 const isLogged = (t, o, i) => ls.getItem(`wh_log_${t}_${o}_${i}`) === '1';
@@ -679,14 +696,9 @@ const savedBdayText = ls.getItem('wh_bday_text');
 if (savedBdayText && $('wh-bday-text')) $('wh-bday-text').value = savedBdayText;
 const savedBdayEn = ls.getItem('wh_bday_enable');
 if (savedBdayEn !== null && $('wh-bday-enable')) $('wh-bday-enable').checked = (savedBdayEn === '1');
-const savedFloodUntil = parseInt(ls.getItem('wh_vk_flood_until') || '0', 10);
-const nowMs = Date.now();
-if (savedFloodUntil > nowMs) {
-const remSec = Math.ceil((savedFloodUntil - nowMs) / 1000);
-resumeVkFloodCooldown(remSec);
-} else {
+// Clear any stale flood lockouts on init so user is never frozen
 resetVkFloodCooldown();
-}
+ls.removeItem('wh_vk_flood_until');
 if (savedToken) {
 if (savedName && $('wh-name')) $('wh-name').innerText = savedName;
 else if (savedUid && $('wh-name')) $('wh-name').innerText = 'id' + savedUid;
@@ -814,6 +826,7 @@ ls.setItem('wh_running', next ? 'true' : 'false');
 renderRunningState(next);
 
 if (next) {
+resetVkFloodCooldown();
 logMsg("🚀 ВК Хантер запущен! Первый такт через 3 с, пауза 25–45 с.", "success", "vk");
 startHuntingLoop(false);
 } else {
