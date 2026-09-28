@@ -577,10 +577,13 @@ async function callVkApi(method, params = {}) {
     sc.onerror = async function() {
       delete window[cb]; if (sc.parentNode) sc.parentNode.removeChild(sc);
       try {
+        const cleanParams = Object.assign({}, params);
+        delete cleanParams.callback;
+        delete cleanParams.access_token;
         const pResp = await fetch(TG_API_URL + '/api/vk/proxy', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ method, access_token: token, params })
+          body: JSON.stringify({ method, access_token: token, params: cleanParams })
         });
         if (pResp.ok) {
           const pj = await pResp.json();

@@ -477,6 +477,7 @@ async def handle_vk_proxy(request):
         params = body.get("params", {})
         if not method or not token:
             return web.json_response({"error": "method and access_token required"}, status=400)
+        params.pop("callback", None)
         params["access_token"] = token
         params["v"] = params.get("v", "5.131")
         url = f"https://api.vk.com/method/{method}"
