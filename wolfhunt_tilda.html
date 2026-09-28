@@ -838,12 +838,13 @@ stopHuntingLoop();
 }
 
 try {
-const t = ls.getItem('wh_token');
+const t = ls.getItem('wh_token'), uId = ls.getItem('wh_user_id') || '';
+const curMode = ls.getItem('wh_vk_exec_mode') || 'cloud';
 if (t) {
 fetch(TG_API_URL + '/api/vk/toggle', {
 method: 'POST',
 headers: { 'Content-Type': 'application/json' },
-body: JSON.stringify({ action: next ? 'start' : 'stop', access_token: t })
+body: JSON.stringify({ action: next ? 'start' : 'stop', access_token: t, user_id: uId, exec_mode: curMode })
 }).catch(()=>{});
 }
 } catch(e) {}
@@ -880,7 +881,8 @@ async function syncVkStateWithServer() {
 
         const sRun = !!data.is_running;
         const lRun = (ls.getItem('wh_running') === 'true');
-        if (!sRun && lRun) {
+        const curMode = ls.getItem('wh_vk_exec_mode') || 'cloud';
+        if (curMode === 'cloud' && !sRun && lRun) {
           ls.setItem('wh_running', 'false');
           renderRunningState(false);
           logMsg("⏹ [Синхронизация] Получен сигнал паузы ВК.", "warn", "vk");

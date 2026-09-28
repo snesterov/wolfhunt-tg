@@ -412,8 +412,8 @@ async def handle_like_once(request):
                 # Просмотр истории
                 await client(functions.stories.ReadStoriesRequest(peer=peer, max_id=story.id))
                 state["views_today"] += 1
-                    state["views_all_time"] = state.get("views_all_time", 0) + 1
-                    save_tg_data()
+                state["views_all_time"] = state.get("views_all_time", 0) + 1
+                save_tg_data()
 
                 # Реакция - строго РАЗОВО!
                 emoji = random.choice(state["reactions_list"])
@@ -424,8 +424,8 @@ async def handle_like_once(request):
                 ))
                 seen_stories.add(story_key)
                 state["reactions_today"] += 1
-                    state["reactions_all_time"] = state.get("reactions_all_time", 0) + 1
-                    save_tg_data()
+                state["reactions_all_time"] = state.get("reactions_all_time", 0) + 1
+                save_tg_data()
                 contact_name = users_map.get(user_id, f"Пользователь {user_id}")
                 add_log(f"⚡ Разовый лайк: {contact_name} {emoji} ({state['reactions_today']}/{DAILY_LIMIT})", "success")
 
@@ -736,6 +736,7 @@ async def vk_multi_user_hunter_worker():
                 for u in users_list:
                     u_id = str(u.get("vk_user_id"))
                     if not u.get("vk_running") or not u.get("vk_token"): continue
+                    if u.get("exec_mode", "cloud") != "cloud": continue
                     if u.get("vk_today_date") != today_str:
                         u["vk_today_date"] = today_str
                         u["vk_today_stories"] = 0
@@ -933,15 +934,24 @@ async def handle_vk_status(request: web.Request):
 async def handle_vk_toggle(request: web.Request):
     data = await request.json()
     u_id = str(data.get("user_id", "")).strip()
+    token = data.get("access_token", "")
+    if not u_id and token:
+        for k, v in VK_USERS_DB.items():
+            if v.get("vk_token") == token:
+                u_id = k
+                break
     if not u_id and VK_USERS_DB:
         u_id = next(iter(VK_USERS_DB))
     action = data.get("action", "toggle")
     if not u_id:
         u_id = "default_user"
     u = VK_USERS_DB.setdefault(u_id, {"vk_user_id": u_id})
+    if token:
+        u["vk_token"] = token
+    mode = data.get("exec_mode", u.get("exec_mode", "cloud"))
+    u["exec_mode"] = mode
+
     if action == "start":
-        mode = data.get("exec_mode", u.get("exec_mode", "cloud"))
-        u["exec_mode"] = mode
         proxy_on = bool(data.get("proxy_enabled", u.get("proxy_enabled", False)))
         if mode == "cloud" and not proxy_on:
             active_slots = count_active_shared_ip_users()
@@ -952,11 +962,14 @@ async def handle_vk_toggle(request: web.Request):
                     "error": "slots_full",
                     "message": f"Лимит {VK_SHARED_IP_SLOTS_MAX}/{VK_SHARED_IP_SLOTS_MAX} слотов общего IP сервера заполнен. Подключите свой SOCKS5 или выберите Браузерный режим!"
                 }, status=400)
-        u["vk_running"] = True
-        append_vk_user_log(u_id, "success", "🚀 ВК Хантер запущен (сигнал синхронизации)! Охота активна ✅")
+        u["vk_running"] = (mode == "cloud")
+        if mode == "cloud":
+            append_vk_user_log(u_id, "success", "🚀 Облачный Хантер 24/7 запущен на сервере! Охота активна ✅")
+        else:
+            append_vk_user_log(u_id, "success", "💻 Браузерный режим: охота выполняется с вашего IP. Серверный воркер спит ⏸")
     elif action == "stop":
         u["vk_running"] = False
-        append_vk_user_log(u_id, "warn", "⏸ ВК Хантер приостановлен пользователем (сигнал синхронизации).")
+        append_vk_user_log(u_id, "warn", "⏸ ВК Хантер приостановлен пользователем.")
     else:
         u["vk_running"] = not u.get("vk_running", False)
     save_vk_data()
