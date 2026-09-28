@@ -947,34 +947,14 @@ logMsg("👁 [Фаза: Истории] Поиск свежих историй �
 try {
 let list = [], authors = {}, data = null;
 try {
-  const res = await fetch(TG_API_URL + '/api/vk/proxy', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ method: 'stories.get', access_token: token, params: { extended: 1, fields: 'first_name,last_name' } })
-  });
-  if (res.ok) {
-    const j = await res.json();
-    if (j && j.response) data = j.response;
-    if (j && j.error) {
-      const stMsg = j.error.error_msg || '';
-      if (stMsg.toLowerCase().includes('expired') || stMsg.toLowerCase().includes('authorization failed')) {
-        handleVkExpiredStop();
-        return false;
-      }
-    }
+  data = await callVkApi('execute', { code: 'return API.stories.get({"extended": 1, "fields": "first_name,last_name"});' });
+} catch(stErr) {
+  const stMsg = stErr.message || '';
+  if (stMsg.toLowerCase().includes('expired') || stMsg.toLowerCase().includes('authorization failed')) {
+    handleVkExpiredStop();
+    return false;
   }
-} catch(e) {}
-if (!data) {
-  try {
-    data = await callVkApi('stories.get', { extended: 1, fields: 'first_name,last_name' });
-  } catch(stErr) {
-    const stMsg = stErr.message || '';
-    if (stMsg.toLowerCase().includes('expired') || stMsg.toLowerCase().includes('authorization failed')) {
-      handleVkExpiredStop();
-      return false;
-    }
-    logMsg("⚠️ Ошибка чтения историй: " + stMsg, "warn", "vk");
-  }
+  logMsg("Ошибка чтения историй: " + stMsg, "warn", "vk");
 }
 if (data) {
   if (data.profiles && Array.isArray(data.profiles)) {
@@ -995,16 +975,10 @@ if (list && list.length > 0) {
     if (getTodayLikesCount() >= 300) return false;
     if (isLogged('story', st.owner_id, st.id) || getAuthorDailyCount(st.owner_id) >= 2) continue;
     try {
-      let reacted = false;
-      try {
-        const intRes = await callVkApi('stories.sendInteraction', { owner_id: st.owner_id, story_id: st.id, message: '❤' });
-        if (intRes && (intRes === 1 || intRes.response === 1 || !intRes.error)) reacted = true;
-      } catch(iErr) {}
-      if (!reacted) {
-        const p = { type: 'story', owner_id: st.owner_id, item_id: st.id };
-        if (st.access_key) p.access_key = st.access_key;
-        await callVkApi('likes.add', p);
-      }
+      try { await callVkApi('stories.getById', { stories: st.owner_id + '_' + st.id, extended: 1 }); } catch(vErr) {}
+      const p = { type: 'story', owner_id: st.owner_id, item_id: st.id };
+      if (st.access_key) p.access_key = st.access_key;
+      await callVkApi('execute', { code: 'return API.likes.add(' + JSON.stringify(p) + ');' });
       setLogged('story', st.owner_id, st.id);
       incAuthorDailyCount(st.owner_id);
       addStat('story');
@@ -1012,8 +986,16 @@ if (list && list.length > 0) {
       return true;
     } catch (e) {
       const errMsg = e.message || '';
+      if (errMsg.toLowerCase().includes('non-standalone')) {
+        logMsg("⚠️ [Истории] ВК требует тип Standalone для лайков историй.", "warn", "vk");
+        return false;
+      }
+      if (errMsg.includes('15') || errMsg.includes('1133') || errMsg.toLowerCase().includes('scope')) {
+        logMsg("🔍 [Истории] Нет доступных историй.", "info", "vk");
+        return false;
+      }
       setLogged('story', st.owner_id, st.id);
-      logMsg("⚠️ [Истории] " + errMsg, "warn", "vk");
+      logMsg("⚠️ [Истории] Ошибка: " + errMsg, "warn", "vk");
       return false;
     }
   }
@@ -1028,43 +1010,48 @@ logMsg("Истории: " + e.message, "warn", "vk");
 }
 return false;
 }
+
+let postOffset = 0;
 async function huntPosts() {
 if (getTodayLikesCount() >= 300) return false;
 logMsg("🔍 [Фаза: Посты] Поиск свежих записей друзей...", "info", "vk");
 try {
-const res = await callVkApi('newsfeed.get', { filters: 'post', count: 15 });
-if (!res || !res.items || !res.items.length) {
-  logMsg("🔍 [Посты] Свежих записей в ленте нет.", "info", "vk");
-  return false;
+const code = 'var offset = parseInt(Args.offset);' +
+'var friends = API.friends.get({"count": 15, "offset": offset, "fields": "first_name,last_name,can_access_closed"}).items;' +
+'var i = 0; var found = null;' +
+'while (i < friends.length && found == null) {' +
+'    var f = friends[i];' +
+'    if (f.can_access_closed != false) {' +
+'        var wall = API.wall.get({"owner_id": f.id, "count": 3}).items;' +
+'        if (wall != null) {' +
+'            var j = 0;' +
+'            while (j < wall.length && found == null) {' +
+'                var p = wall[j];' +
+'                if (p.likes != null && p.likes.user_likes == 0 && p.likes.can_like != 0) {' +
+'                    found = {"owner_id": p.owner_id, "id": p.id, "first_name": f.first_name, "last_name": f.last_name, "text": p.text};' +
+'                }' +
+'                j = j + 1;' +
+'            }' +
+'        }' +
+'    }' +
+'    i = i + 1;' +
+'}' +
+'return found;';
+postOffset = (postOffset + 15) % 2500;
+const found = await callVkApi('execute', { code: code, offset: postOffset });
+if (found && found.owner_id && found.id) {
+if (!isLogged('post', found.owner_id, found.id)) {
+await callVkApi('execute', { code: 'return API.likes.add({"type": "post", "owner_id": ' + found.owner_id + ', "item_id": ' + found.id + '});' });
+setLogged('post', found.owner_id, found.id);
+incAuthorDailyCount(found.owner_id);
+addStat('post');
+const fname = (found.first_name ? (found.first_name + ' ' + (found.last_name || '')) : ('id' + found.owner_id)).trim();
+const t = (found.text || 'Фото/Запись').substring(0, 30).replace(/\n/g, ' ');
+logMsg(`❤ [Пост] Лайк: ${fname} («${t}»)`, "success", "vk");
+return true;
 }
-const profiles = {};
-(res.profiles || []).forEach(p => { profiles[p.id] = (p.first_name + ' ' + (p.last_name || '')).trim(); });
-
-for (let p of res.items) {
-  const ownerId = p.source_id || p.owner_id;
-  const postId = p.post_id || p.id;
-  if (!ownerId || ownerId <= 0 || !postId) continue;
-  if (isLogged('post', ownerId, postId)) continue;
-  if (p.likes && p.likes.user_likes === 1) {
-    setLogged('post', ownerId, postId);
-    continue;
-  }
-  try {
-    await callVkApi('likes.add', { type: 'post', owner_id: ownerId, item_id: postId });
-    setLogged('post', ownerId, postId);
-    incAuthorDailyCount(ownerId);
-    addStat('post');
-    const fname = profiles[ownerId] || ('id' + ownerId);
-    const t = (p.text || 'Запись').substring(0, 30).replace(/\n/g, ' ');
-    logMsg(`❤ [Пост] Лайк: ${fname} («${t}»)...`, "success", "vk");
-    return true;
-  } catch (err) {
-    logMsg("⚠️ [Пост] Ошибка: " + err.message, "warn", "vk");
-    setLogged('post', ownerId, postId);
-    return false;
-  }
 }
-logMsg("🔍 [Посты] Все свежие записи в ленте уже лайкнуты.", "info", "vk");
+logMsg("🔍 [Посты] Все свежие записи в текущей выборке друзей уже лайкнуты.", "info", "vk");
 return false;
 } catch(e) {
 logMsg("Посты: " + e.message, "warn", "vk");
