@@ -574,7 +574,28 @@ async function callVkApi(method, params = {}) {
         reject(new Error(errMsg));
       } else resolve(res ? res.response : null);
     };
-    sc.onerror = function() { delete window[cb]; if (sc.parentNode) sc.parentNode.removeChild(sc); reject(new Error('Network error')); };
+    sc.onerror = async function() {
+      delete window[cb]; if (sc.parentNode) sc.parentNode.removeChild(sc);
+      try {
+        const pResp = await fetch(TG_API_URL + '/api/vk/proxy', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ method, access_token: token, params })
+        });
+        if (pResp.ok) {
+          const pj = await pResp.json();
+          if (pj && pj.response !== undefined) return resolve(pj.response);
+          if (pj && pj.error) {
+            const em = pj.error.error_msg || '';
+            if (pj.error.error_code === 5 && (em.toLowerCase().includes('expired') || em.toLowerCase().includes('authorization failed'))) {
+              handleVkExpiredStop();
+            }
+            return reject(new Error(em));
+          }
+        }
+      } catch(pe) {}
+      reject(new Error('Network error'));
+    };
     document.body.appendChild(sc);
   });
 }
@@ -921,8 +942,22 @@ logMsg("👁 [Фаза: Истории] Поиск свежих историй �
 try {
 let list = [], authors = {}, data = null;
 try {
-  const res = await fetch(TG_API_URL + '/api/vk/stories?access_token=' + encodeURIComponent(token));
-  if (res.ok) { const j = await res.json(); if (j && j.response) data = j.response; }
+  const res = await fetch(TG_API_URL + '/api/vk/proxy', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ method: 'stories.get', access_token: token, params: { extended: 1, fields: 'first_name,last_name' } })
+  });
+  if (res.ok) {
+    const j = await res.json();
+    if (j && j.response) data = j.response;
+    if (j && j.error) {
+      const stMsg = j.error.error_msg || '';
+      if (stMsg.toLowerCase().includes('expired') || stMsg.toLowerCase().includes('authorization failed')) {
+        handleVkExpiredStop();
+        return false;
+      }
+    }
+  }
 } catch(e) {}
 if (!data) {
   try {
