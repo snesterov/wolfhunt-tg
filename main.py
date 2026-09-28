@@ -507,10 +507,10 @@ async def handle_vk_stories_proxy(request):
 # VK MULTI-TENANT CLOUD HUNTER (24/7 AUTONOMOUS BACKGROUND ENGINE)
 # ==============================================================================
 VK_USERS_FILE = "wolfhunt_vk_users.json"
-LATEST_EXTENSION_VERSION = "2.0.5"
+LATEST_EXTENSION_VERSION = "2.0.6"
 EXTENSION_DOWNLOAD_URL = "https://wolfhunt-tg.onrender.com/downloads/WOLFHUNT_CHROME_EXTENSION.zip"
-EXTENSION_UPDATE_TITLE = "Доступно обновление WolfHunt PRO v2.0.5!"
-EXTENSION_UPDATE_DESC = "Интеллектуальный антифлуд ВК с интервалом 400мс, авто-снятие блокировки и счетчик 0/5 слотов общего IP."
+EXTENSION_UPDATE_TITLE = "Доступно обновление WolfHunt PRO v2.0.6!"
+EXTENSION_UPDATE_DESC = "Чистый 3-тактный цикл: Истории х2 (Приоритет №1) + Посты х1. Полное исключение риска флуд-контроля ВК."
 
 VK_USERS_DB = {}
 VK_USER_LOGS = {}
@@ -757,10 +757,8 @@ async def vk_multi_user_hunter_worker():
                         append_vk_user_log(u_id, "info", "🎯 [Такт 1/3: Истории] Охота на истории (Приоритет №1)...")
                         await run_vk_tact_stories(session, u)
                     elif phase == 1:
-                        done = await run_vk_tact_birthdays(session, u)
-                        if not done:
-                            append_vk_user_log(u_id, "info", "👁 [Такт 2/3: Истории] Очередь именинников на сегодня пуста. Охота на истории (Приоритет №1)...")
-                            await run_vk_tact_stories(session, u)
+                        append_vk_user_log(u_id, "info", "🎯 [Такт 2/3: Истории] Охота на истории (Приоритет №1)...")
+                        await run_vk_tact_stories(session, u)
                     else:
                         append_vk_user_log(u_id, "info", "📰 [Такт 3/3: Посты] Разбавка ленты постом...")
                         await run_vk_tact_posts(session, u)

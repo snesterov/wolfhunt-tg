@@ -160,7 +160,6 @@
 <div class="wh-card"><span class="wh-title" style="color:#c084fc;">🔥 Лайков историй</span><div id="wh-stories" class="wh-val" style="color:#c084fc;">0</div><span class="wh-sub">Приоритет №1</span></div>
 <div class="wh-card"><span class="wh-title" style="color:#38bdf8;">❤ Лайков постов</span><div id="wh-post-likes" class="wh-val" style="color:#38bdf8;">0</div><span class="wh-sub">Разбавка ленты</span></div>
 <div class="wh-card"><span class="wh-title" style="color:#34d399;">⚡ Всего за сутки</span><div id="wh-today-likes" class="wh-val" style="color:#34d399;">0</div><span class="wh-sub">Истории + Посты (до 300)</span></div>
-<div class="wh-card"><span class="wh-title" style="color:#f59e0b;">🎂 Поздравлений с ДР</span><div id="wh-msg-total" class="wh-val" style="color:#f59e0b;">0</div><span id="wh-msg-sub" class="wh-sub" style="color:#cbd5e1; font-weight:600;">Отправлено сегодня в ЛС</span></div>
 <div class="wh-card" style="border-color:#f59e0b; background:linear-gradient(145deg,#1e293b,#78350f);"><span class="wh-title" style="color:#fcd34d;">🏆 ВСЕГО ЛАЙКОВ (ВСЁ ВРЕМЯ)</span><div id="wh-all-time-total" class="wh-val" style="color:#fde047;">0</div><span id="wh-total-all-sub" class="wh-sub" style="color:#fef08a;">Накопительный счетчик</span></div>
 </div>
 <div id="wh-auth-card" class="wh-box" style="background:linear-gradient(145deg,#1e293b,#0f172a); border:2px dashed #3b82f6;">
@@ -219,24 +218,10 @@
 <span id="wh-vk-faq-arrow" style="font-size:11px; color:#38bdf8; font-weight:600; pointer-events:none;">Развернуть / Свернуть ▾</span>
 </div>
 <div id="wh-vk-faq-content" style="display:none; margin-top:12px; font-size:12px; color:#cbd5e1; line-height:1.6; border-top:1px solid #334155; padding-top:12px;" onclick="event.stopPropagation();">
-<div style="margin-bottom:8px;"><b>🎯 Такт 1 (Приоритет №1 — Истории):</b> Охота за свежими историями друзей. Просмотр и лайк с push-уведомлением автору на экран смартфона.</div>
-<div style="margin-bottom:8px;"><b>🎂 Такт 2 (Поздравления с Днем Рождения):</b> Проверка именинников среди друзей и отправка персонального поздравления в ЛС (с 06:00 МСК) по Spintax шаблону.</div>
-<div style="margin-bottom:8px;"><b>📰 Такт 3 (Разбавка постом):</b> Лайк свежей записи друга на стене для естественности алгоритмов ВК.</div>
-<div><b>🛡 Лимиты безопасности:</b> До 300 лайков в сутки, плавающая пауза 25–45 сек между тактами.</div>
-</div>
-</div>
-<div class="wh-box">
-<h4 style="margin:0 0 12px 0; font-size:13px; color:#f8fafc; font-weight:700;">🎂 Поздравление с Днем Рождения (Spintax в ЛС)</h4>
-<div>
-<div class="wh-row-sb" style="margin-bottom:6px;">
-<label style="font-size:12px; font-weight:600; color:#cbd5e1;">Шаблон поздравления именинникам (с 06:00 МСК)</label>
-<input type="checkbox" id="wh-bday-enable" checked style="transform:scale(1.1); cursor:pointer;">
-</div>
-<textarea id="wh-bday-text" class="wh-txt" rows="3">{С днем рождения|С праздником|Поздравляю с днем рождения}, %first_name%! {Желаю крепкого здоровья, энергии и грандиозных успехов|Всего самого наилучшего и исполнения желаний}! {🎂|🎉|🎁|🥂}</textarea>
-</div>
-<div class="wh-row-sb" style="margin-top:12px; flex-wrap:wrap; gap:8px;">
-<span style="font-size:11px; color:#64748b;">Переменная <code>%first_name%</code> подставляет имя друга.</span>
-<button class="wh-btn" onclick="saveTexts()" style="background:linear-gradient(135deg,#0284c7,#0369a1); color:#fff; font-size:12px; padding:8px 16px;">💾 Сохранить шаблон</button>
+<div style="margin-bottom:8px;"><b>🎯 Такт 1 (Строгий Приоритет №1 — Истории):</b> Охота за свежими историями друзей. Просмотр и лайк с мгновенным push-уведомлением на экран смартфона автора.</div>
+<div style="margin-bottom:8px;"><b>🎯 Такт 2 (Строгий Приоритет №1 — Истории):</b> Повторная охота за историями для закрепления максимального охвата аудитории.</div>
+<div style="margin-bottom:8px;"><b>📰 Такт 3 (Разбавка постом):</b> Лайк свежей записи друга в общей ленте новостей для естественности и безопасности перед алгоритмами ВК.</div>
+<div><b>🛡 Лимиты безопасности:</b> До 300 лайков в сутки, плавающая пауза 25–45 сек между тактами. Полная защита от любых лимитов и Flood Control.</div>
 </div>
 </div>
 
@@ -697,10 +682,6 @@ const savedToken = ls.getItem('wh_token'), savedName = ls.getItem('wh_name'), sa
 updateUiStats();
 loadCachedLogs('vk');
 loadTgSettings();
-const savedBdayText = ls.getItem('wh_bday_text');
-if (savedBdayText && $('wh-bday-text')) $('wh-bday-text').value = savedBdayText;
-const savedBdayEn = ls.getItem('wh_bday_enable');
-if (savedBdayEn !== null && $('wh-bday-enable')) $('wh-bday-enable').checked = (savedBdayEn === '1');
 // Clear any stale flood lockouts on init so user is never frozen
 resetVkFloodCooldown();
 ls.removeItem('wh_vk_flood_until');
@@ -735,10 +716,9 @@ function updateUiStats() {
 const todayStr = getToday();
 if (ls.getItem('wh_last_date') !== todayStr) {
 ls.setItem('wh_last_date', todayStr);
-ls.setItem('wh_story_likes', '0'); ls.setItem('wh_post_likes', '0'); ls.setItem('wh_bday_count', '0');
+ls.setItem('wh_story_likes', '0'); ls.setItem('wh_post_likes', '0');
 }
 const st = parseInt(ls.getItem('wh_story_likes') || '0'), po = parseInt(ls.getItem('wh_post_likes') || '0');
-const bday = parseInt(ls.getItem('wh_bday_count') || '0');
 const allSt = parseInt(ls.getItem('wh_all_time_stories') || '0');
 const allPo = parseInt(ls.getItem('wh_all_time_posts') || '0');
 const allTot = parseInt(ls.getItem('wh_all_time_total') || (allSt + allPo + st + po).toString());
@@ -746,20 +726,16 @@ const allTot = parseInt(ls.getItem('wh_all_time_total') || (allSt + allPo + st +
 if ($('wh-stories')) $('wh-stories').innerText = st;
 if ($('wh-post-likes')) $('wh-post-likes').innerText = po;
 if ($('wh-today-likes')) $('wh-today-likes').innerText = st + po;
-if ($('wh-msg-total')) $('wh-msg-total').innerText = bday;
-if ($('wh-msg-sub')) $('wh-msg-sub').innerText = `Поздравлено: ${bday}`;
 if ($('wh-all-time-total')) $('wh-all-time-total').innerText = Math.max(allTot, st + po);
 if ($('wh-total-all-sub')) $('wh-total-all-sub').innerText = 'Всего: ' + Math.max(allTot, st + po);
 }
 function addStat(type) {
-const k = type === 'story' ? 'wh_story_likes' : (type === 'post' ? 'wh_post_likes' : 'wh_bday_count');
+const k = type === 'story' ? 'wh_story_likes' : 'wh_post_likes';
 ls.setItem(k, (parseInt(ls.getItem(k) || '0') + 1).toString());
 if (type === 'story') {
 ls.setItem('wh_all_time_stories', (parseInt(ls.getItem('wh_all_time_stories') || '0') + 1).toString());
 } else if (type === 'post') {
 ls.setItem('wh_all_time_posts', (parseInt(ls.getItem('wh_all_time_posts') || '0') + 1).toString());
-} else if (type === 'bday') {
-ls.setItem('wh_all_time_bdays', (parseInt(ls.getItem('wh_all_time_bdays') || '0') + 1).toString());
 }
 const allTot = parseInt(ls.getItem('wh_all_time_total') || '0') + 1;
 ls.setItem('wh_all_time_total', allTot.toString());
@@ -862,24 +838,20 @@ async function syncVkStateWithServer() {
       if (data && data.status === 'ok') {
         const sStories = parseInt(data.today_stories || 0);
         const sPosts = parseInt(data.today_posts || 0);
-        const sBdays = parseInt(data.today_bdays || 0);
         const sAllStories = parseInt(data.all_time_stories || 0);
         const sAllPosts = parseInt(data.all_time_posts || 0);
         const sAllTotal = parseInt(data.all_time_total || 0);
 
         const lStories = parseInt(ls.getItem('wh_story_likes') || 0);
         const lPosts = parseInt(ls.getItem('wh_post_likes') || 0);
-        const lBdays = parseInt(ls.getItem('wh_bday_count') || 0);
         const lAllTotal = parseInt(ls.getItem('wh_all_time_total') || 0);
 
         const bestStories = Math.max(sStories, lStories);
         const bestPosts = Math.max(sPosts, lPosts);
-        const bestBdays = Math.max(sBdays, lBdays);
         const bestAllTotal = Math.max(sAllTotal, lAllTotal, bestStories + bestPosts);
 
         ls.setItem('wh_story_likes', bestStories.toString());
         ls.setItem('wh_post_likes', bestPosts.toString());
-        ls.setItem('wh_bday_count', bestBdays.toString());
         ls.setItem('wh_all_time_total', bestAllTotal.toString());
         if (sAllStories) ls.setItem('wh_all_time_stories', Math.max(sAllStories, parseInt(ls.getItem('wh_all_time_stories') || 0)).toString());
         if (sAllPosts) ls.setItem('wh_all_time_posts', Math.max(sAllPosts, parseInt(ls.getItem('wh_all_time_posts') || 0)).toString());
@@ -1079,13 +1051,9 @@ logMsg("🎯 [Такт 1/3: Истории] Охота на истории (Пр
 await huntStories();
 ls.setItem('wh_current_phase', '1');
 } else if (phase === 1) {
-logMsg("🎂 [Такт 2/3: Именинники] Проверка дней рождения друзей...", "info", "vk");
-const bdaySent = await checkBirthdaysDaily();
-ls.setItem('wh_current_phase', '2');
-if (!bdaySent && vkFloodRemain === 0) {
-logMsg("👁 [Такт 2/3: Истории] Очередь именинников закрыта. Охота на истории (Приоритет №1)...", "info", "vk");
+logMsg("🎯 [Такт 2/3: Истории] Охота на истории (Приоритет №1)...", "info", "vk");
 await huntStories();
-}
+ls.setItem('wh_current_phase', '2');
 } else {
 logMsg("📰 [Такт 3/3: Посты] Разбавка ленты постом...", "info", "vk");
 await huntPosts();
@@ -1103,54 +1071,7 @@ logMsg("Ошибка цикла: " + e.message, "error", "vk");
 }
 }
 }
-async function checkBirthdaysDaily() {
-if (vkFloodRemain > 0) return false;
-const bEn = $('wh-bday-enable')?.checked ?? true;
-const bText = ls.getItem('wh_bday_text') || $('wh-bday-text')?.value;
-if (!bEn || !bText) return false;
-const mskHours = (new Date().getUTCHours() + 3) % 24;
-if (mskHours < 6 || mskHours > 22) return false;
-const now = new Date(), curDM = now.getDate() + '.' + (now.getMonth() + 1), curY = now.getFullYear();
-try {
-const friends = await callVkApi('friends.get', { fields: 'bdate,first_name' });
-if (friends && friends.items) {
-for (let f of friends.items) {
-if (!f.bdate) continue;
-const p = f.bdate.split('.');
-if (p.length >= 2 && (parseInt(p[0]) + '.' + parseInt(p[1])) === curDM) {
-const k = curY + '_' + f.id;
-if (!isLogged('bday', f.id, k)) {
-setLogged('bday', f.id, k);
-try {
-const msg = parseSpintax(bText, f.first_name);
-const sent = await callVkApi('messages.send', { user_id: f.id, message: msg, random_id: Math.floor(Math.random() * 100000000) });
-if (sent && !sent.error) {
-addStat('bday');
-logMsg(`🎉 [День Рождения] Поздравлен: ${f.first_name} (id${f.id})`, "success", "vk");
-return true;
-} else {
-logMsg(`ℹ️ [День Рождения] ЛС для ${f.first_name} (id${f.id}) недоступны. Перехожу к Историям...`, "info", "vk");
-}
-} catch(e) {
-logMsg(`ℹ️ [День Рождения] ЛС для ${f.first_name} пропущены: ${e.message}`, "info", "vk");
-}
-}
-}
-}
-}
-} catch(e) {}
-return false;
-}
-function parseSpintax(text, firstName) {
-text = text.replace(/%first_name%/g, firstName || 'друг');
-let safety = 10;
-while (text.includes('{') && text.includes('}') && safety-- > 0) {
-text = text.replace(/\{([^\{}]+)\}/g, (_, s) => {
-const c = s.split('|'); return c[Math.floor(Math.random() * c.length)].trim();
-});
-}
-return text;
-}
+
 async function saveAndAuth() {
 resetVkFloodCooldown();
 ls.removeItem('wh_vk_flood_until');
@@ -1184,20 +1105,7 @@ if (API_URL) {
 try { fetch(API_URL + "?action=save&token=" + encodeURIComponent(token), { mode: 'no-cors' }).catch(() => {}); } catch(e) {}
 }
 }
-function saveTexts() {
-const bt = $('wh-bday-text')?.value.trim() || '';
-const be = $('wh-bday-enable')?.checked ?? true;
-ls.setItem('wh_bday_text', bt);
-ls.setItem('wh_bday_enable', be ? '1' : '0');
-if (API_URL) {
-try {
-const qs = "?action=save&bday_enabled=" + (be ? 'true' : 'false') + "&bday_text=" + encodeURIComponent(bt);
-fetch(API_URL + qs, { mode: 'no-cors' }).catch(() => {});
-} catch(e) {}
-}
-logMsg("Шаблон поздравления с ДР сохранен ✅", "success", "vk");
-alert('Шаблон поздравления с Днем Рождения успешно сохранен!');
-}
+function saveTexts() {}
 function resetAuth() {
 if (confirm('Сменить токен VK?')) {
 stopHuntingLoop();

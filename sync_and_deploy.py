@@ -47,13 +47,20 @@ def sync():
         shutil.copy2(tilda_src, tilda_gdrive)
     print("wolfhunt_tilda.html copied to desktop, downloads, and gdrive.")
 
-    # 4. Copy main.py
+    # 4. Copy main.py and ETALON_PROJECT_INFO.txt
     main_src = os.path.join(BASE_REPO, "main.py")
     shutil.copy2(main_src, os.path.join(DESKTOP, "main.py"))
     shutil.copy2(main_src, os.path.join(DESKTOP, "wolfhunt_render_main.py"))
+    shutil.copy2(main_src, os.path.join(DOWNLOADS, "main.py"))
     if os.path.exists(GDRIVE):
         shutil.copy2(main_src, os.path.join(GDRIVE, "main.py"))
-    print("main.py copied to desktop and gdrive.")
+    
+    info_src = os.path.join(BASE_REPO, "ETALON_PROJECT_INFO.txt")
+    shutil.copy2(info_src, os.path.join(DESKTOP, "ETALON_PROJECT_INFO.txt"))
+    shutil.copy2(info_src, os.path.join(DOWNLOADS, "ETALON_PROJECT_INFO.txt"))
+    if os.path.exists(GDRIVE):
+        shutil.copy2(info_src, os.path.join(GDRIVE, "ETALON_PROJECT_INFO.txt"))
+    print("main.py and ETALON_PROJECT_INFO.txt copied.")
 
     # 5. Mirror unpacked extension
     for dest_dir in [
