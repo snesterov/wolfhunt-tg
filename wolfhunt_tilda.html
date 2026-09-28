@@ -565,8 +565,12 @@ async function callVkApi(method, params = {}) {
 
         // 2. Flood Control / Action Limit -> Soft 60s pause without killing the hunting loop
         if (errCode === 9 || errLower.includes('flood control')) {
+          if (method === 'messages.send') {
+            logMsg("⚠️ [ЛС ВК: messages.send] Отправка сообщения заблокирована антиспамом ВК (Код 9). Продолжаю охоту без задержки.", "warn", "vk");
+            return resolve(null);
+          }
           triggerVkFloodCooldown(60);
-          logMsg(`⏳ [VK Защита] Мягкая пауза 60с (Код 9: ${errMsg}). Охота возобновится автоматически.`, "warn", "vk");
+          logMsg(`⏳ [VK Защита: ${method}] Мягкая пауза 60с (Код 9: ${errMsg}). Охота возобновится автоматически.`, "warn", "vk");
           return resolve(null);
         }
 
@@ -828,6 +832,7 @@ renderRunningState(next);
 
 if (next) {
 resetVkFloodCooldown();
+ls.setItem('wh_current_phase', '0');
 logMsg("🚀 ВК Хантер запущен! Первый такт через 3 с, пауза 25–45 с.", "success", "vk");
 startHuntingLoop(false);
 } else {
@@ -1074,13 +1079,13 @@ logMsg("🎯 [Такт 1/3: Истории] Охота на истории (Пр
 await huntStories();
 ls.setItem('wh_current_phase', '1');
 } else if (phase === 1) {
-// Такт 2: сбор раз в сутки, отправка пачками до 5
+logMsg("🎂 [Такт 2/3: Именинники] Проверка дней рождения друзей...", "info", "vk");
 const bdaySent = await checkBirthdaysDaily();
-if (vkFloodRemain > 0) return;
-if (!bdaySent) {
+ls.setItem('wh_current_phase', '2');
+if (!bdaySent && vkFloodRemain === 0) {
+logMsg("👁 [Такт 2/3: Истории] Очередь именинников закрыта. Охота на истории (Приоритет №1)...", "info", "vk");
 await huntStories();
 }
-ls.setItem('wh_current_phase', '2');
 } else {
 logMsg("📰 [Такт 3/3: Посты] Разбавка ленты постом...", "info", "vk");
 await huntPosts();
@@ -1091,8 +1096,8 @@ const em = (e.message || '').toLowerCase();
 if (em.includes('blocked') || em.includes('banned') || em.includes('deactivated')) {
 handleVkSecurityStop('Страница заморожена');
 } else if (em.includes('flood') || em.includes('too many')) {
-triggerVkFloodCooldown(180);
-logMsg("⏳ [VK Пауза] Пауза 3 мин по защите частоты запросов.", "warn", "vk");
+triggerVkFloodCooldown(60);
+logMsg("⏳ [VK Пауза] Пауза 60с по защите частоты запросов.", "warn", "vk");
 } else {
 logMsg("Ошибка цикла: " + e.message, "error", "vk");
 }
@@ -1104,7 +1109,7 @@ const bEn = $('wh-bday-enable')?.checked ?? true;
 const bText = ls.getItem('wh_bday_text') || $('wh-bday-text')?.value;
 if (!bEn || !bText) return false;
 const mskHours = (new Date().getUTCHours() + 3) % 24;
-if (mskHours < 6) return false;
+if (mskHours < 6 || mskHours > 22) return false;
 const now = new Date(), curDM = now.getDate() + '.' + (now.getMonth() + 1), curY = now.getFullYear();
 try {
 const friends = await callVkApi('friends.get', { fields: 'bdate,first_name' });
@@ -1115,15 +1120,19 @@ const p = f.bdate.split('.');
 if (p.length >= 2 && (parseInt(p[0]) + '.' + parseInt(p[1])) === curDM) {
 const k = curY + '_' + f.id;
 if (!isLogged('bday', f.id, k)) {
+setLogged('bday', f.id, k);
 try {
 const msg = parseSpintax(bText, f.first_name);
-await callVkApi('messages.send', { user_id: f.id, message: msg, random_id: Math.floor(Math.random() * 100000000) });
-setLogged('bday', f.id, k);
+const sent = await callVkApi('messages.send', { user_id: f.id, message: msg, random_id: Math.floor(Math.random() * 100000000) });
+if (sent && !sent.error) {
 addStat('bday');
 logMsg(`🎉 [День Рождения] Поздравлен: ${f.first_name} (id${f.id})`, "success", "vk");
 return true;
+} else {
+logMsg(`ℹ️ [День Рождения] ЛС для ${f.first_name} (id${f.id}) недоступны. Перехожу к Историям...`, "info", "vk");
+}
 } catch(e) {
-setLogged('bday', f.id, k);
+logMsg(`ℹ️ [День Рождения] ЛС для ${f.first_name} пропущены: ${e.message}`, "info", "vk");
 }
 }
 }
