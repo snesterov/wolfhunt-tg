@@ -548,15 +548,18 @@ async function callVkApi(method, params = {}) {
           return resolve(null);
         }
 
-        // 2. Flood Control / Action Limit -> Soft 60s pause without killing the hunting loop
+        // 2. Flood Control / Action Limit -> Stop hunter completely, prevent infinite penalty reset
         if (errCode === 9 || errLower.includes('flood control')) {
-          if (method === 'messages.send') {
-            logMsg("⚠️ [ЛС ВК: messages.send] Отправка сообщения заблокирована антиспамом ВК (Код 9). Продолжаю охоту без задержки.", "warn", "vk");
-            return resolve(null);
-          }
-          triggerVkFloodCooldown(60);
-          logMsg(`⏳ [VK Защита: ${method}] Мягкая пауза 60с (Код 9: ${errMsg}). Охота возобновится автоматически.`, "warn", "vk");
-          return resolve(null);
+          stopHuntingLoop();
+          ls.setItem('wh_running', 'false');
+          renderRunningState(false);
+          const sub = $('wh-sub');
+          if (sub) { sub.innerText = '🛑 Пауза ВК Flood Control (15-20 мин покоя)'; sub.style.color = '#ef4444'; }
+          logMsg("🛑 [VK Flood Control] ВКонтакте временно ограничил этот профиль (Код 9: превышение частоты запросов).", "error", "vk");
+          logMsg("👉 Сервис полностью остановлен. Не запускайте такты и дайте аккаунту 15–20 минут полного покоя.", "warn", "vk");
+          logMsg("👉 Любая отправка запросов сейчас обнуляет 15-минутный таймер ВК заново!", "info", "vk");
+          logMsg("👉 Либо нажмите «Сменить токен VK» ниже, если хотите переключиться на другой профиль.", "info", "vk");
+          return reject(new Error('Flood control: требуется 15-20 минут покоя'));
         }
 
         // 3. Auth expired or account banned
