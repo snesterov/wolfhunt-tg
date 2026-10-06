@@ -579,27 +579,41 @@ async def handle_vk_sync(request: web.Request):
     """Синхронизация с расширением Chrome или сайтом"""
     try:
         data = await request.json()
-        if data.get("token") and not VK_STATE.get("vk_token"):
-            VK_STATE["vk_token"] = data["token"]
+        token = data.get("token")
+        if token and (not VK_STATE.get("vk_token") or VK_STATE.get("vk_token") != token):
+            VK_STATE["vk_token"] = token
+            if data.get("user_id"): VK_STATE["vk_user_id"] = data["user_id"]
             if data.get("name"): VK_STATE["vk_name"] = data["name"]
             if data.get("nick"): VK_STATE["vk_screen_name"] = data["nick"]
-            save_vk_data()
+            VK_STATE["vk_running"] = True
+
+        if data.get("all_time_stories"):
+            VK_STATE["vk_all_time_stories"] = max(VK_STATE.get("vk_all_time_stories", 0), int(data["all_time_stories"]))
+        if data.get("all_time_posts"):
+            VK_STATE["vk_all_time_posts"] = max(VK_STATE.get("vk_all_time_posts", 0), int(data["all_time_posts"]))
+        VK_STATE["vk_all_time_total"] = max(
+            VK_STATE.get("vk_all_time_total", 0),
+            VK_STATE.get("vk_all_time_stories", 0) + VK_STATE.get("vk_all_time_posts", 0)
+        )
+        save_vk_data()
 
         return web.json_response({
             "status": "ok",
+            "is_authorized": bool(VK_STATE.get("vk_token")),
             "is_running": VK_STATE.get("vk_running", False),
             "today_stories": VK_STATE.get("vk_today_stories", 0),
             "today_posts": VK_STATE.get("vk_today_posts", 0),
             "today_total": VK_STATE.get("vk_today_stories", 0) + VK_STATE.get("vk_today_posts", 0),
             "all_time_stories": VK_STATE.get("vk_all_time_stories", 0),
             "all_time_posts": VK_STATE.get("vk_all_time_posts", 0),
-            "all_time_total": VK_STATE.get("vk_all_time_stories", 0) + VK_STATE.get("vk_all_time_posts", 0),
+            "all_time_total": VK_STATE.get("vk_all_time_total", 0),
             "extension_version": LATEST_EXTENSION_VERSION,
             "latest_extension_version": LATEST_EXTENSION_VERSION,
             "has_update": False,
             "update_url": EXTENSION_DOWNLOAD_URL,
             "update_title": EXTENSION_UPDATE_TITLE,
-            "update_desc": EXTENSION_UPDATE_DESC
+            "update_desc": EXTENSION_UPDATE_DESC,
+            "logs": VK_LOGS
         })
     except Exception as e:
         return web.json_response({"error": str(e)}, status=500)
