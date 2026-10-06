@@ -330,19 +330,25 @@
 <div>• <b>Облачный пароль 2FA:</b> Если в вашем аккаунте Telegram включен двухэтапный облачный пароль, после ввода 5-значного кода откроется поле для его ввода.</div>
 </div>
 
-<div id="wh-tg-step-phone" style="display:flex; flex-wrap:wrap; gap:8px;">
-<input id="wh-tg-phone-input" class="wh-inp" type="tel" placeholder="Введите номер телефона (+7995...)" style="flex:1; min-width:200px;">
-<button id="wh-tg-btn-send" class="wh-btn" onclick="requestTgCode()" style="background:linear-gradient(135deg,#0284c7,#0369a1); color:#fff; white-space:nowrap; padding:10px 20px; font-size:13px;">📲 Получить код</button>
+<div id="wh-tg-step-phone">
+  <div style="display:flex; flex-wrap:wrap; gap:8px;">
+    <input id="wh-tg-phone-input" class="wh-inp" type="tel" placeholder="Введите номер телефона (+7995...)" value="+79950944203" style="flex:1; min-width:200px;">
+    <button id="wh-tg-btn-send" class="wh-btn" onclick="requestTgCode()" style="background:linear-gradient(135deg,#0284c7,#0369a1); color:#fff; white-space:nowrap; padding:10px 20px; font-size:13px;">📲 Получить код</button>
+  </div>
+  <div style="margin-top:10px;">
+    <button id="wh-tg-btn-manual-code" type="button" onclick="showTgManualCode()" class="wh-btn" style="background:#1e293b; color:#38bdf8; border:1px solid #0284c7; font-size:11px; padding:6px 12px; cursor:pointer;">🔑 У меня уже есть код (ввести вручную)</button>
+  </div>
 </div>
 <div id="wh-tg-step-code" style="display:none; margin-top:10px;">
-<div style="font-size:11px; color:#34d399; font-weight:600; margin-bottom:6px;">✔ Код отправлен в Telegram! Введите его ниже:</div>
-<div style="display:flex; gap:8px;">
-<input id="wh-tg-code-input" class="wh-inp" type="text" placeholder="5-значный код из чата Telegram" style="flex:1; min-width:180px;">
-<button id="wh-tg-btn-verify" class="wh-btn" onclick="verifyTgCode()" style="background:linear-gradient(135deg,#10b981,#059669); color:#fff; white-space:nowrap; padding:10px 20px; font-size:13px;">⚡ Подключить</button>
-</div>
-<div id="wh-tg-step-pwd" style="display:none; margin-top:8px;">
-<input id="wh-tg-pwd-input" class="wh-inp" type="password" placeholder="Облачный пароль 2FA (если включен в Telegram)">
-</div>
+  <div style="font-size:11px; color:#34d399; font-weight:600; margin-bottom:6px;">✔ Введите полученный 5-значный код:</div>
+  <div style="display:flex; gap:8px;">
+    <input id="wh-tg-code-input" class="wh-inp" type="text" placeholder="5-значный код из SMS / Telegram" style="flex:1; min-width:180px; font-size:14px; font-weight:700; letter-spacing:2px;">
+    <button id="wh-tg-btn-verify" class="wh-btn" onclick="verifyTgCode()" style="background:linear-gradient(135deg,#10b981,#059669); color:#fff; white-space:nowrap; padding:10px 20px; font-size:13px;">⚡ Подключить</button>
+    <button id="wh-tg-btn-back" class="wh-btn" onclick="backToTgPhone()" style="background:#334155; color:#cbd5e1; font-size:11px; padding:10px 14px;">← Номер</button>
+  </div>
+  <div id="wh-tg-step-pwd" style="display:none; margin-top:8px;">
+    <input id="wh-tg-pwd-input" class="wh-inp" type="password" placeholder="Облачный пароль 2FA (если включен в Telegram)">
+  </div>
 </div>
 <div id="wh-tg-auth-msg" style="font-size:11px; margin-top:8px; font-weight:600;"></div>
 </div>
@@ -798,149 +804,124 @@ if (dot) dot.style.background = '#10b981';
 if (sub) { sub.innerText = '⏸ На паузе (готов к охоте)'; sub.style.color = '#94a3b8'; }
 }
 }
-function toggleWolfState() {
-const hasToken = !!ls.getItem('wh_token');
-const authCardVisible = $('wh-auth-card') && $('wh-auth-card').style.display !== 'none';
-if (!hasToken || authCardVisible) {
-alert('⚠️ Для запуска охоты сначала необходимо обязательно авторизоваться в блоке «Подключение профиля ВКонтакте» ниже!');
-const el = $('wh-auth-card') || $('wh-token-raw');
-if (el) {
-el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-el.style.transition = 'box-shadow 0.3s ease, border-color 0.3s ease';
-el.style.boxShadow = '0 0 25px rgba(37,99,235,0.9)';
-el.style.borderColor = '#60a5fa';
-setTimeout(() => {
-el.style.boxShadow = '';
-el.style.borderColor = '#3b82f6';
-}, 2500);
-}
-return;
-}
-const cur = (ls.getItem('wh_running') === 'true');
-const next = !cur;
-
-if (next) {
-  const curMode = ls.getItem('wh_vk_exec_mode') || 'cloud';
-  const curType = ls.getItem('wh_vk_proxy_type') || 'direct';
-  if (curMode === 'cloud' && curType !== 'socks5') {
-    if (typeof window._wh_vk_slots_active === 'number' && window._wh_vk_slots_active >= (window._wh_vk_slots_max || 5)) {
-      alert('🛑 Все 5 слотов общего IP сервера Render сейчас заняты!\n\nЧтобы не делить лимит ВКонтакте и не ловить Flood Control, подключите свой персональный SOCKS5 прокси, либо переключитесь в «💻 Браузерный режим (домашний IP)».');
-      return;
-    }
+async function toggleWolfState() {
+  const hasToken = !!ls.getItem('wh_token');
+  const authCardVisible = $('wh-auth-card') && $('wh-auth-card').style.display !== 'none';
+  if (!hasToken || authCardVisible) {
+    alert('⚠️ Для запуска охоты сначала необходимо обязательно авторизоваться в блоке «Подключение профиля ВКонтакте» ниже!');
+    const el = $('wh-auth-card') || $('wh-token-raw');
+    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    return;
   }
-}
+  const cur = (ls.getItem('wh_running') === 'true');
+  const next = !cur;
 
-ls.setItem('wh_running', next ? 'true' : 'false');
-renderRunningState(next);
+  ls.setItem('wh_running', next ? 'true' : 'false');
+  renderRunningState(next);
 
-if (next) {
-resetVkFloodCooldown();
-ls.setItem('wh_current_phase', '0');
-logMsg("🚀 ВК Хантер запущен! Первый такт через 3 с, пауза 25–45 с.", "success", "vk");
-startHuntingLoop(false);
-} else {
-logMsg("⏹ ВК Хантер полностью остановлен пользователем.", "warn", "vk");
-stopHuntingLoop();
-}
+  const btn = $('wh-toggle-btn');
+  if (btn) btn.disabled = true;
 
-try {
-const t = ls.getItem('wh_token'), uId = ls.getItem('wh_user_id') || '';
-const curMode = ls.getItem('wh_vk_exec_mode') || 'cloud';
-if (t) {
-fetch(TG_API_URL + '/api/vk/toggle', {
-method: 'POST',
-headers: { 'Content-Type': 'application/json' },
-body: JSON.stringify({ action: next ? 'start' : 'stop', access_token: t, user_id: uId, exec_mode: curMode })
-}).catch(()=>{});
-}
-} catch(e) {}
+  try {
+    const res = await fetch(TG_API_URL + '/api/vk/toggle', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: next ? 'start' : 'stop' })
+    });
+    const data = await res.json();
+    if (data && data.status === 'ok') {
+      const isRun = !!data.is_running;
+      ls.setItem('wh_running', isRun ? 'true' : 'false');
+      renderRunningState(isRun);
+      if (isRun) logMsg("🚀 ВК Хантер запущен на сервере Render (24/7)! (Истории x3 + Посты x1)", "success", "vk");
+      else logMsg("⏸ ВК Хантер приостановлен пользователем.", "warn", "vk");
+    }
+  } catch(e) {
+    logMsg("Ошибка связи с сервером: " + e.message, "warn", "vk");
+  } finally {
+    if (btn) btn.disabled = false;
+  }
 }
 
 async function syncVkStateWithServer() {
   try {
-    const t = ls.getItem('wh_token'), uId = ls.getItem('wh_user_id') || '';
-    if (!t && !uId) return;
-    const res = await fetch(TG_API_URL + '/api/vk/status?user_id=' + encodeURIComponent(uId) + '&access_token=' + encodeURIComponent(t || ''));
-    if (res.ok) {
-      const data = await res.json();
-      if (data && data.status === 'ok') {
-        const sStories = parseInt(data.today_stories || 0);
-        const sPosts = parseInt(data.today_posts || 0);
-        const sAllStories = parseInt(data.all_time_stories || 0);
-        const sAllPosts = parseInt(data.all_time_posts || 0);
-        const sAllTotal = parseInt(data.all_time_total || 0);
+    const res = await fetch(TG_API_URL + '/api/vk/status');
+    if (!res.ok) return;
+    const data = await res.json();
+    if (data && data.status === 'ok') {
+      const isAuth = !!data.user_id;
+      const isRun = !!data.is_running;
+      ls.setItem('wh_running', isRun ? 'true' : 'false');
+      renderRunningState(isRun);
 
-        const lStories = parseInt(ls.getItem('wh_story_likes') || 0);
-        const lPosts = parseInt(ls.getItem('wh_post_likes') || 0);
-        const lAllTotal = parseInt(ls.getItem('wh_all_time_total') || 0);
+      if (isAuth) {
+        if ($('wh-auth-card')) $('wh-auth-card').style.display = 'none';
+        if ($('wh-reset-btn')) $('wh-reset-btn').style.display = 'inline-flex';
+        if ($('wh-name') && data.name) $('wh-name').innerText = data.name;
+        if ($('wh-dot')) $('wh-dot').style.background = '#10b981';
+      }
 
-        const bestStories = Math.max(sStories, lStories);
-        const bestPosts = Math.max(sPosts, lPosts);
-        const bestAllTotal = Math.max(sAllTotal, lAllTotal, bestStories + bestPosts);
+      const st = parseInt(data.today_stories || 0);
+      const po = parseInt(data.today_posts || 0);
+      const allSt = parseInt(data.all_time_stories || 0);
+      const allPo = parseInt(data.all_time_posts || 0);
+      const allTot = parseInt(data.all_time_total || (allSt + allPo));
 
-        ls.setItem('wh_story_likes', bestStories.toString());
-        ls.setItem('wh_post_likes', bestPosts.toString());
-        ls.setItem('wh_all_time_total', bestAllTotal.toString());
-        if (sAllStories) ls.setItem('wh_all_time_stories', Math.max(sAllStories, parseInt(ls.getItem('wh_all_time_stories') || 0)).toString());
-        if (sAllPosts) ls.setItem('wh_all_time_posts', Math.max(sAllPosts, parseInt(ls.getItem('wh_all_time_posts') || 0)).toString());
-        updateUiStats();
+      if ($('wh-stories')) $('wh-stories').innerText = st;
+      if ($('wh-post-likes')) $('wh-post-likes').innerText = po;
+      if ($('wh-today-likes')) $('wh-today-likes').innerText = st + po;
+      if ($('wh-all-time-total')) $('wh-all-time-total').innerText = allTot;
+      if ($('wh-total-all-sub')) $('wh-total-all-sub').innerText = 'Всего: ' + allTot;
 
-        const sRun = !!data.is_running;
-        const lRun = (ls.getItem('wh_running') === 'true');
-        const curMode = ls.getItem('wh_vk_exec_mode') || 'cloud';
-        if (curMode === 'cloud' && !sRun && lRun) {
-          ls.setItem('wh_running', 'false');
-          renderRunningState(false);
-          logMsg("⏹ [Синхронизация] Получен сигнал паузы ВК.", "warn", "vk");
-          stopHuntingLoop();
-        }
-        if (data.has_update && $('wh-tilda-update-banner')) {
-          $('wh-tilda-update-banner').style.display = 'block';
-        }
-        if (typeof data.shared_slots_active !== 'undefined' && typeof window.updateVkSlotsDisplay === 'function') {
-          window.updateVkSlotsDisplay(data.shared_slots_active, data.shared_slots_max);
-        }
+      if (data.logs && Array.isArray(data.logs) && data.logs.length > 0) {
+        renderCloudLogsToBox('wh-log-stream', data.logs);
       }
     }
   } catch(e) {}
 }
 
-function startHuntingLoop(immediate = false) {
-stopHuntingLoop(); isHunting = true;
-if (immediate) executeCycleAndScheduleNext();
-else huntTimer = setTimeout(() => executeCycleAndScheduleNext(), 3000);
+function renderCloudLogsToBox(containerId, logs) {
+  const container = $(containerId);
+  if (!container || !logs || !logs.length) return;
+  container.innerHTML = logs.map(l => {
+    let col = "#94a3b8";
+    if (l.type === "success") col = "#34d399";
+    if (l.type === "warn") col = "#fbbf24";
+    if (l.type === "error") col = "#f87171";
+    return `<div style="color:${col}; margin-bottom:2px;"><span style="color:#64748b;">[${l.time}]</span> ${l.text}</div>`;
+  }).join("");
+  container.scrollTop = container.scrollHeight;
 }
-function stopHuntingLoop() {
-isHunting = false;
-if (huntTimer) { clearTimeout(huntTimer); huntTimer = null; }
-if (vkFloodTimer) { clearInterval(vkFloodTimer); vkFloodTimer = null; }
-}
-async function executeCycleAndScheduleNext() {
-if (!isHunting || ls.getItem('wh_running') !== 'true') return;
-if (vkFloodRemain > 0) return;
-try {
-await runHuntingCycle();
-} catch (e) {
-logMsg("Ошибка шага: " + e.message, "error", "vk");
-} finally {
-if (isHunting && ls.getItem('wh_running') === 'true' && vkFloodRemain === 0) {
-scheduleNextCycle();
-}
-}
-}
-function scheduleNextCycle() {
-if (!isHunting || ls.getItem('wh_running') !== 'true' || vkFloodRemain > 0) return;
-if (huntTimer) clearTimeout(huntTimer);
-const sec = Math.floor(Math.random() * 21) + 25;
-huntTimer = setTimeout(() => executeCycleAndScheduleNext(), sec * 1000);
-}
+
+function startHuntingLoop() {}
+function stopHuntingLoop() {}
+function executeCycleAndScheduleNext() {}
+
 async function runOneCycleNow() {
-const hasToken = !!ls.getItem('wh_token');
-const authCardVisible = $('wh-auth-card') && $('wh-auth-card').style.display !== 'none';
-if (!hasToken || authCardVisible) return alert('⚠️ Сначала подключите профиль ВКонтакте в блоке ниже!');
-if (vkFloodRemain > 0) return logMsg(`⏳ Защитная пауза ВК: ${vkFloodRemain} сек!`, "warn", "vk");
-logMsg("⚡ Принудительный запуск такта...", "info", "vk");
-await runHuntingCycle();
+  const hasToken = !!ls.getItem('wh_token');
+  const authCardVisible = $('wh-auth-card') && $('wh-auth-card').style.display !== 'none';
+  if (!hasToken || authCardVisible) return alert('⚠️ Сначала подключите профиль ВКонтакте в блоке ниже!');
+  const btn = $('wh-btn-now');
+  if (btn) { btn.disabled = true; btn.innerText = '⏳ Лайкаем...'; }
+  logMsg("⚡ Запрос разового такта на сервере...", "info", "vk");
+  try {
+    const res = await fetch(TG_API_URL + '/api/vk/like_once', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({})
+    });
+    const data = await res.json();
+    if (data && data.status === 'ok') {
+      logMsg("✔ Разовый такт выполнен на сервере!", "success", "vk");
+      await syncVkStateWithServer();
+    } else {
+      logMsg("⚠️ Ошибка: " + (data?.error || "Сбой такта"), "warn", "vk");
+    }
+  } catch(e) {
+    logMsg("Ошибка связи: " + e.message, "warn", "vk");
+  } finally {
+    if (btn) { btn.disabled = false; btn.innerText = '⚡ Лайкнуть сейчас'; }
+  }
 }
 async function huntStories() {
 if (getTodayLikesCount() >= 300) return false;
@@ -1122,27 +1103,46 @@ if (pl && pl.token) { token = pl.token; }
 if (pl && pl.user && pl.user.id) { userId = String(pl.user.id); }
 } catch(e) {}
 }
-msg.innerText = "⏳ Подключение профиля..."; msg.style.color = "#38bdf8";
-ls.setItem('wh_token', token);
-if (userId) ls.setItem('wh_user_id', userId);
-await fetchAndRenderVkProfile(token);
-ls.setItem('wh_running', 'false');
-renderRunningState(false);
-const fn = ls.getItem('wh_name') || 'Пользователь';
-logMsg("✔ Профиль успешно подключен: " + fn + " ✅", "success", "vk");
-msg.innerText = "";
-if (API_URL) {
-try { fetch(API_URL + "?action=save&token=" + encodeURIComponent(token), { mode: 'no-cors' }).catch(() => {}); } catch(e) {}
-}
+  msg.innerText = "⏳ Подключение к серверу 24/7..."; msg.style.color = "#38bdf8";
+
+  try {
+    const res = await fetch(TG_API_URL + '/api/vk/auth', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ token })
+    });
+    const data = await res.json();
+    if (data && data.status === 'ok') {
+      ls.setItem('wh_token', token);
+      ls.setItem('wh_user_id', String(data.user_id));
+      ls.setItem('wh_name', data.name);
+      ls.setItem('wh_nick', data.screen_name || '');
+      ls.setItem('wh_running', 'true');
+      if ($('wh-name')) $('wh-name').innerText = data.name;
+      if ($('wh-auth-card')) $('wh-auth-card').style.display = 'none';
+      if ($('wh-reset-btn')) $('wh-reset-btn').style.display = 'inline-flex';
+      if ($('wh-dot')) $('wh-dot').style.background = '#10b981';
+      renderRunningState(true);
+      logMsg("✔ Профиль успешно подключен: " + data.name + " ✅", "success", "vk");
+      msg.innerText = "";
+      await syncVkStateWithServer();
+    } else {
+      msg.innerText = "❌ " + (data?.error || "Неверный токен");
+      msg.style.color = "#f87171";
+    }
+  } catch(e) {
+    msg.innerText = "❌ Ошибка сети: " + e.message;
+    msg.style.color = "#f87171";
+  }
 }
 function saveTexts() {}
-function resetAuth() {
-if (confirm('Сменить токен VK?')) {
-stopHuntingLoop();
-['wh_token', 'wh_name', 'wh_photo', 'wh_user_id'].forEach(k => ls.removeItem(k));
-ls.setItem('wh_running', 'false');
-location.reload();
-}
+async function resetAuth() {
+  if (confirm('Сменить токен VK?')) {
+    try { await fetch(TG_API_URL + '/api/vk/logout', { method: 'POST' }); } catch(e) {}
+    ['wh_token', 'wh_name', 'wh_photo', 'wh_user_id'].forEach(k => ls.removeItem(k));
+    ls.setItem('wh_running', 'false');
+    location.reload();
+  }
 }
 async function resetTgAuth() {
 if (!confirm("Выйти из Telegram и подключить другой номер?")) return;
@@ -1207,161 +1207,188 @@ if (d.length === 11 && (d.startsWith('8') || d.startsWith('7'))) return '+7' + d
 if (raw.startsWith('+')) return '+' + d;
 return d ? ('+' + d) : '';
 }
+function showTgManualCode() {
+  if ($('wh-tg-step-phone')) $('wh-tg-step-phone').style.display = 'none';
+  if ($('wh-tg-step-code')) $('wh-tg-step-code').style.display = 'block';
+  const msg = $('wh-tg-auth-msg');
+  if (msg) msg.innerHTML = '<span style="color:#38bdf8;">👉 Введите 5-значный проверочный код из SMS или Telegram:</span>';
+  if ($('wh-tg-code-input')) $('wh-tg-code-input').focus();
+}
+
+function backToTgPhone() {
+  ls.removeItem('wh_tg_code_pending');
+  fetch(TG_API_URL + '/api/tg/cancel_code', { method: 'POST' }).catch(() => {});
+  if ($('wh-tg-step-code')) $('wh-tg-step-code').style.display = 'none';
+  if ($('wh-tg-step-pwd')) $('wh-tg-step-pwd').style.display = 'none';
+  if ($('wh-tg-step-phone')) $('wh-tg-step-phone').style.display = 'block';
+  const msg = $('wh-tg-auth-msg');
+  if (msg) msg.innerHTML = '';
+}
+
 async function requestTgCode() {
-const inputEl = $('wh-tg-phone-input');
-const rawPhone = inputEl?.value.trim() || '';
-const msg = $('wh-tg-auth-msg'), btn = $('wh-tg-btn-send');
-if (!rawPhone) return alert('Введите номер телефона!');
-const cleanDigits = rawPhone.replace(/\D/g, '');
-if (cleanDigits.length < 10) {
-if (msg) msg.innerHTML = `<span style="color:#ef4444; font-weight:700;">⚠️ Вы ввели код подтверждения (${cleanDigits}) вместо номера телефона!<br>Сначала введите номер телефона (+79991234567) и нажмите «📲 Получить код».</span>`;
-alert(`⚠️ Вы ввели ${cleanDigits.length}-значный код (${cleanDigits}) вместо номера телефона!\n\nСначала введите полный номер своего телефона (например: +79991234567), нажмите кнопку «Получить код», и только затем вводите полученный 5-значный код в появившееся поле.`);
-return;
+  const inputEl = $('wh-tg-phone-input');
+  const rawPhone = inputEl?.value.trim() || '';
+  const msg = $('wh-tg-auth-msg'), btn = $('wh-tg-btn-send');
+  if (!rawPhone) return alert('Введите номер телефона!');
+  const cleanDigits = rawPhone.replace(/\D/g, '');
+  if (cleanDigits.length < 10) {
+    if (msg) msg.innerHTML = `<span style="color:#ef4444; font-weight:700;">⚠️ Введите полный номер телефона (+79991234567)</span>`;
+    return;
+  }
+  const phone = normalizePhone(rawPhone);
+  if (inputEl) inputEl.value = phone;
+  if (msg) msg.innerHTML = `<span style="color:#38bdf8;">⏳ Отправка запроса в Telegram на ${phone}...</span>`;
+  if (btn) btn.disabled = true;
+  try {
+    const res = await fetch(TG_API_URL + '/api/tg/send_code', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ phone })
+    });
+    const data = await res.json();
+    const isAlreadySent = (data.error && (data.error.includes("already used") || data.error.includes("ResendCodeRequest")));
+    if (res.ok && data.status === 'ok') {
+      ls.setItem('wh_tg_code_pending', 'true');
+      ls.setItem('wh_tg_phone', phone);
+      if ($('wh-tg-step-phone')) $('wh-tg-step-phone').style.display = 'none';
+      if ($('wh-tg-step-code')) $('wh-tg-step-code').style.display = 'block';
+      if (msg) msg.innerHTML = `<span style="color:#34d399;">✔ Код отправлен в Telegram на ${phone}! Введите его ниже:</span>`;
+      logMsg(`Код отправлен в Telegram (${phone}) ✅`, 'success', 'tg');
+      if ($('wh-tg-code-input')) $('wh-tg-code-input').focus();
+    } else if (isAlreadySent) {
+      ls.setItem('wh_tg_code_pending', 'true');
+      ls.setItem('wh_tg_phone', phone);
+      if ($('wh-tg-step-phone')) $('wh-tg-step-phone').style.display = 'none';
+      if ($('wh-tg-step-code')) $('wh-tg-step-code').style.display = 'block';
+      if (msg) msg.innerHTML = `<span style="color:#34d399;">✔ Код уже отправлен на ${phone}! Введите его ниже:</span>`;
+      if ($('wh-tg-code-input')) $('wh-tg-code-input').focus();
+    } else {
+      throw new Error(data.error || data.message || 'Ошибка запроса кода');
+    }
+  } catch(err) {
+    if (msg) msg.innerHTML = `<span style="color:#f87171;">❌ ${err.message}</span>`;
+    logMsg('Ошибка TG: ' + err.message, 'warn', 'tg');
+  } finally {
+    if (btn) btn.disabled = false;
+  }
 }
-const phone = normalizePhone(rawPhone);
-if (inputEl) inputEl.value = phone;
-if (msg) msg.innerHTML = `<span style="color:#38bdf8;">⏳ Отправка запроса в Telegram на ${phone}...</span>`;
-if (btn) btn.disabled = true;
-try {
-const res = await fetch(TG_API_URL + '/api/tg/send_code', {
-method: 'POST',
-headers: { 'Content-Type': 'application/json' },
-body: JSON.stringify({ phone })
-});
-const data = await res.json();
-if (res.ok && data.status === 'ok') {
-if ($('wh-tg-step-code')) $('wh-tg-step-code').style.display = 'block';
-if (msg) msg.innerHTML = `<span style="color:#34d399;">✔ Код отправлен в Telegram на ${phone}! Введите его ниже:</span>`;
-logMsg(`Код отправлен в Telegram (${phone}) ✅`, 'success', 'tg');
-} else throw new Error(data.message || 'Ошибка запроса кода');
-} catch(err) {
-if (msg) msg.innerHTML = `<span style="color:#f87171;">❌ ${err.message}</span>`;
-logMsg('Ошибка TG: ' + err.message, 'warn', 'tg');
-} finally {
-if (btn) btn.disabled = false;
-}
-}
+
 async function verifyTgCode() {
-const code = $('wh-tg-code-input')?.value.trim();
-const pwd = $('wh-tg-pwd-input')?.value.trim();
-const msg = $('wh-tg-auth-msg'), btn = $('wh-tg-btn-verify');
-if (!code) return alert('Введите 5-значный код из Telegram!');
-if (msg) msg.innerHTML = '<span style="color:#38bdf8;">⏳ Авторизация профиля...</span>';
-if (btn) btn.disabled = true;
-try {
-const res = await fetch(TG_API_URL + '/api/tg/verify_code', {
-method: 'POST',
-headers: { 'Content-Type': 'application/json' },
-body: JSON.stringify({ code, password: pwd })
-});
-const data = await res.json();
-if (data.status === 'need_password') {
-if ($('wh-tg-step-pwd')) $('wh-tg-step-pwd').style.display = 'block';
-if (msg) msg.innerHTML = '<span style="color:#fbbf24;">🔐 Введите 2FA облачный пароль и нажмите «Подключить»:</span>';
-return;
+  const code = $('wh-tg-code-input')?.value.trim();
+  const pwd = $('wh-tg-pwd-input')?.value.trim();
+  const msg = $('wh-tg-auth-msg'), btn = $('wh-tg-btn-verify');
+  if (!code && !pwd) return alert('Введите 5-значный код из Telegram!');
+  if (msg) msg.innerHTML = '<span style="color:#38bdf8;">⏳ Проверка кода...</span>';
+  if (btn) btn.disabled = true;
+  try {
+    let endpoint = pwd ? '/api/tg/auth_2fa' : '/api/tg/verify_code';
+    let payload = pwd ? { password: pwd } : { code: code, phone: ls.getItem('wh_tg_phone') || '' };
+    const res = await fetch(TG_API_URL + endpoint, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    const data = await res.json();
+    if (data.status === '2fa_required' || data.status === 'need_password') {
+      if ($('wh-tg-step-pwd')) $('wh-tg-step-pwd').style.display = 'block';
+      if (msg) msg.innerHTML = '<span style="color:#fbbf24;">🔐 Введите 2FA облачный пароль и нажмите «Подключить»:</span>';
+      return;
+    }
+    if (res.ok && data.status === 'ok') {
+      if (msg) msg.innerHTML = '<span style="color:#34d399;">✔ Telegram успешно подключен!</span>';
+      ls.setItem('wh_tg_authorized', 'true');
+      ls.removeItem('wh_tg_code_pending');
+      ls.removeItem('wh_tg_phone');
+      if ($('wh-tg-step-code')) $('wh-tg-step-code').style.display = 'none';
+      if ($('wh-tg-step-pwd')) $('wh-tg-step-pwd').style.display = 'none';
+      logMsg('Telegram профиль успешно подключен! ✅', 'success', 'tg');
+      updateTgBackendStatus();
+    } else {
+      throw new Error(data.error || data.message || 'Неверный код');
+    }
+  } catch(err) {
+    if (msg) msg.innerHTML = `<span style="color:#f87171;">❌ ${err.message}</span>`;
+  } finally {
+    if (btn) btn.disabled = false;
+  }
 }
-if (res.ok && data.status === 'ok') {
-if (msg) msg.innerText = '';
-ls.setItem('wh_tg_authorized', 'true');
-if (data.session_string) ls.setItem('wh_tg_session_string', data.session_string);
-logMsg('Telegram профиль успешно подключен! ✅', 'success', 'tg');
-updateTgBackendStatus();
-} else throw new Error(data.message || 'Неверный код');
-} catch(err) {
-if (msg) msg.innerHTML = `<span style="color:#f87171;">❌ ${err.message}</span>`;
-} finally {
-if (btn) btn.disabled = false;
-}
-}
+
 async function toggleTgHunterState() {
-const isAuth = ls.getItem('wh_tg_authorized') === 'true';
-if (!isAuth) {
-alert('⚠️ Для запуска Telegram Хантера сначала необходимо обязательно авторизоваться в блоке «Подключение профиля Telegram онлайн» ниже!');
-const el = $('wh-tg-auth-card') || $('wh-tg-phone-input');
-if (el) {
-el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-el.style.transition = 'box-shadow 0.3s ease, border-color 0.3s ease';
-el.style.boxShadow = '0 0 25px rgba(2,132,199,0.9)';
-el.style.borderColor = '#38bdf8';
-setTimeout(() => {
-el.style.boxShadow = '';
-el.style.borderColor = '#0284c7';
-}, 2500);
+  const isAuth = ls.getItem('wh_tg_authorized') === 'true';
+  if (!isAuth) {
+    alert('⚠️ Для запуска Telegram Хантера сначала необходимо обязательно авторизоваться в блоке «Подключение профиля Telegram онлайн» ниже!');
+    const el = $('wh-tg-auth-card') || $('wh-tg-phone-input');
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+    return;
+  }
+  const cur = ls.getItem('wh_tg_running') === 'true';
+  const action = cur ? 'stop' : 'start';
+  try {
+    const res = await fetch(TG_API_URL + '/api/tg/toggle', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action })
+    });
+    const data = await res.json();
+    if (res.ok && data.status === 'ok') {
+      ls.setItem('wh_tg_running', data.is_running ? 'true' : 'false');
+      renderTgRunningState(data.is_running);
+      if (data.is_running) logMsg('▶ Telegram Охота запущена в облаке 24/7!', 'success', 'tg');
+      else logMsg('⏸ Telegram Охота приостановлена пользователем.', 'warn', 'tg');
+    } else alert(data.error || data.message || 'Ошибка переключения');
+  } catch(e) {
+    logMsg('Связь с TG: ' + e.message, 'warn', 'tg');
+  }
 }
-return;
-}
-const cur = ls.getItem('wh_tg_running') === 'true';
-const action = cur ? 'stop' : 'start';
-if (action === 'stop') {
-ls.setItem('wh_tg_manually_stopped', 'true');
-} else {
-ls.removeItem('wh_tg_manually_stopped');
-}
-const reactions = getSelectedTgReactions();
-try {
-const res = await fetch(TG_API_URL + '/api/tg/toggle', {
-method: 'POST',
-headers: { 'Content-Type': 'application/json' },
-body: JSON.stringify({ action, reactions })
-});
-const data = await res.json();
-if (res.ok && data.status === 'ok') {
-ls.setItem('wh_tg_running', data.is_running ? 'true' : 'false');
-renderTgRunningState(data.is_running);
-if (data.is_running) logMsg('▶ Telegram Охота запущена в облаке 24/7!', 'success', 'tg');
-else logMsg('⏹ Telegram Охота приостановлена пользователем.', 'warn', 'tg');
-} else alert(data.message || 'Ошибка переключения');
-} catch(e) {
-logMsg('Связь с TG: ' + e.message, 'warn', 'tg');
-}
-}
+
 async function updateTgBackendStatus() {
-try {
-const res = await fetch(TG_API_URL + '/api/tg/status');
-if (!res.ok) {
-if (ls.getItem('wh_tg_authorized') !== 'true') {
-const sub = $('wh-tg-sub');
-if (sub) { sub.innerText = '⚠️ Сервер Telegram запускается...'; sub.style.color = '#f59e0b'; }
-}
-return;
-}
-const data = await res.json();
-if (data.status === 'ok') {
-const authCard = $('wh-tg-auth-card');
-const isAuth = !!data.is_authorized;
-let isRun = !!data.is_running;
-const user = data.user;
-if (isAuth && user) {
-ls.setItem('wh_tg_authorized', 'true');
-if (authCard) authCard.style.display = 'none';
-const fn = (user.first_name || '') + ' ' + (user.last_name || '') + (user.username ? ' (@' + user.username + ')' : '');
-if ($('wh-tg-name')) $('wh-tg-name').innerText = fn.trim() || 'Telegram Профиль';
-if ($('wh-tg-dot')) $('wh-tg-dot').style.background = '#10b981';
-if ($('wh-tg-reset-btn')) $('wh-tg-reset-btn').style.display = 'inline-flex';
-const todayReactions = (data.reactions_today !== undefined) ? parseInt(data.reactions_today) : 0;
-ls.setItem('wh_tg_running', isRun ? 'true' : 'false');
-renderTgRunningState(isRun);
-} else {
-const sStr = ls.getItem('wh_tg_session_string');
-if (sStr && !window.__tgRestoring) {
-window.__tgRestoring = true;
-fetch(TG_API_URL + '/api/tg/restore_session', {
-method: 'POST',
-headers: { 'Content-Type': 'application/json' },
-body: JSON.stringify({ session_string: sStr })
-}).then(r => r.json()).then(res => {
-window.__tgRestoring = false;
-if (res.status === 'ok') updateTgBackendStatus();
-}).catch(() => { window.__tgRestoring = false; });
-}
-ls.setItem('wh_tg_authorized', 'false');
-ls.setItem('wh_tg_running', 'false');
-if (authCard) authCard.style.display = 'block';
-if ($('wh-tg-name')) $('wh-tg-name').innerText = 'Telegram Хантер';
-if ($('wh-tg-dot')) $('wh-tg-dot').style.background = '#64748b';
-if ($('wh-tg-reset-btn')) $('wh-tg-reset-btn').style.display = 'none';
-renderTgRunningState(false);
-}
+  try {
+    const res = await fetch(TG_API_URL + '/api/tg/status');
+    if (!res.ok) {
+      if (ls.getItem('wh_tg_authorized') !== 'true') {
+        const sub = $('wh-tg-sub');
+        if (sub) { sub.innerText = '⚠️ Сервер Telegram запускается...'; sub.style.color = '#f59e0b'; }
+      }
+      return;
+    }
+    const data = await res.json();
+    if (data.status === 'ok') {
+      const authCard = $('wh-tg-auth-card');
+      const isAuth = !!data.is_authorized;
+      let isRun = !!data.is_running;
+      const user = data.user;
+      if (isAuth && user) {
+        ls.setItem('wh_tg_authorized', 'true');
+        ls.removeItem('wh_tg_code_pending');
+        ls.removeItem('wh_tg_phone');
+        if (authCard) authCard.style.display = 'none';
+        const fn = (user.first_name || '') + ' ' + (user.last_name || '') + (user.username ? ' (@' + user.username + ')' : '');
+        if ($('wh-tg-name')) $('wh-tg-name').innerText = fn.trim() || 'Telegram Профиль';
+        if ($('wh-tg-dot')) $('wh-tg-dot').style.background = '#10b981';
+        if ($('wh-tg-reset-btn')) $('wh-tg-reset-btn').style.display = 'inline-flex';
+        ls.setItem('wh_tg_running', isRun ? 'true' : 'false');
+        renderTgRunningState(isRun);
+      } else {
+        ls.setItem('wh_tg_authorized', 'false');
+        ls.setItem('wh_tg_running', 'false');
+        if (authCard) authCard.style.display = 'block';
+        if ($('wh-tg-name')) $('wh-tg-name').innerText = 'Telegram Хантер';
+        if ($('wh-tg-dot')) $('wh-tg-dot').style.background = '#64748b';
+        if ($('wh-tg-reset-btn')) $('wh-tg-reset-btn').style.display = 'none';
+        renderTgRunningState(false);
+
+        const isPending = (data.code_pending || ls.getItem('wh_tg_code_pending') === 'true');
+        if (isPending) {
+          if ($('wh-tg-step-phone')) $('wh-tg-step-phone').style.display = 'none';
+          if ($('wh-tg-step-code')) $('wh-tg-step-code').style.display = 'block';
+          const msg = $('wh-tg-auth-msg');
+          if (msg && !msg.innerText) {
+            msg.innerHTML = `<span style="color:#38bdf8;">✔ Введите полученный 5-значный код:</span>`;
+          }
+        }
+      }
 const likes = (data && data.reactions_today !== undefined) ? parseInt(data.reactions_today) : 0;
 const views = (data && data.views_today !== undefined) ? parseInt(data.views_today) : likes;
 const allTimeReactions = (data && data.reactions_all_time !== undefined) ? parseInt(data.reactions_all_time) : (parseInt(ls.getItem('wh_tg_all_time') || '0'));

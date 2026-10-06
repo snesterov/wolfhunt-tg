@@ -651,6 +651,8 @@ async def handle_tg_status(request: web.Request):
         "is_authorized": tg_state["is_authorized"],
         "is_running": tg_state["is_running"],
         "user": tg_state["user"],
+        "phone": tg_state.get("phone"),
+        "code_pending": bool(tg_state.get("phone_code_hash") and not tg_state["is_authorized"]),
         "reactions_today": tg_state["reactions_today"],
         "views_today": tg_state["views_today"],
         "reactions_all_time": tg_state.get("reactions_all_time", 0),
@@ -666,11 +668,23 @@ async def handle_tg_send_code(request: web.Request):
         if not phone:
             return web.json_response({"error": "phone required"}, status=400)
         await client.connect()
-        res = await client.send_code_request(phone)
-        tg_state["phone"] = phone
-        tg_state["phone_code_hash"] = res.phone_code_hash
-        add_tg_log(f"Код подтверждения отправлен на номер {phone}", "info")
-        return web.json_response({"status": "ok", "phone_code_hash": res.phone_code_hash})
+        try:
+            res = await client.send_code_request(phone)
+            tg_state["phone"] = phone
+            tg_state["phone_code_hash"] = res.phone_code_hash
+            add_tg_log(f"Код подтверждения отправлен на номер {phone}", "info")
+            return web.json_response({"status": "ok", "phone_code_hash": res.phone_code_hash})
+        except Exception as send_err:
+            err_str = str(send_err)
+            if ("already used" in err_str.lower() or "resend" in err_str.lower()) and tg_state.get("phone_code_hash"):
+                add_tg_log(f"Код уже ранее отправлен на номер {phone}. Ожидание ввода кода...", "info")
+                return web.json_response({
+                    "status": "ok",
+                    "already_sent": True,
+                    "phone_code_hash": tg_state["phone_code_hash"],
+                    "message": "Код уже отправлен на ваш номер! Введите его в поле ниже."
+                })
+            raise send_err
     except Exception as e:
         add_tg_log(f"Ошибка отправки кода Telegram: {e}", "warn")
         return web.json_response({"error": str(e)}, status=500)
@@ -679,16 +693,17 @@ async def handle_tg_verify_code(request: web.Request):
     try:
         data = await request.json()
         code = data.get("code", "").strip()
-        phone = tg_state.get("phone")
-        phone_code_hash = tg_state.get("phone_code_hash")
+        phone = data.get("phone", "").strip() or tg_state.get("phone")
+        phone_code_hash = data.get("phone_code_hash", "").strip() or tg_state.get("phone_code_hash")
         if not phone or not code or not phone_code_hash:
-            return web.json_response({"error": "phone, code and phone_code_hash required"}, status=400)
+            return web.json_response({"error": "Требуется код подтверждения. Если код не приходит, нажмите 'Получить код' заново."}, status=400)
         try:
             user = await client.sign_in(phone=phone, code=code, phone_code_hash=phone_code_hash)
         except SessionPasswordNeededError:
             return web.json_response({"status": "2fa_required"})
         me = await client.get_me()
         tg_state["is_authorized"] = True
+        tg_state["phone_code_hash"] = None
         tg_state["user"] = {
             "id": me.id,
             "first_name": me.first_name,
@@ -705,6 +720,11 @@ async def handle_tg_verify_code(request: web.Request):
     except Exception as e:
         add_tg_log(f"Ошибка верификации кода: {e}", "warn")
         return web.json_response({"error": str(e)}, status=500)
+
+async def handle_tg_cancel_code(request: web.Request):
+    tg_state["phone_code_hash"] = None
+    tg_state["phone"] = None
+    return web.json_response({"status": "ok"})
 
 async def handle_tg_auth_2fa(request: web.Request):
     try:
@@ -876,6 +896,7 @@ async def init_app():
     app.router.add_get("/api/tg/status", handle_tg_status)
     app.router.add_post("/api/tg/send_code", handle_tg_send_code)
     app.router.add_post("/api/tg/verify_code", handle_tg_verify_code)
+    app.router.add_post("/api/tg/cancel_code", handle_tg_cancel_code)
     app.router.add_post("/api/tg/auth_2fa", handle_tg_auth_2fa)
     app.router.add_post("/api/tg/toggle", handle_tg_toggle)
     app.router.add_post("/api/tg/logout", handle_tg_logout)
