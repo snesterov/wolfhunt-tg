@@ -579,6 +579,10 @@ async def handle_vk_sync(request: web.Request):
             VK_STATE["vk_all_time_stories"] = max(VK_STATE.get("vk_all_time_stories", 0), int(data["all_time_stories"]))
         if data.get("all_time_posts"):
             VK_STATE["vk_all_time_posts"] = max(VK_STATE.get("vk_all_time_posts", 0), int(data["all_time_posts"]))
+        if data.get("all_time_total"):
+            VK_STATE["vk_all_time_total"] = max(VK_STATE.get("vk_all_time_total", 0), int(data["all_time_total"]))
+        if data.get("today_stories"):
+            VK_STATE["vk_today_stories"] = max(VK_STATE.get("vk_today_stories", 0), int(data["today_stories"]))
         VK_STATE["vk_all_time_total"] = max(
             VK_STATE.get("vk_all_time_total", 0),
             VK_STATE.get("vk_all_time_stories", 0) + VK_STATE.get("vk_all_time_posts", 0)
