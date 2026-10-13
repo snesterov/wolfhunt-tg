@@ -103,22 +103,35 @@ async def tg_hunter_loop():
     add_tg_log("▶ Охота на истории Telegram запущена!", "success")
     while tg_state["is_running"]:
         try:
-            today = str(datetime.now().date())
-            if tg_state.get("last_date") and tg_state["last_date"] != today:
-                tg_state["last_date"] = today
+            msk_now = datetime.now(timezone.utc) + timedelta(hours=3)
+            today_str = msk_now.strftime("%Y-%m-%d")
+
+            # 1. Сброс счетчиков строго в 00:00 МСК
+            if tg_state.get("last_date") and tg_state["last_date"] != today_str:
+                tg_state["last_date"] = today_str
                 tg_state["reactions_today"] = 0
                 tg_state["views_today"] = 0
-                add_tg_log("🔄 Новый день: суточный счетчик Telegram сброшен (0/150)", "info")
+                tg_state["auto_paused_limit"] = False
+                save_tg_data()
+                add_tg_log("🚀 Новый день (00:00 МСК)! Счетчики Telegram сброшены (0/150), охота 24/7 активна ✅", "success")
             elif not tg_state.get("last_date"):
-                tg_state["last_date"] = today
+                tg_state["last_date"] = today_str
+                save_tg_data()
 
-            if tg_state["reactions_today"] >= DAILY_TG_LIMIT:
-                now = datetime.now()
-                tomorrow = datetime(now.year, now.month, now.day) + timedelta(days=1)
-                wait_sec = int((tomorrow - now).total_seconds()) + 30
-                add_tg_log(f"🛑 Лимит {DAILY_TG_LIMIT} исчерпан. Пауза до 00:00 ({wait_sec//3600}ч)", "warn")
-                await asyncio.sleep(min(wait_sec, 3600))
+            # 2. Суточный лимит 150 реакций — полный сон до 00:00 МСК без запросов к API
+            if tg_state.get("reactions_today", 0) >= DAILY_TG_LIMIT:
+                midnight = (msk_now + timedelta(days=1)).replace(hour=0, minute=0, second=0, microsecond=0)
+                wait_sec = max(60, int((midnight - msk_now).total_seconds()) + 5)
+                hours_left = wait_sec // 3600
+                mins_left = (wait_sec % 3600) // 60
+                if not tg_state.get("auto_paused_limit"):
+                    tg_state["auto_paused_limit"] = True
+                    save_tg_data()
+                    add_tg_log(f"🛑 [Лимит {DAILY_TG_LIMIT}/{DAILY_TG_LIMIT} исчерпан] Дневной план Telegram выполнен. Полный сон до 00:00 МСК ({hours_left}ч {mins_left}м). Запросы историй отключены! 🌙", "warn")
+                await asyncio.sleep(min(wait_sec, 300))
                 continue
+            else:
+                tg_state["auto_paused_limit"] = False
 
             stories_data = await client(functions.stories.GetAllStoriesRequest())
             users_map = {}
@@ -796,10 +809,55 @@ async def handle_tg_restore_session(request: web.Request):
                 "username": me.username or ""
             }
             save_tg_data()
+            if tg_state.get("is_running"):
+                global tg_hunter_task
+                if tg_hunter_task is None or tg_hunter_task.done():
+                    tg_hunter_task = asyncio.create_task(tg_hunter_loop())
             add_tg_log(f"✔ Сессия Telegram автоматически восстановлена из браузера: {me.first_name}", "success")
             return web.json_response({"status": "ok", "user": tg_state["user"]})
         else:
             return web.json_response({"error": "invalid session"}, status=401)
+    except Exception as e:
+        return web.json_response({"error": str(e)}, status=500)
+
+async def handle_tg_sync(request: web.Request):
+    global client, tg_hunter_task
+    try:
+        data = await request.json()
+        s_str = data.get("session_string", "").strip()
+        if s_str and not tg_state.get("is_authorized"):
+            from telethon.sessions import StringSession
+            client = TelegramClient(StringSession(s_str), API_ID, API_HASH)
+            await client.connect()
+            if await client.is_user_authorized():
+                me = await client.get_me()
+                tg_state["is_authorized"] = True
+                tg_state["user"] = {
+                    "id": me.id,
+                    "first_name": me.first_name,
+                    "last_name": me.last_name or "",
+                    "username": me.username or ""
+                }
+                if tg_state.get("is_running"):
+                    if tg_hunter_task is None or tg_hunter_task.done():
+                        tg_hunter_task = asyncio.create_task(tg_hunter_loop())
+                add_tg_log(f"✔ Сессия Telegram синхронизирована: {me.first_name}", "success")
+        if data.get("reactions_today"):
+            tg_state["reactions_today"] = max(tg_state.get("reactions_today", 0), int(data["reactions_today"]))
+        if data.get("reactions_all_time"):
+            tg_state["reactions_all_time"] = max(tg_state.get("reactions_all_time", 0), int(data["reactions_all_time"]))
+        save_tg_data()
+        return web.json_response({
+            "status": "ok",
+            "is_authorized": tg_state["is_authorized"],
+            "is_running": tg_state["is_running"],
+            "user": tg_state["user"],
+            "reactions_today": tg_state["reactions_today"],
+            "views_today": tg_state["views_today"],
+            "reactions_all_time": tg_state.get("reactions_all_time", 0),
+            "daily_limit": DAILY_TG_LIMIT,
+            "logs": tg_state["logs"]
+        })
     except Exception as e:
         return web.json_response({"error": str(e)}, status=500)
 
@@ -956,6 +1014,7 @@ async def init_app():
     app.router.add_post("/api/tg/logout", handle_tg_logout)
     app.router.add_post("/api/tg/like_once", handle_tg_like_once)
     app.router.add_post("/api/tg/restore_session", handle_tg_restore_session)
+    app.router.add_post("/api/tg/sync", handle_tg_sync)
 
     # VK API
     app.router.add_post("/api/vk/auth", handle_vk_auth)
@@ -993,6 +1052,11 @@ async def init_app():
                 "username": me.username or ""
             }
             add_tg_log(f"✔ Восстановлена сессия: {me.first_name} (@{me.username or me.id})", "success")
+            if tg_state.get("is_running"):
+                global tg_hunter_task
+                if tg_hunter_task is None or tg_hunter_task.done():
+                    tg_hunter_task = asyncio.create_task(tg_hunter_loop())
+                    add_tg_log("▶ Автономный воркер Telegram 24/7 возобновлен!", "success")
     except Exception as e:
         print("[Telegram Auth Notice]:", e)
 
