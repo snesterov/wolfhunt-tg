@@ -104,11 +104,13 @@ async def tg_hunter_loop():
     while tg_state["is_running"]:
         try:
             today = str(datetime.now().date())
-            if tg_state["last_date"] != today:
+            if tg_state.get("last_date") and tg_state["last_date"] != today:
                 tg_state["last_date"] = today
                 tg_state["reactions_today"] = 0
                 tg_state["views_today"] = 0
                 add_tg_log("🔄 Новый день: суточный счетчик Telegram сброшен (0/150)", "info")
+            elif not tg_state.get("last_date"):
+                tg_state["last_date"] = today
 
             if tg_state["reactions_today"] >= DAILY_TG_LIMIT:
                 now = datetime.now()
@@ -285,7 +287,7 @@ async def call_vk_api(session: aiohttp.ClientSession, method: str, params: dict)
 
 async def run_vk_tact_stories(session: aiohttp.ClientSession, u: dict) -> bool:
     token = u.get("vk_token")
-    if not token:
+    if not token or u.get("vk_today_stories", 0) >= 300:
         return False
     append_vk_log("info", "👁 [Фаза: Истории] Поиск свежих историй друзей...")
     res = await call_vk_api(session, "stories.get", {"access_token": token, "extended": "1", "fields": "first_name,last_name"})
@@ -445,24 +447,33 @@ async def vk_cloud_hunter_worker():
                     msk_now = datetime.now(timezone.utc) + timedelta(hours=3)
                     today_str = msk_now.strftime("%Y-%m-%d")
 
-                    # 1. Сброс счетчиков в 00:00 МСК
-                    if u.get("vk_today_date") != today_str:
+                    # 1. Сброс счетчиков строго в 00:00 МСК (только если предыдущая дата была заполнена)
+                    if u.get("vk_today_date") and u.get("vk_today_date") != today_str:
                         u["vk_today_date"] = today_str
                         u["vk_today_stories"] = 0
                         u["vk_today_posts"] = 0
                         u["vk_auto_paused_limit"] = False
                         save_vk_data()
                         append_vk_log("success", "🚀 Новый день (00:00 МСК)! Счетчики сброшены, охота 24/7 активна ✅")
+                    elif not u.get("vk_today_date"):
+                        u["vk_today_date"] = today_str
+                        save_vk_data()
 
-                    # 2. Суточный лимит 300 историй
+                    # 2. Суточный лимит 300 историй — полный сон до 00:00 МСК без лишних запросов к API
                     total_today = u.get("vk_today_stories", 0)
                     if total_today >= 300:
+                        midnight = (msk_now + timedelta(days=1)).replace(hour=0, minute=0, second=0, microsecond=0)
+                        wait_sec = max(60, int((midnight - msk_now).total_seconds()) + 5)
+                        hours_left = wait_sec // 3600
+                        mins_left = (wait_sec % 3600) // 60
                         if not u.get("vk_auto_paused_limit"):
                             u["vk_auto_paused_limit"] = True
                             save_vk_data()
-                            append_vk_log("warn", f"🛑 [Суточный лимит 300] Пауза на ночь ({total_today}/300). Автостарт в 00:00 МСК! 🌙")
-                        await asyncio.sleep(600)
+                            append_vk_log("warn", f"🛑 [Лимит {total_today}/300 исчерпан] Дневной план выполнен. Полный сон до 00:00 МСК ({hours_left}ч {mins_left}м). Запросы историй отключены! 🌙")
+                        await asyncio.sleep(min(wait_sec, 300))
                         continue
+                    else:
+                        u["vk_auto_paused_limit"] = False
 
                     # 3. Чистая охота на Истории 24/7 (модель Telegram)
                     liked = await run_vk_tact_stories(session, u)
