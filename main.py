@@ -221,9 +221,12 @@ VK_STATE = {
     "vk_today_date": "",
     "vk_today_stories": 0,
     "vk_today_posts": 0,
+    "vk_views_today": 0,
+    "vk_views_all_time": 0,
     "vk_all_time_stories": 0,
     "vk_all_time_posts": 0,
     "vk_all_time_total": 0,
+    "reactions_list": ["❤", "🔥", "👍"],
     "vk_phase": 0,
     "seen_stories": [],
     "seen_posts": []
@@ -258,9 +261,12 @@ def save_vk_data():
             "vk_today_date": VK_STATE.get("vk_today_date", ""),
             "vk_today_stories": VK_STATE.get("vk_today_stories", 0),
             "vk_today_posts": VK_STATE.get("vk_today_posts", 0),
+            "vk_views_today": VK_STATE.get("vk_views_today", 0),
+            "vk_views_all_time": VK_STATE.get("vk_views_all_time", 0),
             "vk_all_time_stories": VK_STATE.get("vk_all_time_stories", 0),
             "vk_all_time_posts": VK_STATE.get("vk_all_time_posts", 0),
             "vk_all_time_total": VK_STATE.get("vk_all_time_stories", 0) + VK_STATE.get("vk_all_time_posts", 0),
+            "reactions_list": VK_STATE.get("reactions_list", ["❤", "🔥", "👍"]),
             "vk_phase": VK_STATE.get("vk_phase", 0),
             "seen_stories": VK_STATE.get("seen_stories", [])[-500:],
             "seen_posts": VK_STATE.get("seen_posts", [])[-500:]
@@ -339,11 +345,18 @@ async def run_vk_tact_stories(session: aiohttp.ClientSession, u: dict) -> bool:
         p_info = profiles.get(owner_id, {})
         fn = (p_info.get("first_name", "") + " " + p_info.get("last_name", "")).strip() or f"id{owner_id}"
 
+        # Учет просмотра истории
+        u["vk_views_today"] = u.get("vk_views_today", 0) + 1
+        u["vk_views_all_time"] = u.get("vk_views_all_time", 0) + 1
+
+        # Отправка выбранной реакции
+        reactions = u.get("reactions_list") or ["❤", "🔥", "👍"]
+        emoji = random.choice(reactions)
         act_res = await call_vk_api(session, "stories.sendInteraction", {
             "access_token": token,
             "owner_id": owner_id,
             "story_id": s_id,
-            "message": "❤"
+            "message": emoji
         })
         if "error" in act_res:
             err_code = act_res["error"].get("error_code")
@@ -359,7 +372,7 @@ async def run_vk_tact_stories(session: aiohttp.ClientSession, u: dict) -> bool:
         u["vk_all_time_stories"] = u.get("vk_all_time_stories", 0) + 1
         u["vk_all_time_total"] = max(u.get("vk_all_time_total", 0) + 1, u.get("vk_all_time_stories", 0) + u.get("vk_all_time_posts", 0))
         save_vk_data()
-        append_vk_log("success", f"🔥 [Истории] Охота: {fn} ❤ ({u['vk_today_stories']}/300)")
+        append_vk_log("success", f"{emoji} [Истории] Охота: {fn} ({u['vk_today_stories']}/300)")
         return True
 
     return False
@@ -558,6 +571,9 @@ async def handle_vk_status(request: web.Request):
         "today_stories": u.get("vk_today_stories", 0),
         "today_posts": u.get("vk_today_posts", 0),
         "today_total": u.get("vk_today_stories", 0) + u.get("vk_today_posts", 0),
+        "views_today": u.get("vk_views_today", 0),
+        "views_all_time": u.get("vk_views_all_time", 0),
+        "reactions_list": u.get("reactions_list", ["❤", "🔥", "👍"]),
         "all_time_stories": u.get("vk_all_time_stories", 0),
         "all_time_posts": u.get("vk_all_time_posts", 0),
         "all_time_total": u.get("vk_all_time_stories", 0) + u.get("vk_all_time_posts", 0),
@@ -593,6 +609,19 @@ async def handle_vk_logout(request: web.Request):
     append_vk_log("info", "🚪 Профиль ВКонтакте отключен.")
     return web.json_response({"status": "ok"})
 
+async def handle_vk_set_reactions(request: web.Request):
+    try:
+        data = await request.json()
+        reactions = data.get("reactions", [])
+        if isinstance(reactions, list) and len(reactions) > 0:
+            VK_STATE["reactions_list"] = reactions
+            save_vk_data()
+            append_vk_log("info", f"❤ Набор реакций ВК обновлен: {' '.join(reactions)}")
+            return web.json_response({"status": "ok", "reactions": VK_STATE["reactions_list"]})
+        return web.json_response({"error": "empty reactions"}, status=400)
+    except Exception as e:
+        return web.json_response({"error": str(e)}, status=500)
+
 async def handle_vk_sync(request: web.Request):
     """Синхронизация с расширением Chrome или сайтом"""
     try:
@@ -613,6 +642,8 @@ async def handle_vk_sync(request: web.Request):
             VK_STATE["vk_all_time_total"] = max(VK_STATE.get("vk_all_time_total", 0), int(data["all_time_total"]))
         if data.get("today_stories"):
             VK_STATE["vk_today_stories"] = max(VK_STATE.get("vk_today_stories", 0), int(data["today_stories"]))
+        if data.get("reactions") and isinstance(data["reactions"], list) and len(data["reactions"]) > 0:
+            VK_STATE["reactions_list"] = data["reactions"]
         VK_STATE["vk_all_time_total"] = max(
             VK_STATE.get("vk_all_time_total", 0),
             VK_STATE.get("vk_all_time_stories", 0) + VK_STATE.get("vk_all_time_posts", 0)
@@ -626,6 +657,9 @@ async def handle_vk_sync(request: web.Request):
             "today_stories": VK_STATE.get("vk_today_stories", 0),
             "today_posts": VK_STATE.get("vk_today_posts", 0),
             "today_total": VK_STATE.get("vk_today_stories", 0) + VK_STATE.get("vk_today_posts", 0),
+            "views_today": VK_STATE.get("vk_views_today", 0),
+            "views_all_time": VK_STATE.get("vk_views_all_time", 0),
+            "reactions_list": VK_STATE.get("reactions_list", ["❤", "🔥", "👍"]),
             "all_time_stories": VK_STATE.get("vk_all_time_stories", 0),
             "all_time_posts": VK_STATE.get("vk_all_time_posts", 0),
             "all_time_total": VK_STATE.get("vk_all_time_total", 0),
@@ -693,6 +727,7 @@ async def handle_tg_status(request: web.Request):
         "views_today": tg_state["views_today"],
         "reactions_all_time": tg_state.get("reactions_all_time", 0),
         "views_all_time": tg_state.get("views_all_time", 0),
+        "reactions_list": tg_state.get("reactions_list", ["❤️", "🔥", "👍"]),
         "daily_limit": DAILY_TG_LIMIT,
         "logs": tg_state["logs"]
     })
@@ -852,6 +887,8 @@ async def handle_tg_sync(request: web.Request):
             tg_state["reactions_today"] = max(tg_state.get("reactions_today", 0), int(data["reactions_today"]))
         if data.get("reactions_all_time"):
             tg_state["reactions_all_time"] = max(tg_state.get("reactions_all_time", 0), int(data["reactions_all_time"]))
+        if data.get("reactions") and isinstance(data["reactions"], list) and len(data["reactions"]) > 0:
+            tg_state["reactions_list"] = data["reactions"]
         save_tg_data()
         return web.json_response({
             "status": "ok",
@@ -861,9 +898,23 @@ async def handle_tg_sync(request: web.Request):
             "reactions_today": tg_state["reactions_today"],
             "views_today": tg_state["views_today"],
             "reactions_all_time": tg_state.get("reactions_all_time", 0),
+            "reactions_list": tg_state.get("reactions_list", ["❤️", "🔥", "👍"]),
             "daily_limit": DAILY_TG_LIMIT,
             "logs": tg_state["logs"]
         })
+    except Exception as e:
+        return web.json_response({"error": str(e)}, status=500)
+
+async def handle_tg_set_reactions(request: web.Request):
+    try:
+        data = await request.json()
+        reactions = data.get("reactions", [])
+        if isinstance(reactions, list) and len(reactions) > 0:
+            tg_state["reactions_list"] = reactions
+            save_tg_data()
+            add_tg_log(f"❤️ Набор реакций Telegram обновлен: {' '.join(reactions)}", "info")
+            return web.json_response({"status": "ok", "reactions": tg_state["reactions_list"]})
+        return web.json_response({"error": "empty reactions"}, status=400)
     except Exception as e:
         return web.json_response({"error": str(e)}, status=500)
 
@@ -1021,6 +1072,7 @@ async def init_app():
     app.router.add_post("/api/tg/like_once", handle_tg_like_once)
     app.router.add_post("/api/tg/restore_session", handle_tg_restore_session)
     app.router.add_post("/api/tg/sync", handle_tg_sync)
+    app.router.add_post("/api/tg/set_reactions", handle_tg_set_reactions)
 
     # VK API
     app.router.add_post("/api/vk/auth", handle_vk_auth)
@@ -1029,6 +1081,7 @@ async def init_app():
     app.router.add_post("/api/vk/logout", handle_vk_logout)
     app.router.add_post("/api/vk/sync", handle_vk_sync)
     app.router.add_get("/api/vk/sync", handle_vk_status)
+    app.router.add_post("/api/vk/set_reactions", handle_vk_set_reactions)
     app.router.add_post("/api/vk/like_once", handle_vk_like_once)
     app.router.add_post("/api/vk/proxy", handle_vk_proxy)
     app.router.add_get("/api/vk/stories", handle_vk_stories_proxy)
