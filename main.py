@@ -717,12 +717,17 @@ async def handle_tg_verify_code(request: web.Request):
             "username": me.username or ""
         }
         # Сохраняем сессию
-        if isinstance(client.session, StringSession):
+        session_str = ""
+        try:
+            from telethon.sessions import StringSession
+            session_str = StringSession.save(client.session)
             with open(SESSION_STR_FILE, "w", encoding="utf-8") as sf:
-                sf.write(client.session.save())
+                sf.write(session_str)
+        except Exception:
+            pass
         save_tg_data()
         add_tg_log(f"✔ Telegram успешно авторизован: {me.first_name}", "success")
-        return web.json_response({"status": "ok", "user": tg_state["user"]})
+        return web.json_response({"status": "ok", "user": tg_state["user"], "session_string": session_str})
     except Exception as e:
         add_tg_log(f"Ошибка верификации кода: {e}", "warn")
         return web.json_response({"error": str(e)}, status=500)
@@ -745,14 +750,46 @@ async def handle_tg_auth_2fa(request: web.Request):
             "last_name": me.last_name or "",
             "username": me.username or ""
         }
-        if isinstance(client.session, StringSession):
+        session_str = ""
+        try:
+            from telethon.sessions import StringSession
+            session_str = StringSession.save(client.session)
             with open(SESSION_STR_FILE, "w", encoding="utf-8") as sf:
-                sf.write(client.session.save())
+                sf.write(session_str)
+        except Exception:
+            pass
         save_tg_data()
         add_tg_log(f"✔ 2FA успешно пройдена: {me.first_name}", "success")
-        return web.json_response({"status": "ok", "user": tg_state["user"]})
+        return web.json_response({"status": "ok", "user": tg_state["user"], "session_string": session_str})
     except Exception as e:
         add_tg_log(f"Ошибка 2FA: {e}", "warn")
+        return web.json_response({"error": str(e)}, status=500)
+
+async def handle_tg_restore_session(request: web.Request):
+    global client
+    try:
+        data = await request.json()
+        s_str = data.get("session_string", "").strip()
+        if not s_str:
+            return web.json_response({"error": "session_string required"}, status=400)
+        from telethon.sessions import StringSession
+        client = TelegramClient(StringSession(s_str), API_ID, API_HASH)
+        await client.connect()
+        if await client.is_user_authorized():
+            me = await client.get_me()
+            tg_state["is_authorized"] = True
+            tg_state["user"] = {
+                "id": me.id,
+                "first_name": me.first_name,
+                "last_name": me.last_name or "",
+                "username": me.username or ""
+            }
+            save_tg_data()
+            add_tg_log(f"✔ Сессия Telegram автоматически восстановлена из браузера: {me.first_name}", "success")
+            return web.json_response({"status": "ok", "user": tg_state["user"]})
+        else:
+            return web.json_response({"error": "invalid session"}, status=401)
+    except Exception as e:
         return web.json_response({"error": str(e)}, status=500)
 
 async def handle_tg_toggle(request: web.Request):
@@ -907,6 +944,7 @@ async def init_app():
     app.router.add_post("/api/tg/toggle", handle_tg_toggle)
     app.router.add_post("/api/tg/logout", handle_tg_logout)
     app.router.add_post("/api/tg/like_once", handle_tg_like_once)
+    app.router.add_post("/api/tg/restore_session", handle_tg_restore_session)
 
     # VK API
     app.router.add_post("/api/vk/auth", handle_vk_auth)
