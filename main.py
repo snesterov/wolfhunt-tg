@@ -184,14 +184,17 @@ async def tg_hunter_loop():
                     save_tg_data()
                     new_count += 1
                     contact_name = users_map.get(user_id, f"Пользователь {user_id}")
-                    pause = random.randint(25, 45)
+                    pause = random.randint(30, 50)
                     add_tg_log(f"{emoji} Реакция: {contact_name} ({tg_state['reactions_today']}/{DAILY_TG_LIMIT})", "success")
                     await asyncio.sleep(pause)
                     break
 
             if new_count == 0:
-                add_tg_log("👁 Все свежие истории уже отсмотрены. Следующая проверка через 3 мин.", "info")
-                await asyncio.sleep(180)
+                idle_sec = random.randint(120, 300)
+                m, s = divmod(idle_sec, 60)
+                time_str = f"{m}м" if s == 0 else f"{m}м {s}с"
+                add_tg_log(f"👁 Свежих историй пока нет. Следующая проверка через {time_str}.", "info")
+                await asyncio.sleep(idle_sec)
 
         except FloodWaitError as e:
             add_tg_log(f"⏳ Пауза FloodWait: {e.seconds} сек", "warn")
@@ -491,13 +494,16 @@ async def vk_cloud_hunter_worker():
                     # 3. Чистая охота на Истории 24/7 (модель Telegram)
                     liked = await run_vk_tact_stories(session, u)
                     if liked:
-                        # Безопасная плавающая пауза между лайками историй
+                        # Безопасная плавающая пауза между лайками историй (30-50 сек)
                         pause = random.randint(30, 50)
                         await asyncio.sleep(pause)
                     else:
-                        # Все свежие истории уже отсмотрены — пауза 3 минуты (как в Telegram)
-                        append_vk_log("info", "👁 [Истории] Все свежие истории уже отсмотрены. Следующая проверка через 3 мин.")
-                        await asyncio.sleep(180)
+                        # Плавающий интервал ожидания от 2 до 5 минут при отсутствии свежих историй
+                        idle_sec = random.randint(120, 300)
+                        m, s = divmod(idle_sec, 60)
+                        time_str = f"{m}м" if s == 0 else f"{m}м {s}с"
+                        append_vk_log("info", f"👁 [Истории] Свежих историй пока нет. Следующая проверка через {time_str}.")
+                        await asyncio.sleep(idle_sec)
                 else:
                     await asyncio.sleep(10)
             except Exception as e:
@@ -750,7 +756,7 @@ async def handle_tg_verify_code(request: web.Request):
         except Exception:
             pass
         save_tg_data()
-        add_tg_log(f"✔ Telegram успешно авторизован: {me.first_name}", "success")
+        add_tg_log(f"🟢 Telegram подключен: {me.first_name} (@{me.username or me.id}) ✅", "success")
         return web.json_response({"status": "ok", "user": tg_state["user"], "session_string": session_str})
     except Exception as e:
         add_tg_log(f"Ошибка верификации кода: {e}", "warn")
@@ -783,7 +789,7 @@ async def handle_tg_auth_2fa(request: web.Request):
         except Exception:
             pass
         save_tg_data()
-        add_tg_log(f"✔ 2FA успешно пройдена: {me.first_name}", "success")
+        add_tg_log(f"🟢 Telegram подключен (2FA): {me.first_name} (@{me.username or me.id}) ✅", "success")
         return web.json_response({"status": "ok", "user": tg_state["user"], "session_string": session_str})
     except Exception as e:
         add_tg_log(f"Ошибка 2FA: {e}", "warn")
@@ -813,7 +819,7 @@ async def handle_tg_restore_session(request: web.Request):
                 global tg_hunter_task
                 if tg_hunter_task is None or tg_hunter_task.done():
                     tg_hunter_task = asyncio.create_task(tg_hunter_loop())
-            add_tg_log(f"✔ Сессия Telegram автоматически восстановлена из браузера: {me.first_name}", "success")
+            add_tg_log(f"🟢 Telegram подключен: {me.first_name} (@{me.username or me.id}) ✅", "success")
             return web.json_response({"status": "ok", "user": tg_state["user"]})
         else:
             return web.json_response({"error": "invalid session"}, status=401)
@@ -841,7 +847,7 @@ async def handle_tg_sync(request: web.Request):
                 if tg_state.get("is_running"):
                     if tg_hunter_task is None or tg_hunter_task.done():
                         tg_hunter_task = asyncio.create_task(tg_hunter_loop())
-                add_tg_log(f"✔ Сессия Telegram синхронизирована: {me.first_name}", "success")
+                add_tg_log(f"🟢 Telegram синхронизирован: {me.first_name} (@{me.username or me.id}) ✅", "success")
         if data.get("reactions_today"):
             tg_state["reactions_today"] = max(tg_state.get("reactions_today", 0), int(data["reactions_today"]))
         if data.get("reactions_all_time"):
