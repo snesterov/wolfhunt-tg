@@ -163,6 +163,9 @@ async def tg_hunter_loop():
                     if getattr(story, 'out', False) or getattr(story, 'sent_reaction', None) is not None:
                         seen_tg_stories.add(story_key)
                         continue
+                    if getattr(story, 'is_ad', False) or getattr(story, 'ad_id', None):
+                        seen_tg_stories.add(story_key)
+                        continue
 
                     # Просмотр истории
                     await client(functions.stories.ReadStoriesRequest(peer=peer, max_id=story.id))
@@ -333,10 +336,18 @@ async def run_vk_tact_stories(session: aiohttp.ClientSession, u: dict) -> bool:
 
     for author in items:
         owner_id = author.get("id") or author.get("owner_id")
+        # Фильтр: строго живые люди (пропуск групп, пабликов и сообществ с отрицательным id)
+        if not owner_id or owner_id <= 0:
+            continue
+
         stories_list = author.get("stories", [])
         if not stories_list:
             continue
         fresh_story = stories_list[-1]
+        # Пропуск рекламных историй
+        if fresh_story.get("is_ads") or fresh_story.get("is_promoted"):
+            continue
+
         s_id = fresh_story["id"]
         seen_key = f"{owner_id}_{s_id}"
         if seen_key in seen_stories:
