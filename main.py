@@ -189,10 +189,10 @@ async def tg_hunter_loop():
 # 2. VK 24/7 AUTONOMOUS CLOUD ENGINE (STRICT 4-TACT CYCLE)
 # ==============================================================================
 VK_DATA_FILE = "wolfhunt_vk_users.json"
-LATEST_EXTENSION_VERSION = "2.1.0"
+LATEST_EXTENSION_VERSION = "2.2.0"
 EXTENSION_DOWNLOAD_URL = "https://wolfhunt-tg.onrender.com/downloads/WOLFHUNT_CHROME_EXTENSION.zip"
-EXTENSION_UPDATE_TITLE = "Обновление WolfHunt PRO v2.1.0!"
-EXTENSION_UPDATE_DESC = "Автономное облако 24/7. Строгий 4-тактный цикл: Истории х3 (Приоритет №1) + Посты х1. Защита от Flood Control."
+EXTENSION_UPDATE_TITLE = "Обновление WolfHunt PRO v2.2.0!"
+EXTENSION_UPDATE_DESC = "Охота на Истории ВК 24/7 (модель Telegram), умные безопасные паузы 30-50с, без постов."
 
 VK_STATE = {
     "vk_user_id": 49239823,
@@ -339,12 +339,11 @@ async def run_vk_tact_stories(session: aiohttp.ClientSession, u: dict) -> bool:
 
         u["vk_today_stories"] = u.get("vk_today_stories", 0) + 1
         u["vk_all_time_stories"] = u.get("vk_all_time_stories", 0) + 1
-        u["vk_all_time_total"] = u.get("vk_all_time_stories", 0) + u.get("vk_all_time_posts", 0)
+        u["vk_all_time_total"] = max(u.get("vk_all_time_total", 0) + 1, u.get("vk_all_time_stories", 0) + u.get("vk_all_time_posts", 0))
         save_vk_data()
-        append_vk_log("success", f"🔥 [Истории] Охота: {fn} ❤")
+        append_vk_log("success", f"🔥 [Истории] Охота: {fn} ❤ ({u['vk_today_stories']}/300)")
         return True
 
-    append_vk_log("info", "🔍 [Истории] Все доступные истории друзей уже отсмотрены.")
     return False
 
 async def run_vk_tact_posts(session: aiohttp.ClientSession, u: dict) -> bool:
@@ -455,37 +454,26 @@ async def vk_cloud_hunter_worker():
                         save_vk_data()
                         append_vk_log("success", "🚀 Новый день (00:00 МСК)! Счетчики сброшены, охота 24/7 активна ✅")
 
-                    # 2. Суточный лимит 300 действий
-                    total_today = u.get("vk_today_stories", 0) + u.get("vk_today_posts", 0)
+                    # 2. Суточный лимит 300 историй
+                    total_today = u.get("vk_today_stories", 0)
                     if total_today >= 300:
                         if not u.get("vk_auto_paused_limit"):
                             u["vk_auto_paused_limit"] = True
                             save_vk_data()
-                            append_vk_log("warn", f"🛑 [Суточный лимит 300] Пауза на ночь ({total_today} действий). Автостарт в 00:00 МСК! 🌙")
+                            append_vk_log("warn", f"🛑 [Суточный лимит 300] Пауза на ночь ({total_today}/300). Автостарт в 00:00 МСК! 🌙")
                         await asyncio.sleep(600)
                         continue
 
-                    # 3. Строгий 4-тактный цикл: Истории х3 (Приоритет №1) + Посты х1 (разбавка)
-                    phase = u.get("vk_phase", 0)
-                    u["vk_phase"] = (phase + 1) % 4
-                    save_vk_data()
-
-                    if phase == 0:
-                        append_vk_log("info", "🎯 [Такт 1/4: Истории] Охота на истории (Приоритет №1)...")
-                        await run_vk_tact_stories(session, u)
-                    elif phase == 1:
-                        append_vk_log("info", "🎯 [Такт 2/4: Истории] Охота на истории (Приоритет №1)...")
-                        await run_vk_tact_stories(session, u)
-                    elif phase == 2:
-                        append_vk_log("info", "🎯 [Такт 3/4: Истории] Охота на истории (Приоритет №1)...")
-                        await run_vk_tact_stories(session, u)
+                    # 3. Чистая охота на Истории 24/7 (модель Telegram)
+                    liked = await run_vk_tact_stories(session, u)
+                    if liked:
+                        # Безопасная плавающая пауза между лайками историй
+                        pause = random.randint(30, 50)
+                        await asyncio.sleep(pause)
                     else:
-                        append_vk_log("info", "📰 [Такт 4/4: Посты] Разбавка ленты постом...")
-                        await run_vk_tact_posts(session, u)
-
-                    # 4. Безопасная пауза 25-45 сек
-                    pause = random.randint(25, 45)
-                    await asyncio.sleep(pause)
+                        # Все свежие истории уже отсмотрены — пауза 3 минуты (как в Telegram)
+                        append_vk_log("info", "👁 [Истории] Все свежие истории уже отсмотрены. Следующая проверка через 3 мин.")
+                        await asyncio.sleep(180)
                 else:
                     await asyncio.sleep(10)
             except Exception as e:
