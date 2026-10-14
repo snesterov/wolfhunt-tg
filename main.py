@@ -1138,9 +1138,213 @@ async def init_app():
     except Exception as e:
         print("[Telegram Auth Notice]:", e)
 
+    # Запуск бота Серого Волка (Онбординг + База + Пуши)
+    asyncio.create_task(grey_wolf_bot_worker())
+
     return app
+
+# ==============================================================================
+# 5. GREY WOLF BOT ENGINE (TELEGRAM BOT API 24/7)
+# ==============================================================================
+BOT_TOKEN = os.getenv("BOT_TOKEN", "6107926291:AAGULeCBW1RgxaOCfvFOJLCFvP2PaoJaCbg")
+ADMIN_TG_ID = 324874531  # @GREYzzzzWOLF
+BOT_DB_FILE = "wolfhunt_bot_leads.json"
+EXTENSION_DOWNLOAD_URL = "https://raw.githubusercontent.com/snesterov/wolfhunt-tg/main/WOLFHUNT_CHROME_EXTENSION.zip"
+RENDER_TEMPLATE_URL = "https://render.com/deploy?repo=https://github.com/snesterov/wolfhunt-cloud"
+
+bot_leads = {}
+
+def load_bot_leads():
+    global bot_leads
+    if os.path.exists(BOT_DB_FILE):
+        try:
+            with open(BOT_DB_FILE, "r", encoding="utf-8") as f:
+                bot_leads = json.load(f)
+        except Exception as e:
+            print("[Bot DB Load Error]:", e)
+
+def save_bot_leads():
+    try:
+        with open(BOT_DB_FILE, "w", encoding="utf-8") as f:
+            json.dump(bot_leads, f, ensure_ascii=False, indent=2)
+    except Exception as e:
+        print("[Bot DB Save Error]:", e)
+
+async def tg_bot_api_call(method, payload=None):
+    url = f"https://api.telegram.org/bot{BOT_TOKEN}/{method}"
+    try:
+        async with aiohttp.ClientSession() as session:
+            async with session.post(url, json=payload or {}, timeout=15) as resp:
+                return await resp.json()
+    except Exception as e:
+        print(f"[Bot API Error {method}]:", e)
+        return None
+
+async def grey_wolf_bot_worker():
+    load_bot_leads()
+    print("🐺 [Grey Wolf Bot] Запущен автономный процесс бота в облаке...")
+    offset = 0
+    while True:
+        try:
+            payload = {"offset": offset, "timeout": 20, "allowed_updates": ["message", "callback_query"]}
+            res = await tg_bot_api_call("getUpdates", payload)
+            if res and res.get("ok"):
+                for update in res.get("result", []):
+                    offset = update["update_id"] + 1
+                    asyncio.create_task(process_bot_update(update))
+        except Exception as e:
+            print("[Bot Loop Error]:", e)
+            await asyncio.sleep(5)
+        await asyncio.sleep(0.5)
+
+async def process_bot_update(update):
+    try:
+        if "message" in update:
+            msg = update["message"]
+            chat_id = msg["chat"]["id"]
+            user = msg.get("from", {})
+            user_id = str(user.get("id", chat_id))
+            text = msg.get("text", "")
+            
+            # Сохранение лида
+            if user_id not in bot_leads:
+                bot_leads[user_id] = {
+                    "id": user_id,
+                    "first_name": user.get("first_name", ""),
+                    "username": user.get("username", ""),
+                    "phone": None,
+                    "joined_at": str(datetime.now())
+                }
+                save_bot_leads()
+
+            if "contact" in msg:
+                phone = msg["contact"]["phone_number"]
+                bot_leads[user_id]["phone"] = phone
+                save_bot_leads()
+                await send_bot_message(chat_id, "✅ Доступ подтвержден! Переходим к установке системы.", remove_keyboard=True)
+                await send_bot_step_1(chat_id)
+                return
+
+            if text.startswith("/start"):
+                welcome_text = (
+                    "🐺 <b>Приветствуем в WOLF-HUNT!</b>\n\n"
+                    "Автономная облачная система 24/7 для продвижения в VK & Telegram.\n\n"
+                    "• <b>Приоритет №1:</b> Истории (4-тактный адаптивный цикл)\n"
+                    "• <b>Разбавка:</b> Умная лента и посты\n"
+                    "• <b>Умный фильтр:</b> Каналы, паблики и реклама отсекаются\n"
+                    "• <b>Безопасность:</b> Ваш личный сервер и изолированный IP\n\n"
+                    "Нажмите кнопку ниже, чтобы подтвердить доступ и получить расширение:"
+                )
+                keyboard = {
+                    "keyboard": [[{"text": "📱 Открыть доступ (поделиться контактом)", "request_contact": True}]],
+                    "resize_keyboard": True,
+                    "one_time_keyboard": True
+                }
+                await send_bot_message(chat_id, welcome_text, reply_markup=keyboard)
+
+            elif text.startswith("/broadcast") and user.get("id") == ADMIN_TG_ID:
+                parts = text.split(maxsplit=1)
+                if len(parts) > 1:
+                    b_text = parts[1]
+                    count = 0
+                    for uid in list(bot_leads.keys()):
+                        try:
+                            await send_bot_message(int(uid), b_text)
+                            count += 1
+                            await asyncio.sleep(0.05)
+                        except Exception:
+                            pass
+                    await send_bot_message(chat_id, f"📢 Рассылка доставлена {count} из {len(bot_leads)} пользователям.")
+
+            elif text.startswith("/leads") and user.get("id") == ADMIN_TG_ID:
+                lead_summary = f"📊 Всего лидов в базе: {len(bot_leads)}\n\n"
+                for uid, l in list(bot_leads.items())[-15:]:
+                    lead_summary += f"• {l.get('first_name')} (@{l.get('username') or 'нет'}): {l.get('phone') or 'без тел.'}\n"
+                await send_bot_message(chat_id, lead_summary)
+
+        elif "callback_query" in update:
+            cb = update["callback_query"]
+            chat_id = cb["message"]["chat"]["id"]
+            data = cb.get("data")
+            await tg_bot_api_call("answerCallbackQuery", {"callback_query_id": cb["id"]})
+
+            if data == "step_1":
+                await send_bot_step_1(chat_id)
+            elif data == "step_2":
+                await send_bot_step_2(chat_id)
+            elif data == "step_3":
+                await send_bot_step_3(chat_id)
+
+    except Exception as e:
+        print("[Process Bot Update Error]:", e)
+
+async def send_bot_message(chat_id, text, reply_markup=None, remove_keyboard=False):
+    payload = {
+        "chat_id": chat_id,
+        "text": text,
+        "parse_mode": "HTML"
+    }
+    if remove_keyboard:
+        payload["reply_markup"] = {"remove_keyboard": True}
+    elif reply_markup:
+        payload["reply_markup"] = reply_markup
+    return await tg_bot_api_call("sendMessage", payload)
+
+async def send_bot_step_1(chat_id):
+    text = (
+        "<b>Шаг 1 из 3: Расширение WOLF-HUNT</b> 🖥️\n\n"
+        "1. Скачайте архив расширения по ссылке ниже.\n"
+        "2. Распакуйте архив в удобную папку на компьютере.\n"
+        "3. В Chrome или Яндекс Браузере откройте: <code>chrome://extensions</code>\n"
+        "4. Включите <b>«Режим разработчика»</b> (в правом верхнем углу).\n"
+        "5. Нажмите <b>«Загрузить распакованное расширение»</b> и укажите распакованную папку."
+    )
+    keyboard = {
+        "inline_keyboard": [
+            [{"text": "📥 Скачать расширение (.ZIP)", "url": EXTENSION_DOWNLOAD_URL}],
+            [{"text": "➡️ Шаг 2: Создать сервер в 1 клик", "callback_data": "step_2"}]
+        ]
+    }
+    await send_bot_message(chat_id, text, reply_markup=keyboard)
+
+async def send_bot_step_2(chat_id):
+    text = (
+        "<b>Шаг 2 из 3: Личный облачный сервер 24/7</b> ☁️\n\n"
+        "Сервер работает автономно на Render, ваш компьютер можно выключать.\n\n"
+        "1. Нажмите кнопку <b>«Развернуть сервер на Render»</b> ниже.\n"
+        "2. Войдите в Render и нажмите <b>«Apply»</b>.\n"
+        "3. Через 1-2 минуты сервис запустится со статусом <b>Live</b>.\n"
+        "4. Скопируйте полученную ссылку (например: <code>https://my-hunter.onrender.com</code>)."
+    )
+    keyboard = {
+        "inline_keyboard": [
+            [{"text": "☁️ Развернуть сервер на Render", "url": RENDER_TEMPLATE_URL}],
+            [{"text": "➡️ Шаг 3: Подключение и запуск", "callback_data": "step_3"}]
+        ]
+    }
+    await send_bot_message(chat_id, text, reply_markup=keyboard)
+
+async def send_bot_step_3(chat_id):
+    text = (
+        "<b>Шаг 3 из 3: Подключение и старт</b> 🎯\n\n"
+        "1. Откройте значок расширения <b>WOLF-HUNT</b> в панели браузера.\n"
+        "2. Вставьте ваш скопированный адрес Render в поле <b>«Сервер»</b>.\n"
+        "3. Подключите нужные сети:\n"
+        "   • <b>VK:</b> введите токен пользователя.\n"
+        "   • <b>Telegram:</b> введите номер телефона и код авторизации.\n"
+        "4. Выберите желаемые реакции (❤️, 🔥, 👍, 👏, 😍).\n"
+        "5. Нажмите <b>«Сохранить»</b>.\n\n"
+        "🎉 <b>Готово!</b> Охотник активен 24/7 и привлекает охваты в фоне."
+    )
+    keyboard = {
+        "inline_keyboard": [
+            [{"text": "🔄 Пройти шаги заново", "callback_data": "step_1"}]
+        ]
+    }
+    await send_bot_message(chat_id, text, reply_markup=keyboard)
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 8080))
     print(f"🚀 WolfHunt Cloud Backend запускается на порту {port}...")
     web.run_app(init_app(), host="0.0.0.0", port=port)
+
