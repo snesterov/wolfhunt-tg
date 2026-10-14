@@ -1206,20 +1206,36 @@ async def process_bot_update(update):
             user_id = str(user.get("id", chat_id))
             text = msg.get("text", "")
             
-            # Сохранение лида
+            # Сохранение лида с разметкой источника (UTM / Deeplink)
+            source = "organic"
+            if text.startswith("/start"):
+                parts = text.split()
+                if len(parts) > 1:
+                    source = parts[1]  # например: site, direct, max, vk, ref_123
+
             if user_id not in bot_leads:
                 bot_leads[user_id] = {
                     "id": user_id,
                     "first_name": user.get("first_name", ""),
+                    "last_name": user.get("last_name", ""),
                     "username": user.get("username", ""),
                     "phone": None,
+                    "source": source,
+                    "step": "started",
+                    "tags": ["lead"],
                     "joined_at": str(datetime.now())
                 }
+                save_bot_leads()
+            elif source != "organic" and bot_leads[user_id].get("source") == "organic":
+                bot_leads[user_id]["source"] = source
                 save_bot_leads()
 
             if "contact" in msg:
                 phone = msg["contact"]["phone_number"]
                 bot_leads[user_id]["phone"] = phone
+                bot_leads[user_id]["step"] = "verified"
+                if "verified" not in bot_leads[user_id].get("tags", []):
+                    bot_leads[user_id]["tags"].append("verified")
                 save_bot_leads()
                 await send_bot_message(chat_id, "✅ Доступ подтвержден! Переходим к установке системы.", remove_keyboard=True)
                 await send_bot_step_1(chat_id)
@@ -1241,6 +1257,33 @@ async def process_bot_update(update):
                     "one_time_keyboard": True
                 }
                 await send_bot_message(chat_id, welcome_text, reply_markup=keyboard)
+
+            elif text.startswith("/export") and user.get("id") == ADMIN_TG_ID:
+                # Мгновенная выгрузка базы в CSV для CRM/Excel
+                import csv
+                import io
+                out = io.StringIO()
+                writer = csv.writer(out, delimiter=";")
+                writer.writerow(["ID", "Username", "First Name", "Phone", "Source", "Step", "Tags", "Joined At"])
+                for uid, l in bot_leads.items():
+                    writer.writerow([
+                        uid,
+                        f"@{l.get('username')}" if l.get('username') else "",
+                        l.get("first_name", ""),
+                        l.get("phone", ""),
+                        l.get("source", "organic"),
+                        l.get("step", ""),
+                        ",".join(l.get("tags", [])),
+                        l.get("joined_at", "")
+                    ])
+                csv_bytes = out.getvalue().encode("utf-8-sig")
+                # Отправка файла в чат
+                form_data = aiohttp.FormData()
+                form_data.add_field("chat_id", str(chat_id))
+                form_data.add_field("caption", f"📊 Выгрузка базы WOLF-HUNT: {len(bot_leads)} контактов")
+                form_data.add_field("document", csv_bytes, filename="wolfhunt_leads.csv", content_type="text/csv")
+                async with aiohttp.ClientSession() as s:
+                    await s.post(f"https://api.telegram.org/bot{BOT_TOKEN}/sendDocument", data=form_data)
 
             elif text.startswith("/broadcast") and user.get("id") == ADMIN_TG_ID:
                 parts = text.split(maxsplit=1)
