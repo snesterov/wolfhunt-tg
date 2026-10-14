@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <title>WolfHunt PRO 2.1</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 12px;
+      background: #090d16;
+      width: 520px;
+      min-height: 560px;
+      max-height: 580px;
+      overflow-y: auto;
+      box-sizing: border-box;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+    body::-webkit-scrollbar { width: 6px; }
+    body::-webkit-scrollbar-track { background: #090d16; }
+    body::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 3px; }
+    #wh-app {
+      position: relative;
+      clear: both;
+      width: 100%;
+      background: #0f172a;
+      color: #f8fafc;
+      border-radius: 16px;
+      padding: 16px;
+      border: 1px solid #1e293b;
+      box-sizing: border-box;
+    }
+    #wh-app * { box-sizing: border-box; }
+    .wh-row { display: flex; align-items: center; gap: 8px; }
+    .wh-row-sb { display: flex; align-items: center; justify-content: space-between; }
+    .wh-tabs {
+      display: flex;
+      gap: 8px;
+      background: #0b1120;
+      padding: 5px;
+      border-radius: 12px;
+      border: 1px solid #1e293b;
+      margin-bottom: 16px;
+    }
+    .wh-tab {
+      flex: 1;
+      border: none;
+      padding: 10px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 800;
+      cursor: pointer !important;
+      transition: 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+    }
+    .wh-tab:hover { filter: brightness(1.1); }
+    .wh-hdr {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid #1e293b;
+      padding-bottom: 14px;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .wh-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+      gap: 8px;
+      margin: 14px 0;
+    }
+    .wh-card {
+      background: #1e293b;
+      padding: 12px 10px;
+      border-radius: 12px;
+      border: 1px solid #334155;
+      text-align: center;
+    }
+    .wh-title { font-size: 10px; font-weight: 700; text-transform: uppercase; }
+    .wh-val { font-size: 22px; font-weight: 800; margin-top: 4px; }
+    .wh-sub { font-size: 10px; color: #94a3b8; display: block; margin-top: 2px; }
+    .wh-box {
+      background: #1e293b;
+      border-radius: 14px;
+      padding: 14px;
+      margin-bottom: 12px;
+      border: 1px solid #334155;
+    }
+    .wh-inp {
+      width: 100%;
+      background: #0b1120;
+      border: 1px solid #334155;
+      border-radius: 8px;
+      padding: 8px 10px;
+      color: #fff;
+      font-size: 12px;
+      outline: none;
+    }
+    .wh-inp:focus { border-color: #38bdf8; }
+    .wh-term {
+      background: #020617;
+      border: 1px solid #334155;
+      border-radius: 12px;
+      padding: 12px;
+      font-family: monospace;
+    }
+    .wh-term-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+    .wh-stream {
+      max-height: 150px;
+      overflow-y: auto;
+      font-size: 11px;
+      line-height: 1.5;
+      color: #94a3b8;
+      background: #0b1120;
+      border-radius: 8px;
+      padding: 8px 10px;
+      border: 1px solid #1e293b;
+    }
+    .wh-btn {
+      border: none;
+      padding: 9px 16px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer !important;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: 0.2s;
+    }
+    .wh-btn:hover { filter: brightness(1.12); transform: translateY(-1px); }
+    .wh-badge {
+      font-size: 10px;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .wh-chk {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: #0b1120;
+      padding: 6px 10px;
+      border-radius: 8px;
+      border: 1px solid #334155;
+      font-size: 11px;
+      color: #cbd5e1;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+<div id="wh-app">
+
+  <!-- Top bar -->
+  <div class="wh-row-sb" style="margin-bottom:12px;">
+    <div class="wh-row">
+      <span style="font-size:18px;">🐺</span>
+      <span style="font-size:14px; font-weight:800; color:#fff; letter-spacing:0.5px;">WOLFHUNT PRO</span>
+      <span class="wh-badge" style="background:#0284c7; color:#fff;">v2.2.0 CLOUD 24/7</span>
+    </div>
+    <span class="wh-badge" style="background:rgba(16,185,129,0.15); color:#34d399; border:1px solid rgba(16,185,129,0.3);">🟢 RENDER ОБЛАКО</span>
+  </div>
+
+  <!-- Tabs Navigation -->
+  <div class="wh-tabs">
+    <button id="wh-tab-vk" class="wh-tab" style="background:linear-gradient(135deg,#0077ff,#0055cc); color:#fff; box-shadow:0 4px 14px rgba(0,119,255,0.4);">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" style="vertical-align:middle; flex-shrink:0;"><rect width="24" height="24" rx="5.5" fill="#0077FF"/><path d="M12.98 16.5c-4.8 0-7.55-3.29-7.66-8.75h2.42c.08 4 1.84 5.7 3.24 6.05V7.75h2.28v3.45c1.39-.15 2.84-1.71 3.33-3.45h2.28c-.38 2.15-1.97 3.71-3.1 4.36 1.13.53 2.92 1.83 3.61 4.39h-2.51c-.6-1.87-2.07-3.32-3.89-3.49v3.49h-.27z" fill="#fff"/></svg>
+      <span>ВКонтакте</span>
+    </button>
+    <button id="wh-tab-tg" class="wh-tab" style="background:transparent; color:#94a3b8;">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" style="vertical-align:middle; flex-shrink:0;"><circle cx="12" cy="12" r="12" fill="#24A1DE"/><path d="M17.5 7.25L4.5 12.25c-.89.36-.88.86-.16 1.08l3.34 1.04 7.72-4.88c.37-.23.7-.1.43.14l-6.26 5.65v.01l-.23 3.44c.34 0 .49-.16.68-.34l1.63-1.58 3.4 2.51c.63.35 1.08.17 1.24-.58l2.23-10.5c.23-.92-.35-1.34-1.02-.99z" fill="#fff"/></svg>
+      <span>Telegram</span>
+    </button>
+  </div>
+
+  <!-- ==================== TAB 1: VK ==================== -->
+  <div id="wh-view-vk">
+    <!-- VK Header Profile -->
+    <div class="wh-hdr">
+      <div class="wh-row" style="gap:10px;">
+        <div style="position:relative; width:50px; height:50px; border-radius:50%; background:#0077FF; display:flex; align-items:center; justify-content:center; border:2px solid #0077ff; overflow:hidden; flex-shrink:0;">
+          <svg width="30" height="30" viewBox="0 0 24 24" fill="none">
+            <rect width="24" height="24" rx="5.5" fill="#0077FF"/>
+            <path d="M12.98 16.5c-4.8 0-7.55-3.29-7.66-8.75h2.42c.08 4 1.84 5.7 3.24 6.05V7.75h2.28v3.45c1.39-.15 2.84-1.71 3.33-3.45h2.28c-.38 2.15-1.97 3.71-3.1 4.36 1.13.53 2.92 1.83 3.61 4.39h-2.51c-.6-1.87-2.07-3.32-3.89-3.49v3.49h-.27z" fill="#fff"/>
+          </svg>
+          <span id="wh-dot" style="position:absolute; bottom:1px; right:1px; width:10px; height:10px; border-radius:50%; background:#10b981; border:2px solid #0f172a;"></span>
+        </div>
+        <div>
+          <div class="wh-row" style="flex-wrap:wrap; gap:6px;">
+            <h3 id="wh-name" style="margin:0; font-size:15px; font-weight:800; color:#fff;">Сергей Нестеров</h3>
+            <span id="wh-badge" class="wh-badge" style="background:rgba(0,119,255,0.2); color:#38bdf8; border:1px solid rgba(0,119,255,0.4);">24/7 ОБЛАКО</span>
+          </div>
+          <div id="wh-nick" style="font-size:11px; color:#94a3b8; margin-top:2px;">id49239823</div>
+          <p id="wh-sub" style="margin:2px 0 0 0; font-size:11px; color:#34d399; font-weight:600;">🟢 Охота активна (Приоритет №1: Истории)</p>
+        </div>
+      </div>
+      <div class="wh-row" style="gap:6px;">
+        <button id="wh-toggle-btn" class="wh-btn" style="background:linear-gradient(135deg,#f43f5e,#be123c); color:#fff;">⏹ Приостановить</button>
+        <button id="wh-reset-btn" class="wh-btn" style="background:#1e293b; color:#cbd5e1; border:1px solid #475569; font-size:11px; padding:8px 10px;">🔄 Сменить</button>
+      </div>
+    </div>
+
+    <!-- VK Auth Card -->
+    <div id="wh-auth-card" class="wh-box" style="display:none; background:#0c1a30; border:2px dashed #0077ff; margin-top:12px;">
+      <h4 style="margin:0 0 6px 0; font-size:13px; color:#38bdf8; font-weight:800;">Подключение аккаунта ВКонтакте</h4>
+      <p style="font-size:11px; color:#94a3b8; margin:0 0 8px 0;">1. Нажмите для получения бессрочного токена (offline):</p>
+      <div style="margin-bottom:8px;">
+        <a href="https://oauth.vk.com/authorize?client_id=4083558&scope=friends,wall,stories,offline&redirect_uri=https://oauth.vk.com/blank.html&response_type=token" target="_blank" class="wh-btn" style="background:linear-gradient(135deg,#2563eb,#1d4ed8); color:#fff; font-weight:700; padding:8px 14px; font-size:11px; text-decoration:none; display:inline-block; box-shadow:0 4px 12px rgba(37,99,235,0.35);">🚀 1. Авторизоваться (бессрочный доступ) ↗</a>
+      </div>
+      <p style="font-size:11px; color:#94a3b8; margin:0 0 6px 0;">2. Скопируйте ссылку из адресной строки и вставьте в поле:</p>
+      <div style="display:flex; gap:6px;">
+        <input id="wh-token-raw" class="wh-inp" type="password" placeholder="Вставьте скопированную ссылку или токен...">
+        <button id="wh-save-btn" class="wh-btn" style="background:#0077ff; color:#fff; white-space:nowrap; padding:6px 14px; font-size:11px;">Войти</button>
+      </div>
+      <div id="wh-msg" style="font-size:10px; margin-top:6px; font-weight:600;"></div>
+    </div>
+
+    <!-- VK Filter Badge -->
+    <div style="margin: 10px 0 4px 0; padding: 6px 10px; background: rgba(0, 119, 255, 0.12); border: 1px solid rgba(0, 119, 255, 0.3); border-radius: 8px; font-size: 11px; color: #38bdf8; display: flex; align-items: center; gap: 6px;">
+      <span>🛡️</span>
+      <span><b>Умный фильтр:</b> Паблики, сообщества и реклама пропускаются. Охота строго по реальным друзьям.</span>
+    </div>
+
+    <!-- VK Stats Grid (4 Cards Symmetrical to Telegram) -->
+    <div class="wh-grid">
+      <div class="wh-card"><span class="wh-title" style="color:#38bdf8;">🔥 Историй сегодня</span><div id="wh-stories" class="wh-val" style="color:#38bdf8;">0</div><span class="wh-sub">Push авторам</span></div>
+      <div class="wh-card"><span class="wh-title" style="color:#c084fc;">👁 Просмотрено историй</span><div id="wh-vk-views" class="wh-val" style="color:#c084fc;">0</div><span class="wh-sub">Друзья (без пабликов)</span></div>
+      <div class="wh-card"><span class="wh-title" style="color:#34d399;">⚡ Суточный лимит</span><div id="wh-today-likes" class="wh-val" style="color:#34d399;">0 / 300</div><span class="wh-sub">Порог VK</span></div>
+      <div class="wh-card" style="border-color:#f59e0b; background:linear-gradient(145deg,#1e293b,#78350f);"><span class="wh-title" style="color:#fcd34d;">🏆 ВСЕГО ЛАЙКОВ (ВСЁ ВРЕМЯ)</span><div id="wh-all-time-total" class="wh-val" style="color:#fde047;">0</div><span class="wh-sub" style="color:#fef08a;">Накопительный</span></div>
+      <span id="wh-post-likes" style="display:none;">0</span>
+    </div>
+
+    <!-- VK Reactions Box -->
+    <div class="wh-box">
+      <h4 style="margin:0 0 8px 0; font-size:12px; color:#f8fafc; font-weight:700;">❤️ Эмодзи реакций на истории ВКонтакте</h4>
+      <div style="display:flex; gap:6px; flex-wrap:wrap;">
+        <label class="wh-chk"><input type="checkbox" id="wh-vk-re-heart" checked> ❤️ Сердце</label>
+        <label class="wh-chk"><input type="checkbox" id="wh-vk-re-fire" checked> 🔥 Огонь</label>
+        <label class="wh-chk"><input type="checkbox" id="wh-vk-re-like" checked> 👍 Класс</label>
+        <label class="wh-chk"><input type="checkbox" id="wh-vk-re-clap" checked> 👏 Аплодисменты</label>
+        <label class="wh-chk"><input type="checkbox" id="wh-vk-re-love" checked> 😍 Влюблен</label>
+      </div>
+    </div>
+
+    <!-- VK Logic FAQ -->
+    <div class="wh-box" style="cursor:pointer;" id="wh-vk-faq-toggle">
+      <div class="wh-row-sb">
+        <div class="wh-row"><span>💡</span><h4 style="margin:0; font-size:12px; color:#f8fafc; font-weight:700;">Охота на Истории ВКонтакте 24/7</h4></div>
+        <span id="wh-vk-faq-arrow" style="font-size:11px; color:#38bdf8; font-weight:600; pointer-events:none;">Развернуть / Свернуть ▾</span>
+      </div>
+      <div id="wh-vk-faq-content" style="display:none; margin-top:10px; font-size:11px; color:#cbd5e1; line-height:1.6; border-top:1px solid #334155; padding-top:10px;" onclick="event.stopPropagation();">
+        <div style="margin-bottom:6px;"><b>🔥 Охота на Истории (100% фокус):</b> Автономный просмотр и реакция выбранными эмодзи на свежие истории друзей с мгновенным push-уведомлением на экран смартфона автора.</div>
+        <div style="margin-bottom:6px;"><b>🛡️ Фильтр сообществ и рекламы:</b> Истории пабликов, групп (с отрицательным ID) и рекламные промо-истории отсекаются сервером. Внимание уделяется исключительно вашим реальным друзьям.</div>
+        <div style="margin-bottom:6px;"><b>⏳ Умные безопасные паузы:</b> Плавающий интервал 30–50 сек между реакциями исключает Flood Control. При отсутствии свежих историй — умный плавающий интервал ожидания 2–5 мин.</div>
+        <div><b>🛡 Лимиты:</b> До 300 историй в сутки, ночной сон до 00:00 МСК. Сервер работает автономно в облаке 24/7 без включенного ПК.</div>
+      </div>
+    </div>
+
+    <!-- VK Terminal -->
+    <div class="wh-term">
+      <div class="wh-term-head">
+        <div class="wh-row" style="gap:6px;">
+          <span style="width:7px; height:7px; border-radius:50%; background:#10b981; display:inline-block; box-shadow:0 0 6px #10b981;"></span>
+          <span style="font-size:11px; font-weight:700; color:#34d399;">ТЕРМИНАЛ ОБЛАКА RENDER (24/7)</span>
+        </div>
+        <div class="wh-row" style="gap:6px;">
+          <button id="wh-btn-now" class="wh-btn" style="background:linear-gradient(135deg,#2563eb,#1d4ed8); color:#fff; font-size:10px; padding:5px 10px;">⚡ Тестовый лайк</button>
+          <button id="wh-btn-vk-copy-log" class="wh-btn" style="background:#1e293b; color:#cbd5e1; font-size:10px; padding:5px 8px; border:1px solid #475569;">📋 Лог</button>
+        </div>
+      </div>
+      <div id="wh-log-stream" class="wh-stream"><div>[Облако 24/7]: Соединение установлено...</div></div>
+    </div>
+  </div>
+  <!-- ==================== END TAB 1 ==================== -->
+
+  <!-- ==================== TAB 2: TELEGRAM ==================== -->
+  <div id="wh-view-tg" style="display:none;">
+    <!-- TG Header Profile -->
+    <div class="wh-hdr">
+      <div class="wh-row" style="gap:10px;">
+        <div style="position:relative; width:50px; height:50px; border-radius:50%; background:#24A1DE; display:flex; align-items:center; justify-content:center; border:2px solid #0284c7; overflow:hidden; flex-shrink:0;">
+          <svg width="30" height="30" viewBox="0 0 24 24" fill="none">
+            <path d="M17.5 7.25L4.5 12.25c-.89.36-.88.86-.16 1.08l3.34 1.04 7.72-4.88c.37-.23.7-.1.43.14l-6.26 5.65v.01l-.23 3.44c.34 0 .49-.16.68-.34l1.63-1.58 3.4 2.51c.63.35 1.08.17 1.24-.58l2.23-10.5c.23-.92-.35-1.34-1.02-.99z" fill="#fff"/>
+          </svg>
+          <span id="wh-tg-dot" style="position:absolute; bottom:1px; right:1px; width:10px; height:10px; border-radius:50%; background:#10b981; border:2px solid #0f172a;"></span>
+        </div>
+        <div>
+          <div class="wh-row" style="flex-wrap:wrap; gap:6px;">
+            <h3 id="wh-tg-name" style="margin:0; font-size:15px; font-weight:800; color:#fff;">Сергей Нестеров</h3>
+            <span id="wh-tg-badge" class="wh-badge" style="background:rgba(2,132,199,0.2); color:#38bdf8; border:1px solid rgba(2,132,199,0.4);">✈️ TG 24/7 ОБЛАКО</span>
+          </div>
+          <div id="wh-tg-nick" style="font-size:11px; color:#94a3b8; margin-top:2px;">@GREYzzzzWOLF</div>
+          <p id="wh-tg-sub" style="margin:2px 0 0 0; font-size:11px; color:#10b981; font-weight:600;">🟢 Охота активна</p>
+        </div>
+      </div>
+      <div class="wh-row" style="gap:6px;">
+        <button id="wh-tg-toggle-btn" class="wh-btn" style="background:linear-gradient(135deg,#f43f5e,#be123c); color:#fff;">⏹ Приостановить TG</button>
+        <button id="wh-tg-reset-btn" class="wh-btn" style="background:#1e293b; color:#cbd5e1; border:1px solid #475569; font-size:11px; padding:8px 10px;">🔄 Сменить</button>
+      </div>
+    </div>
+
+    <!-- TG Auth Card -->
+    <div id="wh-tg-auth-card" class="wh-box" style="display:none; background:#0c1a30; border:2px dashed #0284c7; margin-top:12px;">
+      <h4 style="margin:0 0 6px 0; font-size:13px; color:#38bdf8; font-weight:800;">Подключение профиля Telegram</h4>
+      <p style="font-size:11px; color:#94a3b8; margin:0 0 8px 0;">Введите номер телефона — проверочный код придёт в Telegram / SMS:</p>
+      
+      <div id="wh-tg-step-phone">
+        <div style="display:flex; gap:6px;">
+          <input id="wh-tg-phone-input" class="wh-inp" type="tel" placeholder="+7995..." value="+79950944203">
+          <button id="wh-tg-btn-send" class="wh-btn" style="background:#0284c7; color:#fff; white-space:nowrap;">📲 Получить код</button>
+        </div>
+        <div style="margin-top:8px;">
+          <button id="wh-tg-btn-manual-code" type="button" class="wh-btn" style="background:#1e293b; color:#38bdf8; border:1px solid #0284c7; font-size:11px; padding:5px 10px; cursor:pointer;">🔑 У меня уже есть код (ввести)</button>
+        </div>
+      </div>
+
+      <div id="wh-tg-step-code" style="display:none; margin-top:8px;">
+        <div style="font-size:11px; color:#34d399; font-weight:600; margin-bottom:6px;">✔ Введите полученный 5-значный код:</div>
+        <div style="display:flex; gap:6px;">
+          <input id="wh-tg-code-input" class="wh-inp" type="text" placeholder="Код (5 цифр)" style="font-size:13px; font-weight:700; letter-spacing:2px;">
+          <button id="wh-tg-btn-verify" class="wh-btn" style="background:linear-gradient(135deg,#10b981,#059669); color:#fff; white-space:nowrap;">⚡ Подключить</button>
+          <button id="wh-tg-btn-back" class="wh-btn" style="background:#334155; color:#cbd5e1; font-size:10px; padding:6px 10px;">← Номер</button>
+        </div>
+        <div id="wh-tg-step-pwd" style="display:none; margin-top:6px;">
+          <input id="wh-tg-pwd-input" class="wh-inp" type="password" placeholder="Облачный пароль 2FA">
+        </div>
+      </div>
+      
+      <div id="wh-tg-auth-msg" style="font-size:10px; margin-top:6px; font-weight:600;"></div>
+    </div>
+
+    <!-- TG Filter Badge -->
+    <div style="margin: 10px 0 4px 0; padding: 6px 10px; background: rgba(2, 132, 199, 0.12); border: 1px solid rgba(2, 132, 199, 0.3); border-radius: 8px; font-size: 11px; color: #38bdf8; display: flex; align-items: center; gap: 6px;">
+      <span>🛡️</span>
+      <span><b>Умный фильтр:</b> Каналы и реклама пропускаются. Охота строго по вашим личным контактам.</span>
+    </div>
+
+    <!-- TG Stats Grid (4 Cards Mirroring VK) -->
+    <div class="wh-grid">
+      <div class="wh-card"><span class="wh-title" style="color:#38bdf8;">🔥 Реакций сегодня</span><div id="wh-tg-stat-reactions" class="wh-val" style="color:#38bdf8;">0</div><span class="wh-sub">Push авторам</span></div>
+      <div class="wh-card"><span class="wh-title" style="color:#c084fc;">👁 Просмотрено историй</span><div id="wh-tg-stat-views" class="wh-val" style="color:#c084fc;">0</div><span class="wh-sub">Контакты (без каналов)</span></div>
+      <div class="wh-card"><span class="wh-title" style="color:#34d399;">⚡ Суточный лимит</span><div id="wh-tg-stat-limit" class="wh-val" style="color:#34d399;">0 / 150</div><span class="wh-sub">Порог TG</span></div>
+      <div class="wh-card" style="border-color:#f59e0b; background:linear-gradient(145deg,#1e293b,#78350f);"><span class="wh-title" style="color:#fcd34d;">🏆 ВСЕГО РЕАКЦИЙ (ВСЁ ВРЕМЯ)</span><div id="wh-tg-stat-all-time" class="wh-val" style="color:#fde047;">0</div><span class="wh-sub" style="color:#fef08a;">Накопительный</span></div>
+    </div>
+
+    <!-- TG Logic FAQ -->
+    <div class="wh-box" style="cursor:pointer;" id="wh-tg-faq-toggle">
+      <div class="wh-row-sb">
+        <div class="wh-row"><span>💡</span><h4 style="margin:0; font-size:12px; color:#f8fafc; font-weight:700;">Охота на Истории Telegram 24/7</h4></div>
+        <span id="wh-tg-faq-arrow" style="font-size:11px; color:#38bdf8; font-weight:600; pointer-events:none;">Развернуть / Свернуть ▾</span>
+      </div>
+      <div id="wh-tg-faq-content" style="display:none; margin-top:10px; font-size:11px; color:#cbd5e1; line-height:1.6; border-top:1px solid #334155; padding-top:10px;" onclick="event.stopPropagation();">
+        <div style="margin-bottom:6px;"><b>🔥 Охота на Истории (100% фокус):</b> Автономный просмотр и мгновенные реакции (❤️, 🔥, 👍) на истории контактов с прямым push-уведомлением на экран смартфона автора.</div>
+        <div style="margin-bottom:6px;"><b>🛡️ Фильтр каналов и рекламы:</b> Алгоритм автоматически отсекает все истории каналов (PeerChannel) и спонсорские промо-истории. Просмотры и реакции получают строго реальные люди из вашего списка контактов.</div>
+        <div style="margin-bottom:6px;"><b>⏳ Умные безопасные паузы:</b> Плавающий интервал 30–50 сек между реакциями исключает Flood Wait. При отсутствии свежих историй — умный плавающий интервал ожидания 2–5 мин.</div>
+        <div><b>🛡 Лимиты:</b> До 150 реакций в сутки, ночной сон до 00:00 МСК. Сервер работает автономно в облаке 24/7 без включенного ПК.</div>
+      </div>
+    </div>
+
+    <!-- TG Reactions Box -->
+    <div class="wh-box">
+      <h4 style="margin:0 0 8px 0; font-size:12px; color:#f8fafc; font-weight:700;">❤️ Эмодзи реакций на истории Telegram</h4>
+      <div style="display:flex; gap:6px; flex-wrap:wrap;">
+        <label class="wh-chk"><input type="checkbox" id="wh-tg-re-heart" checked> ❤️ Сердце</label>
+        <label class="wh-chk"><input type="checkbox" id="wh-tg-re-fire" checked> 🔥 Огонь</label>
+        <label class="wh-chk"><input type="checkbox" id="wh-tg-re-like" checked> 👍 Класс</label>
+        <label class="wh-chk"><input type="checkbox" id="wh-tg-re-clap" checked> 👏 Аплодисменты</label>
+        <label class="wh-chk"><input type="checkbox" id="wh-tg-re-love" checked> 😍 Влюблен</label>
+      </div>
+    </div>
+
+    <!-- TG Terminal -->
+    <div class="wh-term">
+      <div class="wh-term-head">
+        <div class="wh-row" style="gap:6px;">
+          <span style="width:7px; height:7px; border-radius:50%; background:#0284c7; display:inline-block; box-shadow:0 0 6px #0284c7;"></span>
+          <span style="font-size:11px; font-weight:700; color:#38bdf8;">ТЕРМИНАЛ TELEGRAM STORIES (24/7)</span>
+        </div>
+        <div class="wh-row" style="gap:6px;">
+          <button id="wh-tg-btn-now" class="wh-btn" style="background:linear-gradient(135deg,#0284c7,#0369a1); color:#fff; font-size:10px; padding:5px 10px;">⚡ Тестовый лайк</button>
+          <button id="wh-btn-tg-copy-log" class="wh-btn" style="background:#1e293b; color:#cbd5e1; font-size:10px; padding:5px 8px; border:1px solid #475569;">📋 Лог</button>
+        </div>
+      </div>
+      <div id="wh-tg-log-stream" class="wh-stream"><div>[TG Облако]: Готов к работе 24/7.</div></div>
+    </div>
+  </div>
+  <!-- ==================== END TAB 2 ==================== -->
+
+</div>
+<script src="popup.js"></script>
+</body>
+</html>
