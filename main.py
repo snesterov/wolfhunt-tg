@@ -1105,6 +1105,10 @@ async def init_app():
     app.router.add_post("/api/vk/proxy", handle_vk_proxy)
     app.router.add_get("/api/vk/stories", handle_vk_stories_proxy)
 
+    # ВНЕШНИЙ ШЛЮЗ ДЛЯ ДРУГИХ ЧАТОВ И САЙТА (WEBHOOK API)
+    app.router.add_post("/api/notify", handle_external_notify)
+    app.router.add_get("/api/leads", handle_api_leads)
+
     # Запуск баз и фоновых воркеров
     load_vk_data()
     load_tg_data()
@@ -1169,6 +1173,34 @@ def save_bot_leads():
             json.dump(bot_leads, f, ensure_ascii=False, indent=2)
     except Exception as e:
         print("[Bot DB Save Error]:", e)
+
+async def handle_external_notify(request):
+    """Шлюз для отправки сообщений в Telegram из других скриптов, сайтов и чатов"""
+    try:
+        data = await request.json()
+        target_chat_id = data.get("chat_id", ADMIN_TG_ID)
+        text = data.get("text", "")
+        if not text:
+            return web.json_response({"ok": False, "error": "text is required"}, status=400)
+        
+        parse_mode = data.get("parse_mode", "HTML")
+        reply_markup = data.get("reply_markup")
+        res = await tg_bot_api_call("sendMessage", {
+            "chat_id": target_chat_id,
+            "text": text,
+            "parse_mode": parse_mode,
+            "reply_markup": reply_markup
+        })
+        return web.json_response({"ok": True, "result": res})
+    except Exception as e:
+        return web.json_response({"ok": False, "error": str(e)}, status=500)
+
+async def handle_api_leads(request):
+    """Шлюз выгрузки базы лидов для CRM и других систем"""
+    try:
+        return web.json_response({"ok": True, "count": len(bot_leads), "leads": bot_leads})
+    except Exception as e:
+        return web.json_response({"ok": False, "error": str(e)}, status=500)
 
 async def tg_bot_api_call(method, payload=None):
     url = f"https://api.telegram.org/bot{BOT_TOKEN}/{method}"
