@@ -54,7 +54,15 @@ def load_tg_data():
             with open(TG_STATE_FILE, "r", encoding="utf-8") as f:
                 saved = json.load(f)
                 tg_state.update(saved)
-                print(f"[TG Cloud] Загружено состояние: {tg_state.get('reactions_all_time', 0)} реакций за всё время")
+                msk_now = datetime.now(timezone.utc) + timedelta(hours=3)
+                today_str = msk_now.strftime("%Y-%m-%d")
+                if tg_state.get("last_date") != today_str:
+                    tg_state["last_date"] = today_str
+                    tg_state["reactions_today"] = 0
+                    tg_state["views_today"] = 0
+                    tg_state["auto_paused_limit"] = False
+                    save_tg_data()
+                print(f"[TG Cloud] Загружено состояние: {tg_state.get('reactions_all_time', 0)} реакций за всё время (сегодня: {tg_state.get('reactions_today', 0)})")
         except Exception as e:
             print(f"[TG Cloud] Ошибка чтения {TG_STATE_FILE}: {e}")
 
