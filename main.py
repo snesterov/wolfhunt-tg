@@ -106,17 +106,15 @@ async def tg_hunter_loop():
             msk_now = datetime.now(timezone.utc) + timedelta(hours=3)
             today_str = msk_now.strftime("%Y-%m-%d")
 
-            # 1. Сброс счетчиков строго в 00:00 МСК
-            if tg_state.get("last_date") and tg_state["last_date"] != today_str:
+            # 1. Сброс счетчиков строго в 00:00 МСК при наступлении нового дня
+            saved_date = tg_state.get("last_date")
+            if saved_date != today_str:
                 tg_state["last_date"] = today_str
                 tg_state["reactions_today"] = 0
                 tg_state["views_today"] = 0
                 tg_state["auto_paused_limit"] = False
                 save_tg_data()
-                add_tg_log("🚀 Новый день (00:00 МСК)! Счетчики Telegram сброшены (0/150), охота 24/7 активна ✅", "success")
-            elif not tg_state.get("last_date"):
-                tg_state["last_date"] = today_str
-                save_tg_data()
+                add_tg_log(f"🚀 Новый день ({today_str} МСК)! Счетчики Telegram сброшены (0/{DAILY_TG_LIMIT}), охота 24/7 активна ✅", "success")
 
             # 2. Суточный лимит 150 реакций — полный сон до 00:00 МСК без запросов к API
             if tg_state.get("reactions_today", 0) >= DAILY_TG_LIMIT:
@@ -209,10 +207,10 @@ async def tg_hunter_loop():
 # 2. VK 24/7 AUTONOMOUS CLOUD ENGINE (STRICT 4-TACT CYCLE)
 # ==============================================================================
 VK_DATA_FILE = "wolfhunt_vk_users.json"
-LATEST_EXTENSION_VERSION = "2.2.0"
+LATEST_EXTENSION_VERSION = "2.2.1"
 EXTENSION_DOWNLOAD_URL = "https://wolfhunt-tg.onrender.com/downloads/WOLFHUNT_CHROME_EXTENSION.zip"
-EXTENSION_UPDATE_TITLE = "Обновление WolfHunt PRO v2.2.0!"
-EXTENSION_UPDATE_DESC = "Охота на Истории ВК 24/7 (модель Telegram), умные безопасные паузы 30-50с, без постов."
+EXTENSION_UPDATE_TITLE = "Обновление WolfHunt Liker v2.2.1!"
+EXTENSION_UPDATE_DESC = "Автономный лайкер историй ВКонтакте и Telegram 24/7."
 
 VK_STATE = {
     "vk_user_id": 49239823,
@@ -724,6 +722,15 @@ async def handle_vk_stories_proxy(request: web.Request):
 
 # --- TELEGRAM HANDLERS ---
 async def handle_tg_status(request: web.Request):
+    msk_now = datetime.now(timezone.utc) + timedelta(hours=3)
+    today_str = msk_now.strftime("%Y-%m-%d")
+    if tg_state.get("last_date") != today_str:
+        tg_state["last_date"] = today_str
+        tg_state["reactions_today"] = 0
+        tg_state["views_today"] = 0
+        tg_state["auto_paused_limit"] = False
+        save_tg_data()
+
     return web.json_response({
         "status": "ok",
         "is_authorized": tg_state["is_authorized"],
@@ -736,6 +743,7 @@ async def handle_tg_status(request: web.Request):
         "reactions_all_time": tg_state.get("reactions_all_time", 0),
         "views_all_time": tg_state.get("views_all_time", 0),
         "reactions_list": tg_state.get("reactions_list", ["❤️", "🔥", "👍"]),
+        "last_date": tg_state.get("last_date"),
         "daily_limit": DAILY_TG_LIMIT,
         "logs": tg_state["logs"]
     })
@@ -902,7 +910,16 @@ async def handle_tg_sync(request: web.Request):
             if tg_state.get("is_running") and (tg_hunter_task is None or tg_hunter_task.done()):
                 tg_hunter_task = asyncio.create_task(tg_hunter_loop())
 
-        if data.get("reactions_today"):
+        msk_now = datetime.now(timezone.utc) + timedelta(hours=3)
+        today_str = msk_now.strftime("%Y-%m-%d")
+        if tg_state.get("last_date") != today_str:
+            tg_state["last_date"] = today_str
+            tg_state["reactions_today"] = 0
+            tg_state["views_today"] = 0
+            tg_state["auto_paused_limit"] = False
+            save_tg_data()
+
+        if data.get("reactions_today") and tg_state.get("last_date") == today_str:
             tg_state["reactions_today"] = max(tg_state.get("reactions_today", 0), int(data["reactions_today"]))
         if data.get("reactions_all_time"):
             tg_state["reactions_all_time"] = max(tg_state.get("reactions_all_time", 0), int(data["reactions_all_time"]))

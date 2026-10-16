@@ -423,14 +423,13 @@ async function refreshTgUi() {
       }
     }
 
-    const curTgSt = await chrome.storage.local.get(["wh_tg_reactions_today", "wh_tg_reactions_all_time"]);
-    const bestTgToday = Math.max(parseInt(curTgSt.wh_tg_reactions_today || 0), parseInt(data.reactions_today || 0));
-    const bestTgAll = Math.max(parseInt(curTgSt.wh_tg_reactions_all_time || 0), parseInt(data.reactions_all_time || 0), bestTgToday);
+    const todayCount = parseInt(data.reactions_today || 0);
+    const allCount = parseInt(data.reactions_all_time || 0);
 
-    if ($("wh-tg-stat-reactions")) $("wh-tg-stat-reactions").innerText = bestTgToday;
+    if ($("wh-tg-stat-reactions")) $("wh-tg-stat-reactions").innerText = todayCount;
     if ($("wh-tg-stat-views")) $("wh-tg-stat-views").innerText = data.views_today || "0";
-    if ($("wh-tg-stat-limit")) $("wh-tg-stat-limit").innerText = `${bestTgToday} / 150`;
-    if ($("wh-tg-stat-all-time")) $("wh-tg-stat-all-time").innerText = bestTgAll;
+    if ($("wh-tg-stat-limit")) $("wh-tg-stat-limit").innerText = `${todayCount} / 150`;
+    if ($("wh-tg-stat-all-time")) $("wh-tg-stat-all-time").innerText = allCount;
 
     renderLogs("wh-tg-log-stream", data.logs || []);
   } catch (err) {}
